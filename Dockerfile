@@ -4,11 +4,13 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package files and prisma schema
 COPY package*.json ./
+COPY prisma ./prisma/
 
 # Install dependencies with npm install (not npm ci)
-RUN npm install
+# Remove postinstall to avoid schema errors during install
+RUN npm pkg delete scripts.postinstall && npm install
 
 # Copy source code
 COPY . .
