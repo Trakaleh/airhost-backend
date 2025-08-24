@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AirHost AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #0071E3;
+            --color-primary-dark: #0056B3;
+            --color-secondary: #1D1D1F;
+            --color-accent: #06C;
+            --color-text-primary: #1D1D1F;
+            --color-text-secondary: #6E6E73;
+            --color-text-tertiary: #86868B;
+            --color-background: #FBFBFD;
+            --color-surface: #FFFFFF;
+            --color-border: #D2D2D7;
+            --color-success: #30D158;
+            --color-warning: #FF9F0A;
+            --gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-premium: linear-gradient(135deg, #0071E3 0%, #005BB5 50%, #003D82 100%);
+            --shadow-small: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --shadow-large: 0 16px 48px rgba(0, 0, 0, 0.12);
+            --shadow-xl: 0 24px 80px rgba(0, 0, 0, 0.16);
+            --blur-glass: blur(20px);
+            --border-radius: 12px;
+            --border-radius-lg: 20px;
+            --border-radius-xl: 28px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--gradient-premium);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text-primary);
+        }
+
+        .login-container {
+            background: var(--color-surface);
+            padding: 48px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 440px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--color-text-secondary);
+            margin-bottom: 32px;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--color-text-primary);
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid var(--color-border);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+            background: var(--color-background);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            background: var(--color-surface);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--gradient-premium);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 24px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-large);
+        }
+
+        .divider {
+            margin: 24px 0;
+            text-align: center;
+            position: relative;
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--color-border);
+        }
+
+        .divider span {
+            background: var(--color-surface);
+            padding: 0 16px;
+        }
+
+        .demo-btn {
+            width: 100%;
+            padding: 16px;
+            background: transparent;
+            color: var(--color-primary);
+            border: 2px solid var(--color-primary);
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 24px;
+        }
+
+        .demo-btn:hover {
+            background: var(--color-primary);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .back-link {
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .back-link:hover {
+            color: var(--color-primary);
+        }
+
+        .features-list {
+            list-style: none;
+            text-align: left;
+            margin: 24px 0;
+        }
+
+        .features-list li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+
+        .features-list li::before {
+            content: '✓';
+            color: var(--color-success);
+            font-weight: 600;
+            width: 16px;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 20px;
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">AirHost AI</div>
+        <p class="subtitle">Automatización inteligente para tu Airbnb</p>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" placeholder="tu@email.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Contraseña</label>
+                <input type="password" class="form-input" placeholder="••••••••" required>
+            </div>
+            
+            <button type="submit" class="btn">Iniciar Sesión</button>
+        </form>
+
+        <div class="divider">
+            <span>o empieza tu prueba gratuita</span>
+        </div>
+
+        <button class="demo-btn" onclick="startDemo()">
+            🚀 Comenzar Demo Gratuito (14 días)
+        </button>
+
+        <ul class="features-list">
+            <li>WhatsApp automático multiidioma</li>
+            <li>Channel Manager tiempo real</li>
+            <li>Códigos de acceso automáticos</li>
+            <li>Sin tarjeta de crédito requerida</li>
+        </ul>
+
+        <a href="/" class="back-link">← Volver al inicio</a>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Simulate login process
+            const button = this.querySelector('.btn');
+            const originalText = button.textContent;
+            
+            button.textContent = 'Iniciando sesión...';
+            button.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                // In a real app, this would connect to your backend
+                alert('Demo: Iniciando sesión... En la versión real, esto conectaría con tu backend API en https://tu-app.railway.app');
+                
+                button.textContent = originalText;
+                button.disabled = false;
+            }, 2000);
+        });
+
+        function startDemo() {
+            // Simulate demo account creation
+            alert('Demo: Creando cuenta de prueba... En la versión real, esto configuraría automáticamente tu cuenta con datos de ejemplo.');
+            
+            // In production, this would:
+            // 1. Create a trial account
+            // 2. Set up sample properties
+            // 3. Enable WhatsApp automation
+            // 4. Connect to backend API
+        }
+
+        console.log('🔐 Login page loaded - Ready to connect to backend API');
+    </script>
+</body>
+</html>
