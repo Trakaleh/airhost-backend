@@ -41,16 +41,47 @@ app.use((req, res, next) => {
 // 🗄️ CONEXIÓN MONGODB
 // ====================================
 
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
-    console.log('✅ MongoDB conectado correctamente');
-    console.log('📁 Base de datos:', mongoose.connection.name);
-}).catch(err => {
-    console.error('❌ Error conectando a MongoDB:', err);
-    process.exit(1);
+// Conexión segura con retry logic
+const connectDB = async (retries = 5) => {
+    try {
+        await mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            maxPoolSize: 10, // Máximo 10 conexiones
+            serverSelectionTimeoutMS: 5000, // Timeout de 5 segundos
+            socketTimeoutMS: 45000, // Socket timeout
+            family: 4 // Usar IPv4
+        });
+        
+        console.log('✅ MongoDB conectado correctamente');
+        console.log('📁 Base de datos:', mongoose.connection.name);
+        console.log('🔒 IP Actual:', require('os').networkInterfaces());
+        
+    } catch (error) {
+        console.error(`❌ Error conectando a MongoDB (${retries} reintentos restantes):`, error.message);
+        
+        if (retries > 0) {
+            console.log('🔄 Reintentando conexión en 5 segundos...');
+            setTimeout(() => connectDB(retries - 1), 5000);
+        } else {
+            console.error('💥 No se pudo conectar a MongoDB después de varios intentos');
+            // No terminar el proceso, mantener la API funcionando
+        }
+    }
+};
+
+// Manejar desconexiones
+mongoose.connection.on('disconnected', () => {
+    console.log('⚠️ MongoDB desconectado. Intentando reconectar...');
+    connectDB();
 });
+
+mongoose.connection.on('error', (err) => {
+    console.error('❌ Error de MongoDB:', err);
+});
+
+// Iniciar conexión
+connectDB();
 
 // ====================================
 // 📊 MODELOS
