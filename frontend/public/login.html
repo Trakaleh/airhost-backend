@@ -523,24 +523,28 @@
                 button.innerHTML = '<span style="margin-right: 8px;">⏳</span>Conectando con Google...';
                 button.disabled = true;
                 
-                // For now, simulate Google OAuth
-                // In production, this would use Google OAuth 2.0
-                const demoGoogleUser = {
-                    name: 'Usuario Google',
-                    email: 'usuario@gmail.com',
-                    avatar: 'https://lh3.googleusercontent.com/a-/default',
-                    provider: 'google'
-                };
-                
-                alert(`¡Inicio de sesión con Google simulado!\n\nNombre: ${demoGoogleUser.name}\nEmail: ${demoGoogleUser.email}\n\nEn producción esto usará Google OAuth real.`);
-                
-                localStorage.setItem('demo_mode', 'true');
-                localStorage.setItem('demo_user', JSON.stringify(demoGoogleUser));
-                window.location.href = '/dashboard.html';
+                if (!GOOGLE_CLIENT_ID) {
+                    // Demo mode - no Client ID configured
+                    handleGoogleDemo();
+                } else {
+                    // Real Google OAuth
+                    if (typeof google !== 'undefined') {
+                        google.accounts.id.prompt((notification) => {
+                            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                                // Fallback to demo if Google prompt fails
+                                handleGoogleDemo();
+                            }
+                        });
+                    } else {
+                        // Google script not loaded
+                        handleGoogleDemo();
+                    }
+                }
                 
             } catch (error) {
                 console.error('Google login error:', error);
                 alert('Error al conectar con Google. Intenta de nuevo.');
+                handleGoogleDemo();
                 
             } finally {
                 button.innerHTML = originalText;
@@ -551,13 +555,66 @@
         console.log('🔐 Login page loaded - API integration ready');
     </script>
 
-    <!-- Google OAuth (commented for demo) -->
-    <!--
-    To implement real Google OAuth:
-    1. Add Google Identity Services: <script src="https://accounts.google.com/gsi/client" async defer></script>
-    2. Configure OAuth client ID in Google Console
-    3. Replace loginWithGoogle() with real OAuth flow
-    4. Add backend endpoint to handle Google tokens
-    -->
+    <!-- Google OAuth Integration -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        // Google OAuth Configuration
+        const GOOGLE_CLIENT_ID = ''; // Configurar con tu Client ID real
+        
+        // Initialize Google Sign-In when script loads
+        window.onload = function() {
+            if (typeof google !== 'undefined') {
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID || 'demo-mode',
+                    callback: handleGoogleResponse
+                });
+            }
+        };
+
+        // Handle Google OAuth response
+        async function handleGoogleResponse(response) {
+            try {
+                console.log('Google OAuth Response:', response);
+                
+                if (!GOOGLE_CLIENT_ID) {
+                    // Demo mode fallback
+                    handleGoogleDemo();
+                    return;
+                }
+
+                // Send Google token to backend for verification
+                const backendResponse = await window.AirHostAPI.post('/auth/google', {
+                    token: response.credential
+                });
+
+                if (backendResponse.success && backendResponse.token) {
+                    window.AirHostAPI.setToken(backendResponse.token);
+                    alert('¡Inicio de sesión con Google exitoso!');
+                    window.location.href = '/dashboard.html';
+                } else {
+                    throw new Error('Error verificando token de Google');
+                }
+
+            } catch (error) {
+                console.error('Google OAuth Error:', error);
+                alert('Error al iniciar sesión con Google. Intenta de nuevo.');
+            }
+        }
+
+        function handleGoogleDemo() {
+            const demoGoogleUser = {
+                name: 'Usuario Google',
+                email: 'usuario@gmail.com',
+                avatar: 'https://lh3.googleusercontent.com/a-/default',
+                provider: 'google'
+            };
+            
+            alert(`¡Inicio de sesión con Google simulado!\n\nNombre: ${demoGoogleUser.name}\nEmail: ${demoGoogleUser.email}\n\nEn producción esto usará Google OAuth real.`);
+            
+            localStorage.setItem('demo_mode', 'true');
+            localStorage.setItem('demo_user', JSON.stringify(demoGoogleUser));
+            window.location.href = '/dashboard.html';
+        }
+    </script>
 </body>
 </html>

@@ -324,6 +324,86 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
+// GOOGLE OAUTH LOGIN
+app.post('/api/auth/google', async (req, res) => {
+    try {
+        const { token } = req.body;
+        
+        if (!token) {
+            return res.status(400).json({
+                success: false,
+                error: 'Token de Google requerido'
+            });
+        }
+
+        // Verificar token de Google (requiere google-auth-library)
+        // Por ahora simulamos la verificación
+        console.log('🔍 Google OAuth token received:', token.substring(0, 20) + '...');
+        
+        // Simular datos de usuario de Google
+        const googleUserData = {
+            email: 'usuario@gmail.com',
+            name: 'Usuario Google',
+            picture: 'https://lh3.googleusercontent.com/a-/default'
+        };
+
+        // Buscar o crear usuario
+        let user = await prisma.user.findUnique({
+            where: { email: googleUserData.email }
+        });
+
+        if (!user) {
+            // Crear nuevo usuario desde Google
+            user = await prisma.user.create({
+                data: {
+                    email: googleUserData.email,
+                    name: googleUserData.name,
+                    password: 'google-oauth', // Password placeholder
+                    plan: 'Professional',
+                    language: 'es',
+                    currency: 'EUR',
+                    provider: 'google',
+                    avatar: googleUserData.picture
+                }
+            });
+            console.log('✅ New Google user created:', user.email);
+        } else {
+            // Actualizar last login
+            await prisma.user.update({
+                where: { id: user.id },
+                data: { lastLogin: new Date() }
+            });
+        }
+
+        // Generar JWT token
+        const jwtToken = jwt.sign(
+            { userId: user.id, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        res.json({
+            success: true,
+            message: 'Google OAuth exitoso',
+            token: jwtToken,
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                plan: user.plan,
+                avatar: user.avatar || googleUserData.picture
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Google OAuth Error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error en autenticación con Google'
+        });
+    }
+});
+
 // PERFIL DEL USUARIO
 app.get('/api/auth/me', authenticate, async (req, res) => {
     try {

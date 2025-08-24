@@ -36,6 +36,10 @@ model User {
   emailNotifications     Boolean @default(true)
   whatsappNotifications  Boolean @default(true)
   
+  // OAuth
+  provider  String?  // google, facebook, etc
+  avatar    String?  // Profile picture URL
+  
   // Estado
   lastLogin DateTime?
   isActive  Boolean  @default(true)
