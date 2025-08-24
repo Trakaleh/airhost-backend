@@ -245,39 +245,114 @@
         <a href="/" class="back-link">← Volver al inicio</a>
     </div>
 
+    <!-- API Module -->
+    <script src="/js/api.js"></script>
+    
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Simulate login process
             const button = this.querySelector('.btn');
             const originalText = button.textContent;
+            const email = this.querySelector('input[type="email"]').value;
+            const password = this.querySelector('input[type="password"]').value;
             
-            button.textContent = 'Iniciando sesión...';
-            button.disabled = true;
-            
-            // Simulate API call
-            setTimeout(() => {
-                // In a real app, this would connect to your backend
-                alert('Demo: Iniciando sesión... En la versión real, esto conectaría con tu backend API en https://tu-app.railway.app');
+            try {
+                button.textContent = 'Iniciando sesión...';
+                button.disabled = true;
                 
+                // Attempt real login with backend API
+                const response = await window.AirHostAPI.login(email, password);
+                
+                if (response.success) {
+                    // Success - redirect to dashboard
+                    alert('¡Inicio de sesión exitoso! Redirigiendo al dashboard...');
+                    // In production: window.location.href = '/dashboard.html';
+                } else {
+                    throw new Error(response.error || 'Error de autenticación');
+                }
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                
+                // Show demo message for now
+                alert(`Demo Mode: ${error.message}\n\nMientras el backend se configura, puedes explorar la interfaz. En producción esto conectará con tu API en Railway.`);
+                
+                // In demo mode, simulate successful login
+                localStorage.setItem('demo_mode', 'true');
+                alert('Modo Demo activado - Explorando la interfaz...');
+                
+            } finally {
                 button.textContent = originalText;
                 button.disabled = false;
-            }, 2000);
+            }
         });
 
-        function startDemo() {
-            // Simulate demo account creation
-            alert('Demo: Creando cuenta de prueba... En la versión real, esto configuraría automáticamente tu cuenta con datos de ejemplo.');
+        async function startDemo() {
+            const button = event.target;
+            const originalText = button.textContent;
             
-            // In production, this would:
-            // 1. Create a trial account
-            // 2. Set up sample properties
-            // 3. Enable WhatsApp automation
-            // 4. Connect to backend API
+            try {
+                button.textContent = 'Creando cuenta demo...';
+                button.disabled = true;
+                
+                // Test backend connection
+                const isConnected = await window.AirHostAPI.testConnection();
+                
+                if (isConnected) {
+                    // Backend is available - create demo account
+                    const demoUser = {
+                        email: `demo_${Date.now()}@airhostai.com`,
+                        password: 'demo123',
+                        name: 'Usuario Demo',
+                        plan: 'Professional'
+                    };
+                    
+                    const response = await window.AirHostAPI.register(demoUser);
+                    alert('¡Cuenta demo creada exitosamente! Configurando propiedades de ejemplo...');
+                    
+                } else {
+                    // Backend not available - show demo info
+                    alert('Modo Demo: El backend está configurándose.\n\n✅ WhatsApp automático en 3 idiomas\n✅ Channel Manager tiempo real\n✅ Códigos de acceso automáticos\n✅ Fianzas inteligentes con Stripe\n\nUna vez desplegado el backend, todas las funciones estarán activas.');
+                    
+                    localStorage.setItem('demo_mode', 'true');
+                }
+                
+            } catch (error) {
+                console.error('Demo creation error:', error);
+                alert('Iniciando en modo demo local... Todas las funciones de interfaz están disponibles para explorar.');
+                localStorage.setItem('demo_mode', 'true');
+                
+            } finally {
+                button.textContent = originalText;
+                button.disabled = false;
+            }
         }
 
-        console.log('🔐 Login page loaded - Ready to connect to backend API');
+        // Test API connection on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const isHealthy = await window.AirHostAPI.healthCheck();
+                
+                if (isHealthy) {
+                    console.log('✅ Backend API is online and ready');
+                    // Show online indicator
+                    document.body.insertAdjacentHTML('beforeend', 
+                        '<div style="position: fixed; top: 20px; right: 20px; background: #30D158; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; z-index: 1000;">🟢 API Online</div>'
+                    );
+                } else {
+                    console.log('⚠️ Backend API is not responding - Demo mode available');
+                    // Show offline indicator
+                    document.body.insertAdjacentHTML('beforeend', 
+                        '<div style="position: fixed; top: 20px; right: 20px; background: #FF9F0A; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; z-index: 1000;">🟡 Demo Mode</div>'
+                    );
+                }
+            } catch (error) {
+                console.error('API health check failed:', error);
+            }
+        });
+
+        console.log('🔐 Login page loaded - API integration ready');
     </script>
 </body>
 </html>
