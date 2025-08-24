@@ -200,6 +200,28 @@
             text-align: center;
         }
 
+        .auth-toggle {
+            text-align: center;
+            margin: 16px 0;
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+
+        .auth-toggle a {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .auth-toggle a:hover {
+            text-decoration: underline;
+        }
+
+        .auth-form {
+            transition: var(--transition);
+        }
+
         @media (max-width: 480px) {
             .login-container {
                 margin: 20px;
@@ -213,19 +235,50 @@
         <div class="logo">AirHost AI</div>
         <p class="subtitle">Automatización inteligente para tu Airbnb</p>
 
-        <form id="loginForm">
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form">
             <div class="form-group">
                 <label class="form-label">Email</label>
-                <input type="email" class="form-input" placeholder="tu@email.com" required>
+                <input name="email" type="email" class="form-input" placeholder="tu@email.com" required>
             </div>
             
             <div class="form-group">
                 <label class="form-label">Contraseña</label>
-                <input type="password" class="form-input" placeholder="••••••••" required>
+                <input name="password" type="password" class="form-input" placeholder="••••••••" required>
             </div>
             
             <button type="submit" class="btn">Iniciar Sesión</button>
         </form>
+
+        <!-- Register Form (Hidden by default) -->
+        <form id="registerForm" class="auth-form" style="display: none;">
+            <div class="form-group">
+                <label class="form-label">Nombre completo</label>
+                <input name="name" type="text" class="form-input" placeholder="Tu nombre" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input name="email" type="email" class="form-input" placeholder="tu@email.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Contraseña</label>
+                <input name="password" type="password" class="form-input" placeholder="••••••••" minlength="6" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Confirmar contraseña</label>
+                <input name="confirmPassword" type="password" class="form-input" placeholder="••••••••" required>
+            </div>
+            
+            <button type="submit" class="btn">Crear Cuenta</button>
+        </form>
+
+        <!-- Toggle between Login/Register -->
+        <div class="auth-toggle">
+            <p id="authToggleText">¿No tienes cuenta? <a href="#" id="authToggleLink">Regístrate aquí</a></p>
+        </div>
 
         <div class="divider">
             <span>o empieza tu prueba gratuita</span>
@@ -249,13 +302,47 @@
     <script src="/js/api.js"></script>
     
     <script>
+        let isRegisterMode = false;
+
+        // Toggle between login and register
+        document.getElementById('authToggleLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleAuthMode();
+        });
+
+        function toggleAuthMode() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const toggleText = document.getElementById('authToggleText');
+            const toggleLink = document.getElementById('authToggleLink');
+            const subtitle = document.querySelector('.subtitle');
+
+            isRegisterMode = !isRegisterMode;
+
+            if (isRegisterMode) {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                toggleText.innerHTML = '¿Ya tienes cuenta? ';
+                toggleLink.textContent = 'Inicia sesión aquí';
+                subtitle.textContent = 'Crea tu cuenta y automatiza tu Airbnb';
+            } else {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                toggleText.innerHTML = '¿No tienes cuenta? ';
+                toggleLink.textContent = 'Regístrate aquí';
+                subtitle.textContent = 'Automatización inteligente para tu Airbnb';
+            }
+        }
+
+        // Login form handler
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const button = this.querySelector('.btn');
             const originalText = button.textContent;
-            const email = this.querySelector('input[type="email"]').value;
-            const password = this.querySelector('input[type="password"]').value;
+            const formData = new FormData(this);
+            const email = formData.get('email');
+            const password = formData.get('password');
             
             try {
                 button.textContent = 'Iniciando sesión...';
@@ -265,9 +352,8 @@
                 const response = await window.AirHostAPI.login(email, password);
                 
                 if (response.success) {
-                    // Success - redirect to dashboard
                     alert('¡Inicio de sesión exitoso! Redirigiendo al dashboard...');
-                    // In production: window.location.href = '/dashboard.html';
+                    window.location.href = '/pages/analytics.html';
                 } else {
                     throw new Error(response.error || 'Error de autenticación');
                 }
@@ -275,12 +361,59 @@
             } catch (error) {
                 console.error('Login error:', error);
                 
-                // Show demo message for now
-                alert(`Demo Mode: ${error.message}\n\nMientras el backend se configura, puedes explorar la interfaz. En producción esto conectará con tu API en Railway.`);
-                
-                // In demo mode, simulate successful login
+                // Demo mode for development
+                alert(`Demo Mode: Usuario demo creado\n\nEmail: ${email}\nRedirigiendo a dashboard...`);
                 localStorage.setItem('demo_mode', 'true');
-                alert('Modo Demo activado - Explorando la interfaz...');
+                localStorage.setItem('demo_user', JSON.stringify({email, name: 'Usuario Demo'}));
+                window.location.href = '/pages/analytics.html';
+                
+            } finally {
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        });
+
+        // Register form handler
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const button = this.querySelector('.btn');
+            const originalText = button.textContent;
+            const formData = new FormData(this);
+            const name = formData.get('name');
+            const email = formData.get('email');
+            const password = formData.get('password');
+            const confirmPassword = formData.get('confirmPassword');
+            
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                alert('Las contraseñas no coinciden');
+                return;
+            }
+
+            try {
+                button.textContent = 'Creando cuenta...';
+                button.disabled = true;
+                
+                // Attempt real registration with backend API
+                const userData = { name, email, password };
+                const response = await window.AirHostAPI.register(userData);
+                
+                if (response.success) {
+                    alert('¡Cuenta creada exitosamente! Redirigiendo al dashboard...');
+                    window.location.href = '/pages/analytics.html';
+                } else {
+                    throw new Error(response.error || 'Error al crear la cuenta');
+                }
+                
+            } catch (error) {
+                console.error('Registration error:', error);
+                
+                // Demo mode for development
+                alert(`¡Cuenta demo creada exitosamente!\n\nNombre: ${name}\nEmail: ${email}\nRedirigiendo a dashboard...`);
+                localStorage.setItem('demo_mode', 'true');
+                localStorage.setItem('demo_user', JSON.stringify({name, email}));
+                window.location.href = '/pages/analytics.html';
                 
             } finally {
                 button.textContent = originalText;

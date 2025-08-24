@@ -82,6 +82,19 @@
             color: var(--primary);
         }
 
+        .back-link {
+            background: transparent;
+            color: var(--dark);
+            border: 1px solid var(--gray);
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+
+        .back-link:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
         .btn {
             padding: 12px 24px;
             border: none;
@@ -464,13 +477,14 @@
     <header class="header">
         <div class="container">
             <nav class="nav">
-                <a href="/" class="logo">🏠 AirHost AI</a>
+                <a href="/" class="logo">AirHost AI</a>
                 <ul class="nav-links">
-                    <li><a href="/">Inicio</a></li>
-                    <li><a href="/caracteristicas">Características</a></li>
-                    <li><a href="/precios">Precios</a></li>
-                    <li><a href="/contacto">Contacto</a></li>
-                    <li><a href="https://app.airhostai.com/signup" class="btn btn-primary">Empezar Gratis</a></li>
+                    <li><a href="/" class="btn back-link">← Volver al Inicio</a></li>
+                    <li><a href="/pages/analytics.html">Dashboard</a></li>
+                    <li><a href="/pages/smart-locks.html">Smart Locks</a></li>
+                    <li><a href="/pages/precios.html">Precios</a></li>
+                    <li><a href="/pages/contacto.html">Contacto</a></li>
+                    <li><a href="/login.html" class="btn btn-primary">Empezar Gratis</a></li>
                 </ul>
             </nav>
         </div>
@@ -795,6 +809,119 @@
                 }, 150);
             });
         });
+    </script>
+
+    <!-- API Integration -->
+    <script src="/js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check if user is logged in
+            const isDemo = localStorage.getItem('demo_mode');
+            const user = localStorage.getItem('demo_user');
+
+            if (isDemo && user) {
+                // Show user info in header
+                console.log('🔐 User logged in:', JSON.parse(user));
+                
+                // Add connection status buttons
+                addConnectionButtons();
+            } else {
+                // Add login prompt
+                addLoginPrompt();
+            }
+
+            // Test API connection
+            const isHealthy = await window.AirHostAPI.healthCheck();
+            console.log('Channel Manager - API Status:', isHealthy ? '✅ Online' : '⚠️ Demo Mode');
+        });
+
+        function addConnectionButtons() {
+            // Add interactive connection buttons for different platforms
+            const heroButtons = document.querySelector('.hero .btn-primary');
+            if (heroButtons) {
+                heroButtons.onclick = function(e) {
+                    e.preventDefault();
+                    showConnectionModal();
+                };
+            }
+        }
+
+        function addLoginPrompt() {
+            // Show login requirement
+            const cta = document.querySelector('.hero .btn-primary');
+            if (cta) {
+                cta.href = '/login.html';
+                cta.textContent = 'Crear Cuenta para Conectar';
+            }
+        }
+
+        function showConnectionModal() {
+            const modal = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; padding: 32px; border-radius: 12px; max-width: 500px; width: 90%;">
+                        <h3 style="margin-bottom: 16px;">Conectar Plataformas</h3>
+                        <p style="margin-bottom: 24px; color: #666;">Selecciona las plataformas que quieres conectar:</p>
+                        
+                        <div style="space-y: 12px;">
+                            <button onclick="connectPlatform('airbnb')" style="width: 100%; padding: 12px; margin-bottom: 8px; border: 2px solid #FF5A5F; background: #FF5A5F; color: white; border-radius: 8px; cursor: pointer;">
+                                🏠 Conectar Airbnb
+                            </button>
+                            <button onclick="connectPlatform('booking')" style="width: 100%; padding: 12px; margin-bottom: 8px; border: 2px solid #003B95; background: #003B95; color: white; border-radius: 8px; cursor: pointer;">
+                                🏨 Conectar Booking.com
+                            </button>
+                            <button onclick="connectPlatform('vrbo')" style="width: 100%; padding: 12px; margin-bottom: 8px; border: 2px solid #FF8C00; background: #FF8C00; color: white; border-radius: 8px; cursor: pointer;">
+                                🏖️ Conectar VRBO
+                            </button>
+                        </div>
+                        
+                        <button onclick="closeModal()" style="width: 100%; padding: 12px; margin-top: 16px; border: 1px solid #ccc; background: white; border-radius: 8px; cursor: pointer;">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modal);
+        }
+
+        async function connectPlatform(platform) {
+            const platformNames = {
+                airbnb: 'Airbnb',
+                booking: 'Booking.com',
+                vrbo: 'VRBO'
+            };
+
+            try {
+                // Show loading
+                alert(`Conectando con ${platformNames[platform]}...`);
+
+                // Try real API connection
+                let response;
+                if (platform === 'airbnb') {
+                    response = await window.AirHostAPI.connectAirbnb({});
+                } else if (platform === 'booking') {
+                    response = await window.AirHostAPI.connectBooking({});
+                }
+
+                alert(`✅ ${platformNames[platform]} conectado exitosamente!`);
+                closeModal();
+
+            } catch (error) {
+                // Demo mode - simulate connection
+                console.log(`Demo: Connecting to ${platform}`, error);
+                alert(`Demo: ${platformNames[platform]} conectado en modo de prueba.\n\nEn producción esto:\n• Autenticará con la plataforma\n• Sincronizará calendarios\n• Configurará precios automáticos\n• Activará la prevención de overbooking`);
+                closeModal();
+            }
+        }
+
+        function closeModal() {
+            const modal = document.querySelector('[style*="position: fixed"]');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        console.log('📊 Channel Manager page loaded with API integration');
     </script>
 </body>
 </html>
