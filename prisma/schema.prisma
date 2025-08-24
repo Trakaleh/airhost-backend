@@ -1,0 +1,230 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String
+  company   String?
+  
+  // Plan y suscripción
+  plan      String   @default("basic") // basic, pro, enterprise
+  
+  // Stripe
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  subscriptionStatus   String   @default("active") // active, canceled, past_due
+  currentPeriodEnd     DateTime?
+  
+  // Preferencias
+  language    String  @default("es") // es, en, fr
+  currency    String  @default("EUR") // EUR, USD, GBP
+  timezone    String  @default("Europe/Madrid")
+  
+  // Notificaciones
+  emailNotifications     Boolean @default(true)
+  whatsappNotifications  Boolean @default(true)
+  
+  // Estado
+  lastLogin DateTime?
+  isActive  Boolean  @default(true)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relaciones
+  properties  Property[]
+  incidents   Incident[] @relation("ReportedIncidents")
+  resolvedIncidents Incident[] @relation("ResolvedIncidents")
+  
+  @@map("users")
+}
+
+model Property {
+  id          String   @id @default(cuid())
+  ownerId     String
+  
+  // Información básica
+  name        String
+  description String?
+  address     String
+  city        String
+  country     String
+  postalCode  String?
+  
+  propertyType String // apartment, house, villa, studio, room
+  
+  // Capacidad
+  maxGuests  Int
+  bedrooms   Int
+  bathrooms  Int
+  
+  // Channel Manager
+  airbnbListingId  String?
+  airbnbIcalUrl    String?
+  airbnbLastSync   DateTime?
+  airbnbIsActive   Boolean @default(false)
+  
+  bookingListingId String?
+  bookingIcalUrl   String?
+  bookingLastSync  DateTime?
+  bookingIsActive  Boolean @default(false)
+  
+  vrboListingId   String?
+  vrboIcalUrl     String?
+  vrboLastSync    DateTime?
+  vrboIsActive    Boolean @default(false)
+  
+  // Smart Lock
+  smartLockBrand    String  @default("none") // nuki, august, yale, none
+  smartLockId       String?
+  smartLockApiToken String?
+  smartLockIsActive Boolean @default(false)
+  
+  // Precios
+  basePrice     Float
+  currency      String @default("EUR")
+  cleaningFee   Float  @default(0)
+  depositAmount Float
+  
+  // Información de acceso
+  wifiName             String?
+  wifiPassword         String?
+  checkInInstructions  String?
+  checkOutInstructions String?
+  houseRules           String?
+  
+  // Templates de mensajes
+  welcomeTemplate         String @default("¡Hola {{guest_name}}! Bienvenido a {{property_name}}.")
+  accessInfoTemplate      String @default("Tu código de acceso es: {{access_code}}")
+  checkoutReminderTemplate String @default("Recordatorio: Check-out hoy a las {{checkout_time}}")
+  reviewRequestTemplate   String @default("¡Esperamos tu reseña de 5⭐!")
+  
+  // Estado
+  isActive      Boolean @default(true)
+  autoMessaging Boolean @default(true)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relaciones
+  owner        User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  reservations Reservation[]
+  incidents    Incident[]
+  
+  @@map("properties")
+}
+
+model Reservation {
+  id         String   @id @default(cuid())
+  propertyId String
+  
+  // Información del huésped
+  guestName     String
+  guestEmail    String
+  guestPhone    String?
+  guestLanguage String  @default("es")
+  guestCountry  String?
+  guestCount    Int     @default(1)
+  
+  // Fechas
+  checkIn  DateTime
+  checkOut DateTime
+  nights   Int
+  
+  // Origen y estado
+  source     String // airbnb, booking, vrbo, direct, manual
+  externalId String?
+  status     String @default("confirmed") // confirmed, checked_in, checked_out, cancelled
+  
+  // Precios
+  baseAmount     Float
+  cleaningFee    Float  @default(0)
+  totalAmount    Float
+  currency       String @default("EUR")
+  
+  // Códigos de acceso
+  accessCode      String?
+  accessCodeGeneratedAt DateTime?
+  accessCodeExpiresAt   DateTime?
+  accessCodeUsedAt      DateTime?
+  
+  // Fianza
+  stripePaymentIntentId String?
+  depositAmount         Float?
+  depositCurrency       String?
+  depositStatus         String? @default("pending") // pending, authorized, captured, released
+  depositAuthorizedAt   DateTime?
+  depositReleasedAt     DateTime?
+  
+  // Mensajes enviados (JSON)
+  messagesSent Json? // Array de objetos con type, sent_at, platform, content, status
+  
+  // Notas
+  notes String?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relaciones
+  property  Property   @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  incidents Incident[]
+  
+  @@map("reservations")
+}
+
+model Incident {
+  id            String   @id @default(cuid())
+  reservationId String
+  propertyId    String
+  reportedById  String
+  resolvedById  String?
+  
+  // Información del incidente
+  type            String // damage, missing_items, cleanliness, noise, other
+  title           String
+  description     String
+  estimatedCost   Float
+  currency        String @default("EUR")
+  
+  // Evidencia (URLs de archivos)
+  evidencePhotos Json? // Array de URLs
+  evidenceVideos Json? // Array de URLs
+  
+  // Estado
+  status String @default("reported") // reported, under_review, charged, resolved, dismissed
+  
+  // Resolución
+  actionTaken    String?
+  chargedAmount  Float?
+  chargedAt      DateTime?
+  stripeChargeId String?
+  resolutionNotes String?
+  resolvedAt     DateTime?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relaciones
+  reservation  Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  property     Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  reportedBy   User        @relation("ReportedIncidents", fields: [reportedById], references: [id])
+  resolvedBy   User?       @relation("ResolvedIncidents", fields: [resolvedById], references: [id])
+  
+  @@map("incidents")
+}

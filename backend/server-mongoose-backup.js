@@ -1,12 +1,11 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
-require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
+require('dotenv').config();
 
 const app = express();
-const prisma = new PrismaClient();
 
 // ====================================
 // 🔧 MIDDLEWARES
@@ -39,22 +38,59 @@ app.use((req, res, next) => {
 });
 
 // ====================================
-// 🗄️ CONEXIÓN POSTGRESQL
+// 🗄️ CONEXIÓN MONGODB
 // ====================================
 
-const connectDB = async () => {
+// Conexión segura con retry logic
+const connectDB = async (retries = 5) => {
     try {
-        await prisma.$connect();
-        console.log('✅ PostgreSQL conectado correctamente');
-        console.log('🚀 Prisma Client inicializado');
+        await mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            maxPoolSize: 10, // Máximo 10 conexiones
+            serverSelectionTimeoutMS: 5000, // Timeout de 5 segundos
+            socketTimeoutMS: 45000, // Socket timeout
+            family: 4 // Usar IPv4
+        });
+        
+        console.log('✅ MongoDB conectado correctamente');
+        console.log('📁 Base de datos:', mongoose.connection.name);
+        console.log('🔒 IP Actual:', require('os').networkInterfaces());
+        
     } catch (error) {
-        console.error('❌ Error conectando a PostgreSQL:', error);
-        setTimeout(connectDB, 5000);
+        console.error(`❌ Error conectando a MongoDB (${retries} reintentos restantes):`, error.message);
+        
+        if (retries > 0) {
+            console.log('🔄 Reintentando conexión en 5 segundos...');
+            setTimeout(() => connectDB(retries - 1), 5000);
+        } else {
+            console.error('💥 No se pudo conectar a MongoDB después de varios intentos');
+            // No terminar el proceso, mantener la API funcionando
+        }
     }
 };
 
-// Inicializar conexión
+// Manejar desconexiones
+mongoose.connection.on('disconnected', () => {
+    console.log('⚠️ MongoDB desconectado. Intentando reconectar...');
+    connectDB();
+});
+
+mongoose.connection.on('error', (err) => {
+    console.error('❌ Error de MongoDB:', err);
+});
+
+// Iniciar conexión
 connectDB();
+
+// ====================================
+// 📊 MODELOS
+// ====================================
+
+const User = require('./models/User');
+const Property = require('./models/Property');
+const Reservation = require('./models/Reservation');
+const Incident = require('./models/Incident');
 
 // ====================================
 // 🔧 SERVICIOS
@@ -75,7 +111,6 @@ console.log('🔧 Servicios inicializados correctamente');
 // ====================================
 
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 
 const authenticate = async (req, res, next) => {
     try {
@@ -89,19 +124,7 @@ const authenticate = async (req, res, next) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await prisma.user.findUnique({
-            where: { id: decoded.userId },
-            select: {
-                id: true,
-                email: true,
-                name: true,
-                phone: true,
-                plan: true,
-                language: true,
-                currency: true,
-                isActive: true
-            }
-        });
+        const user = await User.findById(decoded.userId).select('-password');
         
         if (!user) {
             return res.status(401).json({ 
@@ -124,40 +147,27 @@ const authenticate = async (req, res, next) => {
 // 🏥 HEALTH CHECK
 // ====================================
 
-app.get('/api/health', async (req, res) => {
-    try {
-        // Test database connection
-        await prisma.$queryRaw`SELECT 1`;
-        
-        res.json({
-            success: true,
-            status: 'healthy',
-            timestamp: new Date().toISOString(),
-            version: '2.0.0',
-            environment: process.env.NODE_ENV,
-            database: 'connected',
-            orm: 'prisma',
-            services: {
-                stripe: !!process.env.STRIPE_SECRET_KEY,
-                email: !!process.env.SMTP_USER,
-                twilio: !!process.env.TWILIO_ACCOUNT_SID
-            }
-        });
-    } catch (error) {
-        res.status(503).json({
-            success: false,
-            status: 'unhealthy',
-            error: error.message
-        });
-    }
+app.get('/api/health', (req, res) => {
+    res.json({
+        success: true,
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        version: '1.0.0',
+        environment: process.env.NODE_ENV,
+        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        services: {
+            stripe: !!process.env.STRIPE_SECRET_KEY,
+            email: !!process.env.SMTP_USER,
+            twilio: !!process.env.TWILIO_ACCOUNT_SID
+        }
+    });
 });
 
 app.get('/api/info', (req, res) => {
     res.json({
-        name: 'AirHost Assistant API v2',
-        description: 'Sistema completo de automatización para Airbnb con PostgreSQL',
-        version: '2.0.0',
-        database: 'PostgreSQL + Prisma',
+        name: 'AirHost Assistant API',
+        description: 'Sistema completo de automatización para Airbnb',
+        version: '1.0.0',
         features: [
             'Autenticación JWT',
             'Gestión de propiedades',
@@ -174,6 +184,8 @@ app.get('/api/info', (req, res) => {
 // ====================================
 // 🔐 RUTAS DE AUTENTICACIÓN
 // ====================================
+
+const bcrypt = require('bcryptjs');
 
 // REGISTRO
 app.post('/api/auth/register', async (req, res) => {
@@ -196,10 +208,7 @@ app.post('/api/auth/register', async (req, res) => {
         }
 
         // Verificar si el usuario ya existe
-        const existingUser = await prisma.user.findUnique({
-            where: { email: email.toLowerCase() }
-        });
-
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser) {
             return res.status(400).json({
                 success: false,
@@ -207,22 +216,19 @@ app.post('/api/auth/register', async (req, res) => {
             });
         }
 
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 12);
-
         // Crear nuevo usuario
-        const user = await prisma.user.create({
-            data: {
-                email: email.toLowerCase(),
-                password: hashedPassword,
-                name,
-                phone
-            }
+        const user = new User({
+            email: email.toLowerCase(),
+            password,
+            name,
+            phone
         });
+
+        await user.save();
 
         // Generar token
         const token = jwt.sign(
-            { userId: user.id },
+            { userId: user._id },
             process.env.JWT_SECRET,
             { expiresIn: '30d' }
         );
@@ -234,7 +240,7 @@ app.post('/api/auth/register', async (req, res) => {
             message: 'Usuario registrado correctamente',
             token,
             user: {
-                id: user.id,
+                id: user._id,
                 email: user.email,
                 name: user.name,
                 plan: user.plan
@@ -263,10 +269,7 @@ app.post('/api/auth/login', async (req, res) => {
         }
 
         // Buscar usuario
-        const user = await prisma.user.findUnique({
-            where: { email: email.toLowerCase() }
-        });
-
+        const user = await User.findOne({ email: email.toLowerCase() });
         if (!user) {
             return res.status(401).json({
                 success: false,
@@ -275,7 +278,7 @@ app.post('/api/auth/login', async (req, res) => {
         }
 
         // Verificar contraseña
-        const isValidPassword = await bcrypt.compare(password, user.password);
+        const isValidPassword = await user.comparePassword(password);
         if (!isValidPassword) {
             return res.status(401).json({
                 success: false,
@@ -283,18 +286,16 @@ app.post('/api/auth/login', async (req, res) => {
             });
         }
 
-        // Actualizar último login
-        await prisma.user.update({
-            where: { id: user.id },
-            data: { lastLogin: new Date() }
-        });
-
         // Generar token
         const token = jwt.sign(
-            { userId: user.id },
+            { userId: user._id },
             process.env.JWT_SECRET,
             { expiresIn: '30d' }
         );
+
+        // Actualizar último login
+        user.lastLogin = new Date();
+        await user.save();
 
         console.log(`✅ Usuario logueado: ${email}`);
 
@@ -303,7 +304,7 @@ app.post('/api/auth/login', async (req, res) => {
             message: 'Login exitoso',
             token,
             user: {
-                id: user.id,
+                id: user._id,
                 email: user.email,
                 name: user.name,
                 plan: user.plan
@@ -322,21 +323,7 @@ app.post('/api/auth/login', async (req, res) => {
 // PERFIL DEL USUARIO
 app.get('/api/auth/me', authenticate, async (req, res) => {
     try {
-        const user = await prisma.user.findUnique({
-            where: { id: req.user.id },
-            select: {
-                id: true,
-                email: true,
-                name: true,
-                phone: true,
-                plan: true,
-                language: true,
-                currency: true,
-                createdAt: true,
-                lastLogin: true
-            }
-        });
-
+        const user = await User.findById(req.user._id).select('-password');
         res.json({
             success: true,
             user
@@ -356,15 +343,8 @@ app.get('/api/auth/me', authenticate, async (req, res) => {
 // LISTAR PROPIEDADES
 app.get('/api/properties', authenticate, async (req, res) => {
     try {
-        const properties = await prisma.property.findMany({
-            where: { ownerId: req.user.id },
-            orderBy: { createdAt: 'desc' },
-            include: {
-                _count: {
-                    select: { reservations: true }
-                }
-            }
-        });
+        const properties = await Property.find({ owner: req.user._id })
+            .sort({ createdAt: -1 });
 
         res.json({
             success: true,
@@ -385,7 +365,7 @@ app.post('/api/properties', authenticate, async (req, res) => {
     try {
         const propertyData = {
             ...req.body,
-            ownerId: req.user.id
+            owner: req.user._id
         };
 
         // Validaciones básicas
@@ -396,23 +376,8 @@ app.post('/api/properties', authenticate, async (req, res) => {
             });
         }
 
-        const property = await prisma.property.create({
-            data: {
-                ownerId: req.user.id,
-                name: propertyData.name,
-                description: propertyData.description || '',
-                address: propertyData.address,
-                city: propertyData.city,
-                country: propertyData.country || 'España',
-                postalCode: propertyData.postalCode,
-                propertyType: propertyData.propertyType || 'apartment',
-                maxGuests: propertyData.maxGuests || 2,
-                bedrooms: propertyData.bedrooms || 1,
-                bathrooms: propertyData.bathrooms || 1,
-                basePrice: propertyData.basePrice || 50,
-                depositAmount: propertyData.depositAmount || 100
-            }
-        });
+        const property = new Property(propertyData);
+        await property.save();
 
         console.log(`✅ Nueva propiedad creada: ${property.name}`);
 
@@ -433,17 +398,9 @@ app.post('/api/properties', authenticate, async (req, res) => {
 // OBTENER PROPIEDAD POR ID
 app.get('/api/properties/:id', authenticate, async (req, res) => {
     try {
-        const property = await prisma.property.findFirst({
-            where: {
-                id: req.params.id,
-                ownerId: req.user.id
-            },
-            include: {
-                reservations: {
-                    orderBy: { checkIn: 'desc' },
-                    take: 10
-                }
-            }
+        const property = await Property.findOne({
+            _id: req.params.id,
+            owner: req.user._id
         });
 
         if (!property) {
@@ -465,6 +422,35 @@ app.get('/api/properties/:id', authenticate, async (req, res) => {
     }
 });
 
+// ACTUALIZAR PROPIEDAD
+app.put('/api/properties/:id', authenticate, async (req, res) => {
+    try {
+        const property = await Property.findOneAndUpdate(
+            { _id: req.params.id, owner: req.user._id },
+            req.body,
+            { new: true, runValidators: true }
+        );
+
+        if (!property) {
+            return res.status(404).json({
+                success: false,
+                error: 'Propiedad no encontrada'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Propiedad actualizada correctamente',
+            property
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: 'Error interno del servidor'
+        });
+    }
+});
+
 // ====================================
 // 📅 RUTAS DE RESERVAS
 // ====================================
@@ -472,25 +458,15 @@ app.get('/api/properties/:id', authenticate, async (req, res) => {
 // LISTAR RESERVAS
 app.get('/api/reservations', authenticate, async (req, res) => {
     try {
-        const reservations = await prisma.reservation.findMany({
-            where: {
-                property: {
-                    ownerId: req.user.id
-                }
-            },
-            include: {
-                property: {
-                    select: {
-                        id: true,
-                        name: true,
-                        address: true,
-                        city: true
-                    }
-                }
-            },
-            orderBy: { checkIn: 'desc' },
-            take: 50
-        });
+        const properties = await Property.find({ owner: req.user._id }).select('_id');
+        const propertyIds = properties.map(p => p._id);
+
+        const reservations = await Reservation.find({
+            property: { $in: propertyIds }
+        })
+        .populate('property', 'name address city')
+        .sort({ check_in: -1 })
+        .limit(50);
 
         res.json({
             success: true,
@@ -508,14 +484,12 @@ app.get('/api/reservations', authenticate, async (req, res) => {
 // CREAR RESERVA MANUAL
 app.post('/api/reservations', authenticate, async (req, res) => {
     try {
-        const { propertyId, guest, checkIn, checkOut, pricing } = req.body;
+        const { propertyId, guest, check_in, check_out, pricing } = req.body;
 
         // Verificar que la propiedad pertenece al usuario
-        const property = await prisma.property.findFirst({
-            where: {
-                id: propertyId,
-                ownerId: req.user.id
-            }
+        const property = await Property.findOne({
+            _id: propertyId,
+            owner: req.user._id
         });
 
         if (!property) {
@@ -525,37 +499,18 @@ app.post('/api/reservations', authenticate, async (req, res) => {
             });
         }
 
-        // Calcular noches
-        const checkInDate = new Date(checkIn);
-        const checkOutDate = new Date(checkOut);
-        const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
-
-        const reservation = await prisma.reservation.create({
-            data: {
-                propertyId,
-                guestName: guest.name,
-                guestEmail: guest.email,
-                guestPhone: guest.phone,
-                guestCount: guest.guestCount || 1,
-                checkIn: checkInDate,
-                checkOut: checkOutDate,
-                nights,
-                source: 'manual',
-                status: 'confirmed',
-                baseAmount: pricing.baseAmount || property.basePrice * nights,
-                totalAmount: pricing.totalAmount || property.basePrice * nights
-            },
-            include: {
-                property: {
-                    select: {
-                        id: true,
-                        name: true,
-                        address: true,
-                        city: true
-                    }
-                }
-            }
+        const reservation = new Reservation({
+            property: propertyId,
+            guest,
+            check_in: new Date(check_in),
+            check_out: new Date(check_out),
+            pricing,
+            source: 'manual',
+            status: 'confirmed'
         });
+
+        await reservation.save();
+        await reservation.populate('property');
 
         console.log(`✅ Nueva reserva creada: ${guest.name}`);
 
@@ -579,40 +534,36 @@ app.post('/api/reservations', authenticate, async (req, res) => {
 
 app.get('/api/analytics/dashboard', authenticate, async (req, res) => {
     try {
-        const totalProperties = await prisma.property.count({
-            where: { ownerId: req.user.id }
+        const properties = await Property.find({ owner: req.user._id });
+        const propertyIds = properties.map(p => p._id);
+
+        const totalProperties = properties.length;
+
+        const totalReservations = await Reservation.countDocuments({
+            property: { $in: propertyIds }
         });
 
-        const totalReservations = await prisma.reservation.count({
-            where: {
-                property: {
-                    ownerId: req.user.id
+        const activeReservations = await Reservation.countDocuments({
+            property: { $in: propertyIds },
+            status: { $in: ['confirmed', 'checked_in'] },
+            check_in: { $lte: new Date() },
+            check_out: { $gte: new Date() }
+        });
+
+        const totalRevenue = await Reservation.aggregate([
+            {
+                $match: {
+                    property: { $in: propertyIds },
+                    status: { $ne: 'cancelled' }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    total: { $sum: '$pricing.total_amount' }
                 }
             }
-        });
-
-        const activeReservations = await prisma.reservation.count({
-            where: {
-                property: {
-                    ownerId: req.user.id
-                },
-                status: { in: ['confirmed', 'checked_in'] },
-                checkIn: { lte: new Date() },
-                checkOut: { gte: new Date() }
-            }
-        });
-
-        const revenueResult = await prisma.reservation.aggregate({
-            where: {
-                property: {
-                    ownerId: req.user.id
-                },
-                status: { not: 'cancelled' }
-            },
-            _sum: {
-                totalAmount: true
-            }
-        });
+        ]);
 
         res.json({
             success: true,
@@ -620,7 +571,7 @@ app.get('/api/analytics/dashboard', authenticate, async (req, res) => {
                 totalProperties,
                 totalReservations,
                 activeReservations,
-                totalRevenue: revenueResult._sum.totalAmount || 0,
+                totalRevenue: totalRevenue[0]?.total || 0,
                 currency: 'EUR'
             }
         });
@@ -638,10 +589,9 @@ app.get('/api/analytics/dashboard', authenticate, async (req, res) => {
 
 app.get('/', (req, res) => {
     res.json({
-        message: '🏠 AirHost Assistant API v2',
+        message: '🏠 AirHost Assistant API',
         status: 'running',
-        version: '2.0.0',
-        database: 'PostgreSQL + Prisma',
+        version: '1.0.0',
         endpoints: {
             health: '/api/health',
             info: '/api/info',
@@ -660,11 +610,11 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
-    console.log(`🚀 AirHost Server v2 running on port ${PORT}`);
+    console.log(`🚀 AirHost Server running on port ${PORT}`);
     console.log(`🌐 Local: http://localhost:${PORT}`);
     console.log(`🔧 Health: http://localhost:${PORT}/api/health`);
     console.log(`📊 Environment: ${process.env.NODE_ENV}`);
-    console.log(`💾 Database: PostgreSQL + Prisma`);
+    console.log(`💾 Database: ${mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'}`);
 });
 
 // Manejo de errores
@@ -675,11 +625,4 @@ process.on('unhandledRejection', (err) => {
 process.on('uncaughtException', (err) => {
     console.error('❌ Uncaught Exception:', err);
     process.exit(1);
-});
-
-// Graceful shutdown
-process.on('SIGINT', async () => {
-    console.log('🛑 Cerrando servidor...');
-    await prisma.$disconnect();
-    process.exit(0);
 });
