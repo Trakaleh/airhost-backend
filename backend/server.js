@@ -44,11 +44,16 @@ app.use((req, res, next) => {
 
 const connectDB = async () => {
     try {
+        // Debug: Log DATABASE_URL para diagnóstico
+        console.log('🔍 DATABASE_URL:', process.env.DATABASE_URL ? 'configurada' : 'NO CONFIGURADA');
+        console.log('🔍 DATABASE_URL length:', process.env.DATABASE_URL?.length || 0);
+        
         await prisma.$connect();
         console.log('✅ PostgreSQL conectado correctamente');
         console.log('🚀 Prisma Client inicializado');
     } catch (error) {
         console.error('❌ Error conectando a PostgreSQL:', error);
+        console.error('🔍 DATABASE_URL debug:', process.env.DATABASE_URL?.substring(0, 50) + '...');
         setTimeout(connectDB, 5000);
     }
 };
