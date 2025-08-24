@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirHost AI - Próximamente</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            padding: 2rem;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 300;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .cta {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .cta:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .email-form {
+            margin-top: 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .email-form h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .email-input {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        input[type="email"] {
+            padding: 1rem;
+            border: none;
+            border-radius: 25px;
+            flex: 1;
+            min-width: 250px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .btn-notify {
+            background: #FF3B59;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-notify:hover {
+            background: #e6334a;
+            transform: translateY(-2px);
+        }
+
+        .features {
+            margin-top: 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            text-align: left;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .feature p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin: 0;
+        }
+
+        .social {
+            margin-top: 2rem;
+        }
+
+        .social a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1rem;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .social a:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            p {
+                font-size: 1rem;
+            }
+            
+            .email-input {
+                flex-direction: column;
+            }
+            
+            input[type="email"] {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            🏠 AirHost AI
+        </div>
+        
+        <h1>Próximamente</h1>
+        
+        <p>
+            Estamos desarrollando la plataforma más avanzada para automatizar tu Airbnb al 100% con Inteligencia Artificial.
+        </p>
+
+        <div>
+            <a href="mailto:info@airhostai.com" class="cta">📧 Contactar</a>
+            <a href="https://calendly.com/airhostai/demo" class="cta">📅 Agendar Demo</a>
+        </div>
+
+        <div class="email-form">
+            <h3>🚀 Sé el primero en probarlo</h3>
+            <p>Regístrate para acceso anticipado y descuentos exclusivos</p>
+            <div class="email-input">
+                <input type="email" placeholder="tu@email.com" id="emailInput">
+                <button class="btn-notify" onclick="notifyMe()">Notificarme</button>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <h4>🤖 IA Automática</h4>
+                <p>Mensajes inteligentes en 6 idiomas</p>
+            </div>
+            <div class="feature">
+                <h4>🔗 Channel Manager</h4>
+                <p>Sincronización con +20 plataformas</p>
+            </div>
+            <div class="feature">
+                <h4>🔐 Smart Locks</h4>
+                <p>Códigos automáticos de acceso</p>
+            </div>
+            <div class="feature">
+                <h4>💳 Fianzas Stripe</h4>
+                <p>Gestión automática de depósitos</p>
+            </div>
+        </div>
+
+        <div class="social">
+            <p style="margin-bottom: 1rem;">Síguenos para actualizaciones:</p>
+            <a href="mailto:info@airhostai.com">📧 Email</a>
+            <a href="#">🐦 Twitter</a>
+            <a href="#">💼 LinkedIn</a>
+        </div>
+
+        <p style="margin-top: 3rem; font-size: 0.9rem; opacity: 0.7;">
+            © 2024 AirHost AI. Todos los derechos reservados.
+        </p>
+    </div>
+
+    <script>
+        function notifyMe() {
+            const email = document.getElementById('emailInput').value;
+            if (email) {
+                alert('¡Gracias! Te notificaremos cuando esté listo: ' + email);
+                // Aquí puedes integrar con un servicio de email marketing
+                document.getElementById('emailInput').value = '';
+            } else {
+                alert('Por favor, introduce tu email');
+            }
+        }
+        
+        // Google Analytics
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'page_view', {
+                page_title: 'Maintenance Page',
+                page_location: window.location.href
+            });
+        }
+    </script>
+</body>
+</html>
