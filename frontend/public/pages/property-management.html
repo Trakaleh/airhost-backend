@@ -114,6 +114,19 @@
             box-shadow: 0 5px 15px rgba(255, 59, 89, 0.3);
         }
 
+        .back-link {
+            background: var(--gray-light);
+            color: var(--dark);
+            font-size: 0.9rem;
+            padding: 8px 16px;
+        }
+
+        .back-link:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
         /* Hero Section */
         .hero {
             background: var(--primary-gradient);
@@ -834,13 +847,15 @@
     <header class="header">
         <div class="container">
             <nav class="nav">
-                <a href="/" class="logo">🏠 AirHost AI</a>
+                <a href="/" class="logo">AirHost AI</a>
                 <ul class="nav-links">
-                    <li><a href="/">Inicio</a></li>
-                    <li><a href="/caracteristicas">Características</a></li>
-                    <li><a href="/precios">Precios</a></li>
-                    <li><a href="/contacto">Contacto</a></li>
-                    <li><a href="https://app.airhostai.com/signup" class="btn btn-primary">Empezar Gratis</a></li>
+                    <li><a href="/" class="btn back-link">← Volver al Inicio</a></li>
+                    <li><a href="/pages/analytics.html">Dashboard</a></li>
+                    <li><a href="/pages/channel-manager.html">Channel Manager</a></li>
+                    <li><a href="/pages/smart-locks.html">Smart Locks</a></li>
+                    <li><a href="/pages/precios.html">Precios</a></li>
+                    <li><a href="/pages/contacto.html">Contacto</a></li>
+                    <li><a href="/login.html" class="btn btn-primary">Acceder</a></li>
                 </ul>
             </nav>
         </div>
@@ -1670,6 +1685,11 @@
                 hero.style.transform = `translateY(${speed}px)`;
             }
         });
+    </script>
+
+    <script src="/js/api.js"></script>
+    <script>
+        console.log('Property Management loaded with API integration');
     </script>
 </body>
 </html>
