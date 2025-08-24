@@ -81,24 +81,39 @@ class AirHostAPI {
             console.log(`🔄 API Request: ${options.method || 'GET'} ${url}`);
             
             const response = await fetch(url, config);
-            const data = await response.json();
+            
+            // Handle non-JSON responses
+            let data;
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                data = await response.json();
+            } else {
+                data = { error: `Unexpected response format: ${response.status}` };
+            }
 
             if (!response.ok) {
-                throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
+                // Handle specific HTTP status codes
+                if (response.status === 401) {
+                    this.removeToken();
+                    throw new Error('Sesión expirada. Por favor, inicia sesión de nuevo.');
+                } else if (response.status === 404) {
+                    throw new Error('Endpoint no encontrado. El backend podría no estar disponible.');
+                } else if (response.status === 500) {
+                    throw new Error('Error interno del servidor.');
+                } else {
+                    throw new Error(data.error || `Error HTTP ${response.status}: ${response.statusText}`);
+                }
             }
 
             console.log('✅ API Response received');
             return data;
+            
         } catch (error) {
             console.error('❌ API Error:', error);
             
-            // Handle authentication errors
-            if (error.message.includes('401') || error.message.includes('Token')) {
-                this.removeToken();
-                // Redirect to login if needed
-                if (window.location.pathname !== '/login.html') {
-                    // window.location.href = '/login.html';
-                }
+            // Handle network errors
+            if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                throw new Error('No se puede conectar al servidor. Verifique su conexión a internet.');
             }
             
             throw error;

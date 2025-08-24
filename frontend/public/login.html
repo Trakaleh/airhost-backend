@@ -281,6 +281,15 @@
         </div>
 
         <div class="divider">
+            <span>o continúa con</span>
+        </div>
+
+        <button class="demo-btn" onclick="loginWithGoogle()" id="googleLoginBtn">
+            <span style="margin-right: 8px;">🔍</span>
+            Continuar con Google
+        </button>
+
+        <div class="divider" style="margin-top: 16px;">
             <span>o empieza tu prueba gratuita</span>
         </div>
 
@@ -351,9 +360,16 @@
                 // Attempt real login with backend API
                 const response = await window.AirHostAPI.login(email, password);
                 
-                if (response.success) {
+                if (response.success && response.token) {
+                    // Store JWT token
+                    window.AirHostAPI.setToken(response.token);
+                    
                     alert('¡Inicio de sesión exitoso! Redirigiendo al dashboard...');
-                    window.location.href = '/pages/analytics.html';
+                    
+                    // Redirect to the correct dashboard
+                    const returnUrl = new URLSearchParams(window.location.search).get('return');
+                    window.location.href = returnUrl || '/dashboard.html';
+                    
                 } else {
                     throw new Error(response.error || 'Error de autenticación');
                 }
@@ -361,11 +377,16 @@
             } catch (error) {
                 console.error('Login error:', error);
                 
-                // Demo mode for development
-                alert(`Demo Mode: Usuario demo creado\n\nEmail: ${email}\nRedirigiendo a dashboard...`);
-                localStorage.setItem('demo_mode', 'true');
-                localStorage.setItem('demo_user', JSON.stringify({email, name: 'Usuario Demo'}));
-                window.location.href = '/pages/analytics.html';
+                // Only show demo alert if it's a connection error (not auth error)
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    alert(`Conectando en modo demo...\n\nEmail: ${email}\nEn producción esto conectará al backend real.`);
+                    localStorage.setItem('demo_mode', 'true');
+                    localStorage.setItem('demo_user', JSON.stringify({email, name: 'Usuario Demo'}));
+                    window.location.href = '/dashboard.html';
+                } else {
+                    // Real authentication error
+                    alert(`Error de autenticación: ${error.message}\n\nVerifica tu email y contraseña.`);
+                }
                 
             } finally {
                 button.textContent = originalText;
@@ -399,9 +420,13 @@
                 const userData = { name, email, password };
                 const response = await window.AirHostAPI.register(userData);
                 
-                if (response.success) {
+                if (response.success && response.token) {
+                    // Store JWT token
+                    window.AirHostAPI.setToken(response.token);
+                    
                     alert('¡Cuenta creada exitosamente! Redirigiendo al dashboard...');
-                    window.location.href = '/pages/analytics.html';
+                    window.location.href = '/dashboard.html';
+                    
                 } else {
                     throw new Error(response.error || 'Error al crear la cuenta');
                 }
@@ -409,11 +434,16 @@
             } catch (error) {
                 console.error('Registration error:', error);
                 
-                // Demo mode for development
-                alert(`¡Cuenta demo creada exitosamente!\n\nNombre: ${name}\nEmail: ${email}\nRedirigiendo a dashboard...`);
-                localStorage.setItem('demo_mode', 'true');
-                localStorage.setItem('demo_user', JSON.stringify({name, email}));
-                window.location.href = '/pages/analytics.html';
+                // Only show demo alert if it's a connection error
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    alert(`¡Cuenta demo creada!\n\nNombre: ${name}\nEmail: ${email}\n\nEn producción esto creará una cuenta real.`);
+                    localStorage.setItem('demo_mode', 'true');
+                    localStorage.setItem('demo_user', JSON.stringify({name, email}));
+                    window.location.href = '/dashboard.html';
+                } else {
+                    // Real registration error
+                    alert(`Error al crear cuenta: ${error.message}\n\nIntenta con otro email o verifica los datos.`);
+                }
                 
             } finally {
                 button.textContent = originalText;
@@ -485,7 +515,49 @@
             }
         });
 
+        async function loginWithGoogle() {
+            const button = document.getElementById('googleLoginBtn');
+            const originalText = button.innerHTML;
+            
+            try {
+                button.innerHTML = '<span style="margin-right: 8px;">⏳</span>Conectando con Google...';
+                button.disabled = true;
+                
+                // For now, simulate Google OAuth
+                // In production, this would use Google OAuth 2.0
+                const demoGoogleUser = {
+                    name: 'Usuario Google',
+                    email: 'usuario@gmail.com',
+                    avatar: 'https://lh3.googleusercontent.com/a-/default',
+                    provider: 'google'
+                };
+                
+                alert(`¡Inicio de sesión con Google simulado!\n\nNombre: ${demoGoogleUser.name}\nEmail: ${demoGoogleUser.email}\n\nEn producción esto usará Google OAuth real.`);
+                
+                localStorage.setItem('demo_mode', 'true');
+                localStorage.setItem('demo_user', JSON.stringify(demoGoogleUser));
+                window.location.href = '/dashboard.html';
+                
+            } catch (error) {
+                console.error('Google login error:', error);
+                alert('Error al conectar con Google. Intenta de nuevo.');
+                
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
         console.log('🔐 Login page loaded - API integration ready');
     </script>
+
+    <!-- Google OAuth (commented for demo) -->
+    <!--
+    To implement real Google OAuth:
+    1. Add Google Identity Services: <script src="https://accounts.google.com/gsi/client" async defer></script>
+    2. Configure OAuth client ID in Google Console
+    3. Replace loginWithGoogle() with real OAuth flow
+    4. Add backend endpoint to handle Google tokens
+    -->
 </body>
 </html>
