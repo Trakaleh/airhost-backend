@@ -7,7 +7,6 @@ class AuthGuard {
     constructor() {
         this.user = null;
         this.isAuthenticated = false;
-        this.isDemoMode = false;
     }
 
     /**
@@ -32,26 +31,13 @@ class AuthGuard {
                     if (response.success) {
                         this.user = response.user;
                         this.isAuthenticated = true;
-                        this.isDemoMode = false;
-                        console.log('✅ User authenticated with backend');
+                                        console.log('✅ User authenticated with backend');
                         return true;
                     }
                 } catch (error) {
                     console.warn('Token validation failed:', error);
                     this.clearAuth();
                 }
-            }
-
-            // Check for demo mode
-            const demoUser = localStorage.getItem('demo_user');
-            const demoMode = localStorage.getItem('demo_mode');
-            
-            if (demoUser && demoMode) {
-                this.user = JSON.parse(demoUser);
-                this.isAuthenticated = true;
-                this.isDemoMode = true;
-                console.log('✅ User in demo mode');
-                return true;
             }
 
             // No authentication found
@@ -78,10 +64,6 @@ class AuthGuard {
             return false;
         }
 
-        // Show demo indicator if in demo mode
-        if (this.isDemoMode && !document.querySelector('.demo-indicator')) {
-            this.showDemoIndicator();
-        }
 
         return true;
     }
@@ -91,7 +73,7 @@ class AuthGuard {
      */
     async logout() {
         try {
-            if (!this.isDemoMode && window.AirHostAPI) {
+            if (window.AirHostAPI) {
                 await window.AirHostAPI.logout();
             }
         } catch (error) {
@@ -108,11 +90,8 @@ class AuthGuard {
     clearAuth() {
         this.user = null;
         this.isAuthenticated = false;
-        this.isDemoMode = false;
         
         localStorage.removeItem('airhost_token');
-        localStorage.removeItem('demo_mode');
-        localStorage.removeItem('demo_user');
     }
 
     /**
@@ -129,43 +108,6 @@ class AuthGuard {
         return this.isAuthenticated;
     }
 
-    /**
-     * Check if in demo mode
-     */
-    isDemo() {
-        return this.isDemoMode;
-    }
-
-    /**
-     * Show demo mode indicator
-     */
-    showDemoIndicator() {
-        if (document.querySelector('.demo-indicator')) return;
-
-        const indicator = document.createElement('div');
-        indicator.className = 'demo-indicator';
-        indicator.innerHTML = '🟡 Modo Demo';
-        indicator.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #FF9F0A;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            z-index: 10000;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            cursor: pointer;
-        `;
-
-        indicator.addEventListener('click', () => {
-            alert('Modo Demo Activo\n\n• Todas las funciones disponibles para explorar\n• Los datos se simulan localmente\n• En producción conectará con el backend real\n\n¡Crea una cuenta real para funcionalidad completa!');
-        });
-
-        document.body.appendChild(indicator);
-    }
 
     /**
      * Setup authentication event listeners

@@ -209,7 +209,7 @@ class AirHostAPI {
      * Get current user profile
      */
     async getProfile() {
-        return this.get('/auth/profile');
+        return this.get('/auth/me');
     }
 
     // ====================================
