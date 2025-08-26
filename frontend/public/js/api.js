@@ -18,7 +18,7 @@ class AirHostAPI {
     getBaseURL() {
         // Check if we're in development
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            return 'http://localhost:3005/api';
+            return 'http://localhost:3007/api';
         }
         
         // Production - use the current domain with API path (Netlify redirects handle this)

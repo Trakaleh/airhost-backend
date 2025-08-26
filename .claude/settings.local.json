@@ -24,7 +24,8 @@
       "Bash(taskkill:*)",
       "Bash(PORT=3005 npm start)",
       "Bash(python:*)",
-      "Bash(export TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbWVzcTFqeWowMDAxdzI3d3lsOHliMmptIiwiaWF0IjoxNzU2MjIzMzY4LCJleHAiOjE3NTg4MTUzNjh9.ZqSeUYFTpQB7l8GN16FEBrHyrPJcJFG8a0bbwv2Tpfc\")"
+      "Bash(export TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbWVzcTFqeWowMDAxdzI3d3lsOHliMmptIiwiaWF0IjoxNzU2MjIzMzY4LCJleHAiOjE3NTg4MTUzNjh9.ZqSeUYFTpQB7l8GN16FEBrHyrPJcJFG8a0bbwv2Tpfc\")",
+      "Bash(PORT=3007 npm start)"
     ],
     "deny": [],
     "ask": []

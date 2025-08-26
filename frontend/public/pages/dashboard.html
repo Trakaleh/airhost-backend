@@ -484,12 +484,20 @@
 
             } catch (error) {
                 console.error('Dashboard data error:', error);
-                showError(`Error cargando datos: ${error.message}`);
-                // Fallback to demo data for now
+                showError(`Error cargando datos del servidor: ${error.message}`);
+                
+                // Show stats with zeros instead of demo data
+                const emptyStats = {
+                    properties: 0,
+                    bookings: 0,
+                    messages: 0,
+                    revenue: 0
+                };
+                
                 setTimeout(() => {
                     hideError();
-                    loadDemoData();
-                }, 3000);
+                    updateStats(emptyStats);
+                }, 2000);
             }
         }
 

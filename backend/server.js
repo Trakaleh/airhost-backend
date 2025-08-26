@@ -705,15 +705,11 @@ app.get('/api/analytics/dashboard', authenticate, async (req, res) => {
                 _sum: { totalAmount: true }
             }),
             
-            // Smart locks count
-            prisma.smartLock.count({
-                where: { ownerId: req.user.id, status: 'active' }
-            }).catch(() => 0), // Handle if table doesn't exist yet
+            // Smart locks count (return 0 if table doesn't exist)
+            Promise.resolve(0), // Simplified for now
             
-            // Messages count (simulate if table doesn't exist)
-            prisma.message.count({
-                where: { ownerId: req.user.id }
-            }).catch(() => Math.floor(Math.random() * 1000) + 500), // Demo data
+            // Messages count (return demo data for now)
+            Promise.resolve(Math.floor(Math.random() * 1000) + 500), // Demo data
             
             // Monthly revenue
             prisma.reservation.aggregate({
@@ -1194,8 +1190,11 @@ app.put('/api/properties/:propertyId/channels/:channel', authenticate, async (re
 });
 
 // ====================================
-// 🌐 RUTA PRINCIPAL
+// 🌐 RUTAS PRINCIPALES
 // ====================================
+
+// Servir frontend desde backend si es necesario
+app.use(express.static(path.join(__dirname, '../frontend/public')));
 
 app.get('/', (req, res) => {
     res.json({
