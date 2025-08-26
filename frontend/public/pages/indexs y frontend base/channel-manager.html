@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Channel Manager - Sincroniza todas tus plataformas | AirHost AI</title>
+    <meta name="description" content="Conecta Airbnb, Booking.com, Vrbo y +20 canales. Evita overbookings, sincroniza precios automáticamente y gestiona todo desde un panel.">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF3B59;
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary: #03EBC3;
+            --dark: #333333;
+            --light: #f8faff;
+            --white: #ffffff;
+            --gray: #6b7280;
+            --gray-light: #f3f4f6;
+            --blue: #667eea;
+            --success: #10B981;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--white);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: var(--white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .back-link {
+            background: transparent;
+            color: var(--dark);
+            border: 1px solid var(--gray);
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+
+        .back-link:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 59, 89, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 5rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            display: block;
+        }
+
+        .stat-label {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 0;
+            background: var(--light);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .feature-card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        /* Channel Integration */
+        .channel-integration {
+            padding: 5rem 0;
+            background: var(--white);
+        }
+
+        .channels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .channel-card {
+            background: var(--light);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .channel-card:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .channel-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .channel-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .channel-description {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        /* Dashboard Preview */
+        .dashboard-preview {
+            padding: 5rem 0;
+            background: var(--light);
+        }
+
+        .dashboard-mockup {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            margin-top: 3rem;
+        }
+
+        .mockup-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-light);
+            margin-bottom: 2rem;
+        }
+
+        .mockup-dots {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--gray);
+        }
+
+        .dot.red { background: #FF5F57; }
+        .dot.yellow { background: #FFBD2E; }
+        .dot.green { background: #28CA42; }
+
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .dashboard-widget {
+            background: var(--gray-light);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        /* Benefits */
+        .benefits {
+            padding: 5rem 0;
+            background: var(--white);
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .benefit-icon {
+            background: var(--primary);
+            color: white;
+            padding: 0.8rem;
+            border-radius: 10px;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .benefit-content h4 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* CTA Section */
+        .cta {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 5rem 0;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .cta p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .btn-white {
+            background: white;
+            color: var(--primary);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .features-grid,
+            .channels-grid,
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-content {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .fade-in-delay {
+            animation: fadeInUp 0.6s ease-out 0.3s both;
+        }
+
+        /* Loading dots animation */
+        .loading-dots {
+            display: inline-flex;
+            gap: 4px;
+        }
+
+        .loading-dots div {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+            animation: pulse 1.4s ease-in-out infinite both;
+        }
+
+        .loading-dots div:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots div:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes pulse {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/" class="logo">AirHost AI</a>
+                <ul class="nav-links">
+                    <li><a href="/" class="btn back-link">← Volver al Inicio</a></li>
+                    <li><a href="/pages/analytics.html">Dashboard</a></li>
+                    <li><a href="/pages/smart-locks.html">Smart Locks</a></li>
+                    <li><a href="/pages/precios.html">Precios</a></li>
+                    <li><a href="/pages/contacto.html">Contacto</a></li>
+                    <li><a href="/login.html" class="btn btn-primary">Empezar Gratis</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content fade-in">
+                <h1>Channel Manager Inteligente</h1>
+                <p>Conecta y sincroniza automáticamente todas tus plataformas de reservas. Evita overbookings, gestiona precios en tiempo real y centraliza todas tus reservas en un solo panel de control.</p>
+                <a href="https://app.airhostai.com/signup" class="btn btn-white">🚀 Probar Gratis 7 Días</a>
+                
+                <div class="hero-stats fade-in-delay">
+                    <div class="stat">
+                        <span class="stat-number">+20</span>
+                        <span class="stat-label">Canales Conectados</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">Anti-Overbooking</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">< 5min</span>
+                        <span class="stat-label">Configuración</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Funcionalidades Avanzadas</h2>
+                <p>Todo lo que necesitas para gestionar múltiples canales de forma eficiente</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Sincronización en Tiempo Real</h3>
+                    <p>Actualización instantánea de disponibilidad, precios y restricciones en todos los canales. Cuando se realiza una reserva, los demás canales se bloquean automáticamente.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">📅</div>
+                    <h3>Calendario Unificado</h3>
+                    <p>Vista centralizada de todas tus reservas desde todos los canales. Gestiona check-ins, check-outs y disponibilidad desde un solo lugar.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">💰</div>
+                    <h3>Gestión Inteligente de Precios</h3>
+                    <p>Sincroniza automáticamente las tarifas en todos los canales. Configura reglas personalizadas para diferentes plataformas y temporadas.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🚫</div>
+                    <h3>Prevención de Overbooking</h3>
+                    <p>Sistema avanzado que previene reservas dobles mediante bloqueos instantáneos y sincronización en tiempo real entre plataformas.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">📊</div>
+                    <h3>Analytics por Canal</h3>
+                    <p>Reportes detallados del rendimiento de cada canal: ingresos, tasas de ocupación, tiempo promedio de estadía y análisis de rentabilidad.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Configuración Rápida</h3>
+                    <p>Conecta todas tus cuentas en menos de 5 minutos. Nuestro sistema detecta automáticamente tus propiedades y configura la sincronización.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="channel-integration">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Canales Integrados</h2>
+                <p>Conectamos con las principales plataformas de alquiler vacacional</p>
+            </div>
+
+            <div class="channels-grid">
+                <div class="channel-card fade-in">
+                    <div class="channel-icon">🏠</div>
+                    <div class="channel-name">Airbnb</div>
+                    <div class="channel-description">Integración completa con API oficial</div>
+                </div>
+
+                <div class="channel-card fade-in">
+                    <div class="channel-icon">🏨</div>
+                    <div class="channel-name">Booking.com</div>
+                    <div class="channel-description">Sincronización de reservas y precios</div>
+                </div>
+
+                <div class="channel-card fade-in">
+                    <div class="channel-icon">🏡</div>
+                    <div class="channel-name">Vrbo</div>
+                    <div class="channel-description">Gestión automática de calendarios</div>
+                </div>
+
+                <div class="channel-card fade-in">
+                    <div class="channel-icon">✈️</div>
+                    <div class="channel-name">Expedia</div>
+                    <div class="channel-description">Control de tarifas en tiempo real</div>
+                </div>
+
+                <div class="channel-card fade-in">
+                    <div class="channel-icon">🌍</div>
+                    <div class="channel-name">Google Travel</div>
+                    <div class="channel-description">Visibilidad en búsquedas de Google</div>
+                </div>
+
+                <div class="channel-card fade-in">
+                    <div class="channel-icon">🏖️</div>
+                    <div class="channel-name">TripAdvisor</div>
+                    <div class="channel-description">Gestión de reseñas y reservas</div>
+                </div>
+
+                <div class="channel-card fade-in">
+                    <div class="channel-icon">🏛️</div>
+                    <div class="channel-name">Agoda</div>
+                    <div class="channel-description">Mercado asiático especializado</div>
+                </div>
+
+                <div class="channel-card fade-in">
+                    <div class="channel-icon">➕</div>
+                    <div class="channel-name">+15 canales más</div>
+                    <div class="channel-description">Nuevas integraciones cada mes</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="dashboard-preview">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Panel de Control Centralizado</h2>
+                <p>Gestiona todas tus reservas desde una interfaz intuitiva y poderosa</p>
+            </div>
+
+            <div class="dashboard-mockup fade-in">
+                <div class="mockup-header">
+                    <div class="mockup-dots">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div>
+                    </div>
+                    <span style="margin-left: 1rem; font-weight: 600;">AirHost AI Dashboard</span>
+                </div>
+
+                <div class="dashboard-content">
+                    <div class="dashboard-widget">
+                        <h4>📊 Reservas Hoy</h4>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--primary); margin: 1rem 0;">12</div>
+                        <p style="color: var(--gray);">+3 desde ayer</p>
+                    </div>
+
+                    <div class="dashboard-widget">
+                        <h4>💰 Ingresos del Mes</h4>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--success); margin: 1rem 0;">€8,450</div>
+                        <p style="color: var(--gray);">+15% vs mes anterior</p>
+                    </div>
+
+                    <div class="dashboard-widget">
+                        <h4>🏠 Propiedades Activas</h4>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--blue); margin: 1rem 0;">8</div>
+                        <p style="color: var(--gray);">Todas sincronizadas</p>
+                    </div>
+
+                    <div class="dashboard-widget">
+                        <h4>⚡ Estado del Sistema</h4>
+                        <div style="margin: 1rem 0;">
+                            <div class="loading-dots">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div>
+                        </div>
+                        <p style="color: var(--success);">Sincronizando...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="benefits">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Beneficios del Channel Manager</h2>
+                <p>Transforma la gestión de tus propiedades con automatización inteligente</p>
+            </div>
+
+            <div class="benefits-grid">
+                <div class="benefit-item fade-in">
+                    <div class="benefit-icon">⏰</div>
+                    <div class="benefit-content">
+                        <h4>Ahorra 10+ Horas Semanales</h4>
+                        <p>Elimina la necesidad de actualizar manualmente cada plataforma. La sincronización automática se encarga de todo.</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item fade-in">
+                    <div class="benefit-icon">📈</div>
+                    <div class="benefit-content">
+                        <h4>Aumenta tus Ingresos hasta 40%</h4>
+                        <p>Mayor visibilidad en múltiples canales y optimización automática de precios para maximizar ocupación.</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item fade-in">
+                    <div class="benefit-icon">🛡️</div>
+                    <div class="benefit-content">
+                        <h4>Cero Overbookings Garantizado</h4>
+                        <p>Sistema probado que previene al 100% las reservas dobles mediante sincronización instantánea.</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item fade-in">
+                    <div class="benefit-icon">📱</div>
+                    <div class="benefit-content">
+                        <h4>Gestión desde Cualquier Lugar</h4>
+                        <p>Dashboard móvil para controlar todas tus reservas y propiedades desde tu smartphone.</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item fade-in">
+                    <div class="benefit-icon">🔄</div>
+                    <div class="benefit-content">
+                        <h4>Escalabilidad Ilimitada</h4>
+                        <p>Desde 1 hasta 100+ propiedades. El sistema crece con tu negocio sin complicaciones.</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item fade-in">
+                    <div class="benefit-icon">🎯</div>
+                    <div class="benefit-content">
+                        <h4>Reportes Inteligentes</h4>
+                        <p>Analytics avanzados que te ayudan a tomar decisiones basadas en datos reales de rendimiento.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <div class="fade-in">
+                <h2>¿Listo para Sincronizar tus Canales?</h2>
+                <p>Únete a más de 1,000 hosts que ya automatizaron su gestión de canales</p>
+                <div class="cta-buttons">
+                    <a href="https://app.airhostai.com/signup" class="btn btn-white">🚀 Empezar Prueba Gratis</a>
+                    <a href="https://calendly.com/airhostai/demo" class="btn btn-outline">📹 Agendar Demo</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all fade-in elements
+        document.querySelectorAll('.fade-in, .fade-in-delay').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+
+        // Add delay to fade-in-delay elements
+        document.querySelectorAll('.fade-in-delay').forEach(el => {
+            el.style.transitionDelay = '0.3s';
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Channel card hover effects
+        document.querySelectorAll('.channel-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05) rotateY(5deg)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1) rotateY(0deg)';
+            });
+        });
+
+        // Feature card interactions
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // Add a subtle animation when clicked
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+    </script>
+
+    <!-- API Integration -->
+    <script src="/js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check if user is logged in
+            const isDemo = localStorage.getItem('demo_mode');
+            const user = localStorage.getItem('demo_user');
+
+            if (isDemo && user) {
+                // Show user info in header
+                console.log('🔐 User logged in:', JSON.parse(user));
+                
+                // Add connection status buttons
+                addConnectionButtons();
+            } else {
+                // Add login prompt
+                addLoginPrompt();
+            }
+
+            // Test API connection
+            const isHealthy = await window.AirHostAPI.healthCheck();
+            console.log('Channel Manager - API Status:', isHealthy ? '✅ Online' : '⚠️ Demo Mode');
+        });
+
+        function addConnectionButtons() {
+            // Add interactive connection buttons for different platforms
+            const heroButtons = document.querySelector('.hero .btn-primary');
+            if (heroButtons) {
+                heroButtons.onclick = function(e) {
+                    e.preventDefault();
+                    showConnectionModal();
+                };
+            }
+        }
+
+        function addLoginPrompt() {
+            // Show login requirement
+            const cta = document.querySelector('.hero .btn-primary');
+            if (cta) {
+                cta.href = '/login.html';
+                cta.textContent = 'Crear Cuenta para Conectar';
+            }
+        }
+
+        function showConnectionModal() {
+            const modal = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; padding: 32px; border-radius: 12px; max-width: 500px; width: 90%;">
+                        <h3 style="margin-bottom: 16px;">Conectar Plataformas</h3>
+                        <p style="margin-bottom: 24px; color: #666;">Selecciona las plataformas que quieres conectar:</p>
+                        
+                        <div style="space-y: 12px;">
+                            <button onclick="connectPlatform('airbnb')" style="width: 100%; padding: 12px; margin-bottom: 8px; border: 2px solid #FF5A5F; background: #FF5A5F; color: white; border-radius: 8px; cursor: pointer;">
+                                🏠 Conectar Airbnb
+                            </button>
+                            <button onclick="connectPlatform('booking')" style="width: 100%; padding: 12px; margin-bottom: 8px; border: 2px solid #003B95; background: #003B95; color: white; border-radius: 8px; cursor: pointer;">
+                                🏨 Conectar Booking.com
+                            </button>
+                            <button onclick="connectPlatform('vrbo')" style="width: 100%; padding: 12px; margin-bottom: 8px; border: 2px solid #FF8C00; background: #FF8C00; color: white; border-radius: 8px; cursor: pointer;">
+                                🏖️ Conectar VRBO
+                            </button>
+                        </div>
+                        
+                        <button onclick="closeModal()" style="width: 100%; padding: 12px; margin-top: 16px; border: 1px solid #ccc; background: white; border-radius: 8px; cursor: pointer;">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modal);
+        }
+
+        async function connectPlatform(platform) {
+            const platformNames = {
+                airbnb: 'Airbnb',
+                booking: 'Booking.com',
+                vrbo: 'VRBO'
+            };
+
+            try {
+                // Show loading
+                alert(`Conectando con ${platformNames[platform]}...`);
+
+                // Try real API connection
+                let response;
+                if (platform === 'airbnb') {
+                    response = await window.AirHostAPI.connectAirbnb({});
+                } else if (platform === 'booking') {
+                    response = await window.AirHostAPI.connectBooking({});
+                }
+
+                alert(`✅ ${platformNames[platform]} conectado exitosamente!`);
+                closeModal();
+
+            } catch (error) {
+                // Demo mode - simulate connection
+                console.log(`Demo: Connecting to ${platform}`, error);
+                alert(`Demo: ${platformNames[platform]} conectado en modo de prueba.\n\nEn producción esto:\n• Autenticará con la plataforma\n• Sincronizará calendarios\n• Configurará precios automáticos\n• Activará la prevención de overbooking`);
+                closeModal();
+            }
+        }
+
+        function closeModal() {
+            const modal = document.querySelector('[style*="position: fixed"]');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        console.log('📊 Channel Manager page loaded with API integration');
+    </script>
+</body>
+</html>

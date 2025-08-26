@@ -17,7 +17,9 @@
       "Bash(npm start)",
       "Bash(PORT=3002 npm start)",
       "Bash(curl:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

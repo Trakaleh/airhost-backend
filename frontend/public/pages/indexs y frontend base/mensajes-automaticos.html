@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mensajes Automáticos con IA - WhatsApp y SMS | AirHost AI</title>
+    <meta name="description" content="IA que envía mensajes automáticos por WhatsApp en 6 idiomas. Check-in, códigos de acceso, reseñas y atención 24/7 para tu Airbnb.">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF3B59;
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --whatsapp: #25D366;
+            --telegram: #0088cc;
+            --sms: #FF6B35;
+            --secondary: #03EBC3;
+            --dark: #333333;
+            --light: #f8faff;
+            --white: #ffffff;
+            --gray: #6b7280;
+            --gray-light: #f3f4f6;
+            --success: #10B981;
+            --warning: #F59E0B;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--white);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: var(--white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 59, 89, 0.3);
+        }
+
+        .back-link {
+            background: var(--gray-light);
+            color: var(--dark);
+            font-size: 0.9rem;
+            padding: 8px 16px;
+        }
+
+        .back-link:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 5rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.1;
+        }
+
+        .hero-text p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .hero-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .hero-feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-visual {
+            position: relative;
+        }
+
+        .phone-mockup {
+            background: #000;
+            border-radius: 30px;
+            padding: 20px;
+            max-width: 300px;
+            margin: 0 auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .phone-screen {
+            background: #075E54;
+            border-radius: 20px;
+            height: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .whatsapp-header {
+            background: #128C7E;
+            padding: 1rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .whatsapp-messages {
+            padding: 1rem;
+            height: calc(100% - 60px);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 0.8rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .message.bot {
+            background: #DCF8C6;
+            color: #000;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.user {
+            background: white;
+            color: #000;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            text-align: right;
+            margin-top: 0.3rem;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 0.8rem;
+            background: white;
+            border-radius: 10px;
+            align-self: flex-start;
+            max-width: 60px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #999;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        /* Platforms Section */
+        .platforms {
+            padding: 5rem 0;
+            background: var(--light);
+        }
+
+        .platforms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .platform-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-top: 4px solid;
+        }
+
+        .platform-card.whatsapp {
+            border-top-color: var(--whatsapp);
+        }
+
+        .platform-card.telegram {
+            border-top-color: var(--telegram);
+        }
+
+        .platform-card.sms {
+            border-top-color: var(--sms);
+        }
+
+        .platform-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .platform-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .platform-card h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        /* Message Types */
+        .message-types {
+            padding: 5rem 0;
+            background: var(--white);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .message-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .flow-step {
+            background: var(--light);
+            padding: 2rem;
+            border-radius: 20px;
+            position: relative;
+            border-left: 4px solid var(--primary);
+        }
+
+        .flow-step::before {
+            content: attr(data-step);
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            background: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .flow-step h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .message-example {
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 10px;
+            border-left: 3px solid var(--whatsapp);
+            margin-top: 1rem;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        /* AI Features */
+        .ai-features {
+            padding: 5rem 0;
+            background: var(--light);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        /* Languages */
+        .languages {
+            padding: 5rem 0;
+            background: var(--white);
+        }
+
+        .languages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .language-card {
+            background: var(--gray-light);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .language-card:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .language-flag {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* CTA Section */
+        .cta {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 5rem 0;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .cta p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .btn-white {
+            background: white;
+            color: var(--primary);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 2rem;
+            }
+
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+
+            .phone-mockup {
+                max-width: 250px;
+            }
+
+            .phone-screen {
+                height: 400px;
+            }
+
+            .platforms-grid,
+            .features-grid,
+            .languages-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .message-flow {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .fade-in-delay {
+            animation: fadeInUp 0.6s ease-out 0.3s both;
+        }
+
+        /* Message animation */
+        .message-animate {
+            animation: messageSlide 0.5s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/" class="logo">AirHost AI</a>
+                <ul class="nav-links">
+                    <li><a href="/" class="btn back-link">← Volver al Inicio</a></li>
+                    <li><a href="/pages/analytics.html">Dashboard</a></li>
+                    <li><a href="/pages/channel-manager.html">Channel Manager</a></li>
+                    <li><a href="/pages/smart-locks.html">Smart Locks</a></li>
+                    <li><a href="/pages/precios.html">Precios</a></li>
+                    <li><a href="/pages/contacto.html">Contacto</a></li>
+                    <li><a href="/login.html" class="btn btn-primary">Acceder</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content fade-in">
+                <div class="hero-text">
+                    <h1>Mensajes Automáticos con IA</h1>
+                    <p>Tu asistente virtual que habla con los huéspedes 24/7 por WhatsApp, Telegram y SMS. Respuestas inteligentes en 6 idiomas que mejoran la experiencia y aumentan tus reseñas.</p>
+                    
+                    <div class="hero-features">
+                        <div class="hero-feature">✅ WhatsApp Business API</div>
+                        <div class="hero-feature">🌍 6 idiomas automáticos</div>
+                        <div class="hero-feature">🤖 IA conversacional</div>
+                        <div class="hero-feature">⚡ Respuestas instantáneas</div>
+                    </div>
+                    
+                    <a href="https://app.airhostai.com/signup" class="btn btn-white">🚀 Probar Gratis 7 Días</a>
+                </div>
+
+                <div class="hero-visual">
+                    <div class="phone-mockup">
+                        <div class="phone-screen">
+                            <div class="whatsapp-header">
+                                <div class="avatar">🤖</div>
+                                <div>
+                                    <div style="font-weight: 600;">AirHost Assistant</div>
+                                    <div style="font-size: 0.8rem; opacity: 0.8;">en línea</div>
+                                </div>
+                            </div>
+                            <div class="whatsapp-messages" id="chatMessages">
+                                <div class="message user">
+                                    Hola! Llegué al apartamento pero no encuentro las llaves
+                                    <div class="message-time">14:32</div>
+                                </div>
+                                <div class="message bot">
+                                    ¡Hola! 👋 Te ayudo inmediatamente. El código de la cerradura inteligente es: <strong>2847</strong>
+                                    
+                                    📍 La cerradura está en la puerta principal, presiona los números y espera el pitido verde.
+                                    <div class="message-time">14:32</div>
+                                </div>
+                                <div class="message user">
+                                    Perfecto! Ya entré. ¿Dónde está el WiFi?
+                                    <div class="message-time">14:35</div>
+                                </div>
+                                <div class="message bot">
+                                    ¡Genial! 📶 Los datos del WiFi son:
+                                    
+                                    🌐 <strong>Red:</strong> CasaVacacional_5G
+                                    🔑 <strong>Contraseña:</strong> Welcome2024!
+                                    
+                                    Si necesitas algo más, ¡escríbeme! 😊
+                                    <div class="message-time">14:35</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="platforms">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Múltiples Plataformas de Mensajería</h2>
+                <p>Conecta con tus huéspedes donde ellos prefieran comunicarse</p>
+            </div>
+
+            <div class="platforms-grid">
+                <div class="platform-card whatsapp fade-in">
+                    <div class="platform-icon" style="color: var(--whatsapp);">💬</div>
+                    <h3>WhatsApp Business</h3>
+                    <p>API oficial de WhatsApp para mensajes automáticos ilimitados. La plataforma favorita de los huéspedes con 98% de tasa de apertura.</p>
+                    <ul style="text-align: left; margin-top: 1rem; list-style: none;">
+                        <li>✅ Mensajes instantáneos</li>
+                        <li>✅ Archivos y ubicaciones</li>
+                        <li>✅ Estados de entrega</li>
+                        <li>✅ Botones interactivos</li>
+                    </ul>
+                </div>
+
+                <div class="platform-card telegram fade-in">
+                    <div class="platform-icon" style="color: var(--telegram);">✈️</div>
+                    <h3>Telegram</h3>
+                    <p>Mensajería rápida y segura con bots inteligentes. Ideal para huéspedes internacionales que prefieren Telegram.</p>
+                    <ul style="text-align: left; margin-top: 1rem; list-style: none;">
+                        <li>✅ Sin límites de caracteres</li>
+                        <li>✅ Archivos hasta 2GB</li>
+                        <li>✅ Encriptación segura</li>
+                        <li>✅ Comandos rápidos</li>
+                    </ul>
+                </div>
+
+                <div class="platform-card sms fade-in">
+                    <div class="platform-icon" style="color: var(--sms);">📱</div>
+                    <h3>SMS Tradicional</h3>
+                    <p>Mensajes de texto que llegan a cualquier móvil. Perfecto para notificaciones críticas y códigos de acceso.</p>
+                    <ul style="text-align: left; margin-top: 1rem; list-style: none;">
+                        <li>✅ Compatibilidad universal</li>
+                        <li>✅ Entrega garantizada</li>
+                        <li>✅ No requiere internet</li>
+                        <li>✅ Ideal para emergencias</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="message-types">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Flujo de Mensajes Inteligente</h2>
+                <p>Automatización completa desde la reserva hasta el checkout</p>
+            </div>
+
+            <div class="message-flow">
+                <div class="flow-step fade-in" data-step="1">
+                    <h4>🎉 Confirmación de Reserva</h4>
+                    <p>Saludo personalizado inmediatamente después de la reserva con información básica y próximos pasos.</p>
+                    <div class="message-example">
+                        "¡Hola María! 🏠 Gracias por reservar nuestro apartamento del 15-20 de marzo. Te contactaremos 24h antes del check-in con todos los detalles. ¡Esperamos verte pronto!"
+                    </div>
+                </div>
+
+                <div class="flow-step fade-in" data-step="2">
+                    <h4>📋 Instrucciones Pre-llegada</h4>
+                    <p>24 horas antes del check-in: códigos de acceso, instrucciones de llegada, datos WiFi y contacto de emergencia.</p>
+                    <div class="message-example">
+                        "¡Hola! Mañana es tu check-in 🗝️ Código de acceso: 1234. Dirección exacta: Calle Mayor 15, 3º A. WiFi: CasaVacacional | Pass: Welcome123. ¿Alguna pregunta?"
+                    </div>
+                </div>
+
+                <div class="flow-step fade-in" data-step="3">
+                    <h4>🏠 Guía de Bienvenida</h4>
+                    <p>El día del check-in: manual digital de la propiedad, recomendaciones locales y normas de la casa.</p>
+                    <div class="message-example">
+                        "¡Bienvenido! 🎊 Aquí tienes tu guía digital: bit.ly/casa-manual. Incluye WiFi, electrodomésticos, y las mejores tapas del barrio. Check-out: 11:00h"
+                    </div>
+                </div>
+
+                <div class="flow-step fade-in" data-step="4">
+                    <h4>🔧 Asistencia Durante la Estancia</h4>
+                    <p>IA disponible 24/7 para resolver dudas sobre WiFi, electrodomésticos, recomendaciones locales y emergencias.</p>
+                    <div class="message-example">
+                        "¡Hola! Vi que preguntaste por restaurantes 🍽️ Te recomiendo: La Taberna (5 min andando, tapas), El Jardín (terraza, 10 min), Casa Pepe (menú, 15 min). ¿Más info?"
+                    </div>
+                </div>
+
+                <div class="flow-step fade-in" data-step="5">
+                    <h4>🧹 Recordatorio de Checkout</h4>
+                    <p>La mañana del checkout: instrucciones de salida, estado de la propiedad y solicitud de feedback.</p>
+                    <div class="message-example">
+                        "¡Buenos días! Hoy es checkout (11:00h) 🎒 Por favor: ventanas cerradas, luces apagadas, llaves en mesa. ¡Ha sido un placer tenerte!"
+                    </div>
+                </div>
+
+                <div class="flow-step fade-in" data-step="6">
+                    <h4>⭐ Solicitud de Reseña</h4>
+                    <p>2 horas después del checkout: agradecimiento y solicitud de reseña con link directo a la plataforma.</p>
+                    <div class="message-example">
+                        "¡Esperamos que hayas disfrutado tu estancia! ⭐ Tu opinión nos ayuda mucho: [link directo a reseña]. ¡Vuelve cuando quieras! 🏠❤️"
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ai-features">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Inteligencia Artificial Avanzada</h2>
+                <p>Más que mensajes programados: IA que entiende y responde naturalmente</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🧠</div>
+                    <h3>Comprensión Natural</h3>
+                    <p>IA entrenada específicamente para hospitalidad. Entiende preguntas complejas sobre ubicación, amenidades, recomendaciones y resuelve problemas automáticamente.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🌍</div>
+                    <h3>Detección Automática de Idioma</h3>
+                    <p>Detecta el idioma del huésped y responde automáticamente en español, inglés, francés, alemán, italiano o portugués. Sin configuración manual.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">⏰</div>
+                    <h3>Respuestas Contextuales</h3>
+                    <p>Adapta las respuestas según el momento: pre-llegada, durante la estancia o post-checkout. Información relevante en el momento exacto.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Personalización Inteligente</h3>
+                    <p>Incluye automáticamente el nombre del huésped, fechas de estancia, detalles de la propiedad y recomendaciones basadas en el perfil.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🚨</div>
+                    <h3>Escalado a Humano</h3>
+                    <p>Si la IA no puede resolver una consulta compleja, escala automáticamente a un humano con todo el contexto de la conversación.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">📊</div>
+                    <h3>Análisis de Sentimientos</h3>
+                    <p>Detecta huéspedes insatisfechos automáticamente y activa protocolos especiales para resolver problemas antes de que afecten las reseñas.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="languages">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Comunicación Sin Barreras</h2>
+                <p>Soporte automático en los 6 idiomas más utilizados por los viajeros</p>
+            </div>
+
+            <div class="languages-grid">
+                <div class="language-card fade-in">
+                    <div class="language-flag">🇪🇸</div>
+                    <h4>Español</h4>
+                    <p>Nativo peninsular</p>
+                </div>
+
+                <div class="language-card fade-in">
+                    <div class="language-flag">🇬🇧</div>
+                    <h4>English</h4>
+                    <p>British & American</p>
+                </div>
+
+                <div class="language-card fade-in">
+                    <div class="language-flag">🇫🇷</div>
+                    <h4>Français</h4>
+                    <p>Français standard</p>
+                </div>
+
+                <div class="language-card fade-in">
+                    <div class="language-flag">🇩🇪</div>
+                    <h4>Deutsch</h4>
+                    <p>Hochdeutsch</p>
+                </div>
+
+                <div class="language-card fade-in">
+                    <div class="language-flag">🇮🇹</div>
+                    <h4>Italiano</h4>
+                    <p>Italiano standard</p>
+                </div>
+
+                <div class="language-card fade-in">
+                    <div class="language-flag">🇵🇹</div>
+                    <h4>Português</h4>
+                    <p>Brasil & Portugal</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <div class="fade-in">
+                <h2>¿Listo para Automatizar tus Mensajes?</h2>
+                <p>Únete a más de 1,000 hosts que ya automatizaron su comunicación y mejoraron sus reseñas</p>
+                <div class="cta-buttons">
+                    <a href="https://app.airhostai.com/signup" class="btn btn-white">🚀 Empezar Prueba Gratis</a>
+                    <a href="https://calendly.com/airhostai/demo" class="btn btn-outline">📹 Ver Demo en Vivo</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all fade-in elements
+        document.querySelectorAll('.fade-in, .fade-in-delay').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+
+        // Add delay to fade-in-delay elements
+        document.querySelectorAll('.fade-in-delay').forEach(el => {
+            el.style.transitionDelay = '0.3s';
+        });
+
+        // Animated chat simulation
+        function simulateChat() {
+            const messages = [
+                {
+                    type: 'user',
+                    text: '¿A qué hora puedo hacer check-in?',
+                    delay: 2000
+                },
+                {
+                    type: 'bot',
+                    text: '¡Hola! 😊 El check-in es a partir de las 15:00h. Si llegas antes, puedes dejar las maletas. ¿A qué hora planeas llegar?',
+                    delay: 1500
+                },
+                {
+                    type: 'user',
+                    text: 'Sobre las 13:30',
+                    delay: 2000
+                },
+                {
+                    type: 'bot',
+                    text: 'Perfecto! Te avisaré en cuanto esté lista la habitación. Mientras tanto, hay una cafetería muy buena a 2 minutos: "Café Central" ☕',
+                    delay: 1800
+                }
+            ];
+
+            let currentMessage = 0;
+            const chatContainer = document.getElementById('chatMessages');
+
+            function addMessage() {
+                if (currentMessage >= messages.length) {
+                    // Reset after all messages
+                    setTimeout(() => {
+                        chatContainer.innerHTML = `
+                            <div class="message user">
+                                Hola! Llegué al apartamento pero no encuentro las llaves
+                                <div class="message-time">14:32</div>
+                            </div>
+                            <div class="message bot">
+                                ¡Hola! 👋 Te ayudo inmediatamente. El código de la cerradura inteligente es: <strong>2847</strong>
+                                
+                                📍 La cerradura está en la puerta principal, presiona los números y espera el pitido verde.
+                                <div class="message-time">14:32</div>
+                            </div>
+                            <div class="message user">
+                                Perfecto! Ya entré. ¿Dónde está el WiFi?
+                                <div class="message-time">14:35</div>
+                            </div>
+                            <div class="message bot">
+                                ¡Genial! 📶 Los datos del WiFi son:
+                                
+                                🌐 <strong>Red:</strong> CasaVacacional_5G
+                                🔑 <strong>Contraseña:</strong> Welcome2024!
+                                
+                                Si necesitas algo más, ¡escríbeme! 😊
+                                <div class="message-time">14:35</div>
+                            </div>
+                        `;
+                        currentMessage = 0;
+                        setTimeout(addMessage, 3000);
+                    }, 2000);
+                    return;
+                }
+
+                const msg = messages[currentMessage];
+                
+                // Add typing indicator first for bot messages
+                if (msg.type === 'bot') {
+                    const typingIndicator = document.createElement('div');
+                    typingIndicator.className = 'typing-indicator';
+                    typingIndicator.innerHTML = `
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    `;
+                    chatContainer.appendChild(typingIndicator);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                    setTimeout(() => {
+                        chatContainer.removeChild(typingIndicator);
+                        addActualMessage();
+                    }, 1000);
+                } else {
+                    addActualMessage();
+                }
+
+                function addActualMessage() {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = `message ${msg.type} message-animate`;
+                    const time = new Date().toLocaleTimeString('es-ES', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    });
+                    
+                    messageDiv.innerHTML = `
+                        ${msg.text}
+                        <div class="message-time">${time}</div>
+                    `;
+                    
+                    chatContainer.appendChild(messageDiv);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    
+                    currentMessage++;
+                    setTimeout(addMessage, msg.delay);
+                }
+            }
+
+            // Start the simulation after page loads
+            setTimeout(addMessage, 5000);
+        }
+
+        // Start chat simulation when page loads
+        window.addEventListener('load', simulateChat);
+
+        // Platform card interactions
+        document.querySelectorAll('.platform-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Language card interactions
+        document.querySelectorAll('.language-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // Add a ripple effect
+                const ripple = document.createElement('div');
+                ripple.style.cssText = `
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 0;
+                    height: 0;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.5);
+                    transform: translate(-50%, -50%);
+                    animation: ripple 0.6s ease-out;
+                    pointer-events: none;
+                `;
+                
+                this.style.position = 'relative';
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    if (this.contains(ripple)) {
+                        this.removeChild(ripple);
+                    }
+                }, 600);
+            });
+        });
+
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    width: 200px;
+                    height: 200px;
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Feature card click effects
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+
+        // Flow step hover effects
+        document.querySelectorAll('.flow-step').forEach(step => {
+            step.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(10px)';
+                this.style.borderLeftColor = 'var(--success)';
+            });
+            
+            step.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateX(0)';
+                this.style.borderLeftColor = 'var(--primary)';
+            });
+        });
+    </script>
+
+    <script src="/js/api.js"></script>
+    <script>
+        console.log('Mensajes Automaticos loaded with API integration');
+    </script>
+</body>
+</html>

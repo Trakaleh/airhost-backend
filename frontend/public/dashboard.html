@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AirHost AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #0071E3;
+            --color-primary-dark: #0056B3;
+            --color-secondary: #1D1D1F;
+            --color-accent: #06C;
+            --color-text-primary: #1D1D1F;
+            --color-text-secondary: #6E6E73;
+            --color-text-tertiary: #86868B;
+            --color-background: #FBFBFD;
+            --color-surface: #FFFFFF;
+            --color-border: #D2D2D7;
+            --color-success: #30D158;
+            --color-warning: #FF9F0A;
+            --color-error: #FF3B30;
+            --gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-premium: linear-gradient(135deg, #0071E3 0%, #005BB5 50%, #003D82 100%);
+            --shadow-small: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --shadow-large: 0 16px 48px rgba(0, 0, 0, 0.12);
+            --border-radius: 12px;
+            --border-radius-lg: 20px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--color-background);
+            color: var(--color-text-primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-premium);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--color-text-secondary);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        /* Main Content */
+        .main {
+            padding: 40px 0;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-premium);
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .card-description {
+            color: var(--color-text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .card-action {
+            background: var(--color-primary);
+            color: white;
+            text-decoration: none;
+        }
+
+        .card-action:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: var(--color-text-secondary);
+            font-weight: 500;
+        }
+
+        .welcome-section {
+            background: var(--gradient-premium);
+            color: white;
+            padding: 40px;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .welcome-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .welcome-subtitle {
+            opacity: 0.9;
+            font-size: 1.125rem;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--color-text-secondary);
+        }
+
+        .error-message {
+            background: #FFF5F5;
+            border: 1px solid #FEB2B2;
+            border-radius: var(--border-radius);
+            padding: 16px;
+            color: #C53030;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid,
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">AirHost AI</a>
+                <div class="user-menu">
+                    <span id="userEmail" class="user-info">Cargando...</span>
+                    <div class="user-avatar" id="userAvatar">?</div>
+                    <button onclick="logout()" class="btn btn-secondary">Cerrar Sesión</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <h1 class="welcome-title">¡Bienvenido a AirHost AI!</h1>
+                <p class="welcome-subtitle" id="welcomeMessage">Tu plataforma de automatización está lista</p>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading">
+                <div>Cargando tu dashboard...</div>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="error-message" style="display: none;">
+                <strong>Error de conexión:</strong> <span id="errorMessage"></span>
+            </div>
+
+            <!-- Stats Grid -->
+            <div id="statsGrid" class="stats-grid" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-number" id="propertiesCount">0</div>
+                    <div class="stat-label">Propiedades</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="bookingsCount">0</div>
+                    <div class="stat-label">Reservas Activas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="messagesCount">0</div>
+                    <div class="stat-label">Mensajes Automáticos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="revenueAmount">€0</div>
+                    <div class="stat-label">Ingresos del Mes</div>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div id="dashboardGrid" class="dashboard-grid" style="display: none;">
+                <div class="card">
+                    <div class="card-icon">🏠</div>
+                    <h3 class="card-title">Gestionar Propiedades</h3>
+                    <p class="card-description">Añade y configura tus propiedades, precios y disponibilidad.</p>
+                    <a href="/pages/property-management.html" class="btn card-action">Gestionar</a>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">📊</div>
+                    <h3 class="card-title">Channel Manager</h3>
+                    <p class="card-description">Conecta Airbnb, Booking.com y otras plataformas.</p>
+                    <a href="/pages/channel-manager.html" class="btn card-action">Conectar</a>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">💬</div>
+                    <h3 class="card-title">WhatsApp Automático</h3>
+                    <p class="card-description">Configura mensajes automáticos multiidioma.</p>
+                    <a href="/pages/mensajes-automaticos.html" class="btn card-action">Configurar</a>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🔑</div>
+                    <h3 class="card-title">Smart Locks</h3>
+                    <p class="card-description">Gestiona códigos de acceso automáticos.</p>
+                    <a href="/pages/smart-locks.html" class="btn card-action">Configurar</a>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">💳</div>
+                    <h3 class="card-title">Fianzas Inteligentes</h3>
+                    <p class="card-description">Automatiza el cobro y liberación de fianzas.</p>
+                    <a href="/pages/fianzas-stripe.html" class="btn card-action">Configurar</a>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">📈</div>
+                    <h3 class="card-title">Analytics Avanzados</h3>
+                    <p class="card-description">Reportes detallados y métricas de rendimiento.</p>
+                    <a href="/pages/analytics.html" class="btn card-action">Ver Reportes</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- API Integration -->
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        let user = null;
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Require authentication for dashboard
+            const isAuth = await requireAuth();
+            if (isAuth) {
+                setupDashboard();
+            }
+        });
+
+        function setupDashboard() {
+            user = window.AuthGuard.getUser();
+            
+            hideLoading();
+            
+            // Update user info using AuthGuard
+            window.AuthGuard.addUserInfo('#userEmail');
+            window.AuthGuard.addUserAvatar('#userAvatar');
+            
+            document.getElementById('welcomeMessage').textContent = 
+                `¡Hola ${user.name}! Tu plataforma está ${window.AuthGuard.isDemo() ? 'en modo demo' : 'lista'}.`;
+
+            // Load appropriate data
+            if (window.AuthGuard.isDemo()) {
+                loadDemoData();
+            } else {
+                loadDashboardData();
+            }
+        }
+
+
+        function hideLoading() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('statsGrid').style.display = 'grid';
+            document.getElementById('dashboardGrid').style.display = 'grid';
+        }
+
+        function showError(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        async function loadDashboardData() {
+            try {
+                const analytics = await window.AirHostAPI.getDashboardAnalytics();
+                
+                if (analytics.success) {
+                    updateStats(analytics.data);
+                } else {
+                    throw new Error('Failed to load analytics');
+                }
+
+            } catch (error) {
+                console.error('Dashboard data error:', error);
+                loadDemoData();
+            }
+        }
+
+        function loadDemoData() {
+            // Demo data
+            const demoStats = {
+                properties: 3,
+                bookings: 12,
+                messages: 847,
+                revenue: 4250
+            };
+
+            updateStats(demoStats);
+        }
+
+        function updateStats(data) {
+            document.getElementById('propertiesCount').textContent = data.properties || 0;
+            document.getElementById('bookingsCount').textContent = data.bookings || 0;
+            document.getElementById('messagesCount').textContent = data.messages || 0;
+            document.getElementById('revenueAmount').textContent = `€${(data.revenue || 0).toLocaleString()}`;
+        }
+
+        function redirectToLogin() {
+            window.location.href = '/login.html?return=' + encodeURIComponent(window.location.pathname);
+        }
+
+        async function logout() {
+            try {
+                await window.AirHostAPI.logout();
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+            
+            // Clear local storage
+            localStorage.removeItem('airhost_token');
+            localStorage.removeItem('demo_mode');
+            localStorage.removeItem('demo_user');
+            
+            // Redirect to home
+            window.location.href = '/';
+        }
+
+        console.log('📊 Dashboard loaded with authentication');
+    </script>
+</body>
+</html>
