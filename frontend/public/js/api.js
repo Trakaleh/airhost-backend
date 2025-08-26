@@ -22,13 +22,10 @@ class AirHostAPI {
         }
         
         // Production - use the current domain with API path (Netlify redirects handle this)
-        if (window.location.hostname === 'airhostai.com' || window.location.hostname === 'www.airhostai.com') {
-            return '/api'; // Let Netlify handle the redirect to Railway
-        }
-        
-        // Netlify preview deployments
-        if (window.location.hostname.includes('netlify.app')) {
-            return '/api'; // Let Netlify handle the redirect to Railway
+        if (window.location.hostname === 'airhostai.com' || 
+            window.location.hostname === 'www.airhostai.com' ||
+            window.location.hostname.includes('netlify.app')) {
+            return '/api'; // Let Netlify handle the redirect to Railway backend
         }
         
         // Direct backend access (fallback)
