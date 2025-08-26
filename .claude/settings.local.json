@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "WebFetch(domain:airhostai.com)",
+      "Bash(railway login:*)",
+      "Bash(railway variables:*)",
+      "Bash(railway connect:*)",
+      "Bash(railway service:*)",
+      "Bash(railway run:*)",
+      "WebFetch(domain:osmo.supply)",
+      "Bash(copy index.html index-backup.html)",
+      "Bash(copy login.html login-backup.html)",
+      "Bash(npm run:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(npm start)",
+      "Bash(PORT=3002 npm start)",
+      "Bash(curl:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
