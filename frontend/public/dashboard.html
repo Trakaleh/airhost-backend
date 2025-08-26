@@ -6,31 +6,56 @@
     <title>Dashboard - AirHost AI</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --color-primary: #0071E3;
-            --color-primary-dark: #0056B3;
-            --color-secondary: #1D1D1F;
-            --color-accent: #06C;
-            --color-text-primary: #1D1D1F;
-            --color-text-secondary: #6E6E73;
-            --color-text-tertiary: #86868B;
-            --color-background: #FBFBFD;
-            --color-surface: #FFFFFF;
-            --color-border: #D2D2D7;
-            --color-success: #30D158;
-            --color-warning: #FF9F0A;
-            --color-error: #FF3B30;
-            --gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-premium: linear-gradient(135deg, #0071E3 0%, #005BB5 50%, #003D82 100%);
-            --shadow-small: 0 2px 8px rgba(0, 0, 0, 0.04);
-            --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.08);
-            --shadow-large: 0 16px 48px rgba(0, 0, 0, 0.12);
-            --border-radius: 12px;
-            --border-radius-lg: 20px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            /* Dark theme with grain texture from osmo.supply */
+            --color-bg-primary: #0a0a0a;
+            --color-bg-secondary: #111111;
+            --color-bg-tertiary: #1a1a1a;
+            --color-text-primary: #ffffff;
+            --color-text-secondary: #b3b3b3;
+            --color-text-tertiary: #666666;
+            --color-accent: #00d084; /* Verde como osmo.supply */
+            --color-accent-hover: #00b572;
+            --color-border: #2a2a2a;
+            --color-hover: rgba(255, 255, 255, 0.05);
+            --color-error: #ff4757;
+            --color-warning: #ffa726;
+            
+            /* Typography */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.875rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.25rem;
+            --font-size-2xl: 1.5rem;
+            --font-size-3xl: 1.875rem;
+            --font-size-4xl: 2.25rem;
+            
+            /* Spacing */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+            
+            /* Border radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -39,423 +64,673 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
         body {
             font-family: var(--font-family);
-            background: var(--color-background);
+            background: var(--color-bg-primary);
             color: var(--color-text-primary);
+            cursor: none;
+            min-height: 100vh;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-
-        /* Header */
-        .header {
-            background: var(--color-surface);
-            border-bottom: 1px solid var(--color-border);
-            padding: 16px 0;
-            position: sticky;
+        /* Grain texture background like osmo.supply */
+        body::before {
+            content: '';
+            position: fixed;
             top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" stitchTiles="stitch"/><feColorMatrix in="colorNoise" type="saturate" values="0"/></filter></defs><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.02"/></svg>') repeat,
+                radial-gradient(ellipse at center, rgba(0, 208, 132, 0.03) 0%, transparent 50%);
+            z-index: -1;
+            opacity: 0.8;
+        }
+
+        /* Custom cursor */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--color-accent);
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform var(--transition-fast), opacity var(--transition-fast);
+        }
+
+        .cursor.hover {
+            transform: scale(1.5);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: rgba(17, 17, 17, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--color-border);
+            padding: var(--space-8);
             z-index: 100;
         }
 
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .sidebar-logo {
+            font-size: var(--font-size-xl);
+            font-weight: 900;
+            margin-bottom: var(--space-8);
+            background: linear-gradient(135deg, var(--color-text-primary) 0%, var(--color-accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--color-primary);
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: var(--space-2);
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3) var(--space-4);
+            color: var(--color-text-secondary);
             text-decoration: none;
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-fast);
+            font-weight: 500;
         }
 
-        .user-menu {
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: var(--color-hover);
+            color: var(--color-text-primary);
+        }
+
+        .sidebar-nav a.active {
+            background: rgba(0, 208, 132, 0.1);
+            color: var(--color-accent);
+            border: 1px solid rgba(0, 208, 132, 0.2);
+        }
+
+        .sidebar-nav .icon {
+            font-size: var(--font-size-lg);
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: var(--space-8);
+            left: var(--space-8);
+            right: var(--space-8);
+        }
+
+        .user-info {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            background: var(--color-bg-secondary);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
         }
 
         .user-avatar {
             width: 40px;
             height: 40px;
-            background: var(--gradient-premium);
+            background: var(--color-accent);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
             font-weight: 600;
+            color: var(--color-bg-primary);
         }
 
-        .btn {
-            padding: 12px 20px;
-            border-radius: var(--border-radius);
-            border: none;
+        .user-details h4 {
+            font-size: var(--font-size-sm);
             font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            margin-bottom: var(--space-1);
         }
 
-        .btn-secondary {
-            background: transparent;
+        .user-details p {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-tertiary);
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: 280px;
+            padding: var(--space-8);
+            min-height: 100vh;
+        }
+
+        .dashboard-header {
+            margin-bottom: var(--space-8);
+        }
+
+        .dashboard-title {
+            font-size: var(--font-size-3xl);
+            font-weight: 800;
+            margin-bottom: var(--space-2);
+        }
+
+        .dashboard-subtitle {
             color: var(--color-text-secondary);
-            border: 1px solid var(--color-border);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--color-primary);
-            color: var(--color-primary);
-        }
-
-        /* Main Content */
-        .main {
-            padding: 40px 0;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-            margin-bottom: 40px;
-        }
-
-        .card {
-            background: var(--color-surface);
-            border: 1px solid var(--color-border);
-            border-radius: var(--border-radius-lg);
-            padding: 32px;
-            transition: var(--transition);
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-medium);
-        }
-
-        .card-icon {
-            width: 60px;
-            height: 60px;
-            background: var(--gradient-premium);
-            border-radius: var(--border-radius);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: white;
-        }
-
-        .card-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .card-description {
-            color: var(--color-text-secondary);
-            margin-bottom: 20px;
-        }
-
-        .card-action {
-            background: var(--color-primary);
-            color: white;
-            text-decoration: none;
-        }
-
-        .card-action:hover {
-            background: var(--color-primary-dark);
-            transform: translateY(-1px);
+            font-size: var(--font-size-lg);
         }
 
         /* Stats Cards */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 24px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
         }
 
         .stat-card {
-            background: var(--color-surface);
+            background: rgba(17, 17, 17, 0.6);
+            backdrop-filter: blur(20px);
             border: 1px solid var(--color-border);
-            border-radius: var(--border-radius);
-            padding: 24px;
-            text-align: center;
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
         }
 
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--color-primary);
-            margin-bottom: 8px;
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--color-accent);
+            transform: scaleX(0);
+            transition: transform var(--transition-normal);
         }
 
-        .stat-label {
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--color-accent);
+            background: rgba(17, 17, 17, 0.8);
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-4);
+        }
+
+        .stat-card-title {
             color: var(--color-text-secondary);
+            font-size: var(--font-size-sm);
             font-weight: 500;
         }
 
-        .welcome-section {
-            background: var(--gradient-premium);
-            color: white;
-            padding: 40px;
-            border-radius: var(--border-radius-lg);
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
-        .welcome-title {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .welcome-subtitle {
-            opacity: 0.9;
-            font-size: 1.125rem;
-        }
-
-        .loading {
+        .stat-card-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 208, 132, 0.1);
+            border-radius: var(--radius-lg);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px;
+            color: var(--color-accent);
+            font-size: var(--font-size-lg);
+        }
+
+        .stat-card-value {
+            font-size: var(--font-size-3xl);
+            font-weight: 900;
+            margin-bottom: var(--space-2);
+        }
+
+        .stat-card-change {
+            font-size: var(--font-size-sm);
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: rgba(17, 17, 17, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+
+        .section-title {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            margin-bottom: var(--space-6);
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+        }
+
+        .action-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-6);
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            text-decoration: none;
+            color: var(--color-text-primary);
+            transition: all var(--transition-fast);
+            cursor: pointer;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            border-color: var(--color-accent);
+            background: var(--color-bg-tertiary);
+        }
+
+        .action-button-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--color-accent);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-xl);
+            color: var(--color-bg-primary);
+        }
+
+        .action-button-title {
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .action-button-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            text-align: center;
+        }
+
+        /* Recent Activity */
+        .recent-activity {
+            background: rgba(17, 17, 17, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--color-bg-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-base);
+            color: var(--color-accent);
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            margin-bottom: var(--space-1);
+        }
+
+        .activity-desc {
+            font-size: var(--font-size-sm);
             color: var(--color-text-secondary);
         }
 
-        .error-message {
-            background: #FFF5F5;
-            border: 1px solid #FEB2B2;
-            border-radius: var(--border-radius);
-            padding: 16px;
-            color: #C53030;
-            margin-bottom: 24px;
+        .activity-time {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-tertiary);
         }
 
+        /* Status indicator */
+        .status-indicator {
+            position: fixed;
+            top: var(--space-5);
+            right: var(--space-5);
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            background: rgba(0, 208, 132, 0.1);
+            color: var(--color-accent);
+            border: 1px solid rgba(0, 208, 132, 0.2);
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .dashboard-grid,
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform var(--transition-normal);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: var(--space-4);
+            }
+
             .stats-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .header-content {
-                flex-direction: column;
-                gap: 16px;
+
+            .actions-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
+        }
+
+        /* Hover effects for better UX */
+        .sidebar-nav a,
+        .action-button,
+        .stat-card {
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <a href="/" class="logo">AirHost AI</a>
-                <div class="user-menu">
-                    <span id="userEmail" class="user-info">Cargando...</span>
-                    <div class="user-avatar" id="userAvatar">?</div>
-                    <button onclick="logout()" class="btn btn-secondary">Cerrar Sesión</button>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+
+    <!-- Status Indicator -->
+    <div class="status-indicator">
+        🟢 Sistema Activo
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">AirHost AI</div>
+        
+        <nav>
+            <ul class="sidebar-nav">
+                <li><a href="/dashboard.html" class="active"><span class="icon">📊</span> Dashboard</a></li>
+                <li><a href="/pages/property-management.html"><span class="icon">🏠</span> Propiedades</a></li>
+                <li><a href="/pages/channel-manager.html"><span class="icon">📱</span> Channel Manager</a></li>
+                <li><a href="/pages/mensajes-automaticos.html"><span class="icon">💬</span> WhatsApp Automático</a></li>
+                <li><a href="/pages/smart-locks.html"><span class="icon">🔑</span> Smart Locks</a></li>
+                <li><a href="/pages/fianzas-stripe.html"><span class="icon">💳</span> Fianzas</a></li>
+                <li><a href="/pages/analytics.html"><span class="icon">📈</span> Analytics</a></li>
+                <li><a href="/pages/contacto.html"><span class="icon">⚙️</span> Configuración</a></li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-details">
+                    <h4 id="userName">Usuario</h4>
+                    <p id="userPlan">Professional</p>
                 </div>
             </div>
         </div>
-    </header>
+    </aside>
 
-    <main class="main">
-        <div class="container">
-            <!-- Welcome Section -->
-            <div class="welcome-section">
-                <h1 class="welcome-title">¡Bienvenido a AirHost AI!</h1>
-                <p class="welcome-subtitle" id="welcomeMessage">Tu plataforma de automatización está lista</p>
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="dashboard-header">
+            <h1 class="dashboard-title">Dashboard</h1>
+            <p class="dashboard-subtitle">Bienvenido a tu centro de control de AirHost AI</p>
+        </header>
+
+        <!-- Stats Grid -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">Propiedades Activas</span>
+                    <div class="stat-card-icon">🏠</div>
+                </div>
+                <div class="stat-card-value" id="totalProperties">0</div>
+                <div class="stat-card-change">+2 este mes</div>
             </div>
 
-            <!-- Loading State -->
-            <div id="loadingState" class="loading">
-                <div>Cargando tu dashboard...</div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">Reservas Activas</span>
+                    <div class="stat-card-icon">📅</div>
+                </div>
+                <div class="stat-card-value" id="activeReservations">0</div>
+                <div class="stat-card-change">+15 esta semana</div>
             </div>
 
-            <!-- Error State -->
-            <div id="errorState" class="error-message" style="display: none;">
-                <strong>Error de conexión:</strong> <span id="errorMessage"></span>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">Ingresos Mes</span>
+                    <div class="stat-card-icon">💰</div>
+                </div>
+                <div class="stat-card-value" id="totalRevenue">€0</div>
+                <div class="stat-card-change">+23% vs mes anterior</div>
             </div>
 
-            <!-- Stats Grid -->
-            <div id="statsGrid" class="stats-grid" style="display: none;">
-                <div class="stat-card">
-                    <div class="stat-number" id="propertiesCount">0</div>
-                    <div class="stat-label">Propiedades</div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">WhatsApp Enviados</span>
+                    <div class="stat-card-icon">💬</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="bookingsCount">0</div>
-                    <div class="stat-label">Reservas Activas</div>
+                <div class="stat-card-value">1,247</div>
+                <div class="stat-card-change">+8.5% esta semana</div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions">
+            <h2 class="section-title">Acciones Rápidas</h2>
+            <div class="actions-grid">
+                <a href="/pages/property-management.html" class="action-button">
+                    <div class="action-button-icon">🏠</div>
+                    <div class="action-button-title">Nueva Propiedad</div>
+                    <div class="action-button-desc">Añadir nueva propiedad</div>
+                </a>
+
+                <a href="/pages/channel-manager.html" class="action-button">
+                    <div class="action-button-icon">📊</div>
+                    <div class="action-button-title">Sincronizar Calendarios</div>
+                    <div class="action-button-desc">Actualizar disponibilidad</div>
+                </a>
+
+                <a href="/pages/mensajes-automaticos.html" class="action-button">
+                    <div class="action-button-icon">💬</div>
+                    <div class="action-button-title">Configurar WhatsApp</div>
+                    <div class="action-button-desc">Plantillas de mensajes</div>
+                </a>
+
+                <a href="/pages/analytics.html" class="action-button">
+                    <div class="action-button-icon">📈</div>
+                    <div class="action-button-title">Ver Reportes</div>
+                    <div class="action-button-desc">Analytics completos</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <section class="recent-activity">
+            <h2 class="section-title">Actividad Reciente</h2>
+            <div id="recentActivities">
+                <div class="activity-item">
+                    <div class="activity-icon">💬</div>
+                    <div class="activity-content">
+                        <div class="activity-title">WhatsApp automático enviado</div>
+                        <div class="activity-desc">Mensaje de bienvenida a nuevo huésped</div>
+                    </div>
+                    <div class="activity-time">Hace 2 min</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="messagesCount">0</div>
-                    <div class="stat-label">Mensajes Automáticos</div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon">📅</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Nueva reserva sincronizada</div>
+                        <div class="activity-desc">Propiedad Villa Barcelona - 5 noches</div>
+                    </div>
+                    <div class="activity-time">Hace 15 min</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="revenueAmount">€0</div>
-                    <div class="stat-label">Ingresos del Mes</div>
+
+                <div class="activity-item">
+                    <div class="activity-icon">🔑</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Código de acceso generado</div>
+                        <div class="activity-desc">Smart Lock Villa Madrid - Código: 4789</div>
+                    </div>
+                    <div class="activity-time">Hace 1 hora</div>
                 </div>
             </div>
-
-            <!-- Dashboard Grid -->
-            <div id="dashboardGrid" class="dashboard-grid" style="display: none;">
-                <div class="card">
-                    <div class="card-icon">🏠</div>
-                    <h3 class="card-title">Gestionar Propiedades</h3>
-                    <p class="card-description">Añade y configura tus propiedades, precios y disponibilidad.</p>
-                    <a href="/pages/property-management.html" class="btn card-action">Gestionar</a>
-                </div>
-
-                <div class="card">
-                    <div class="card-icon">📊</div>
-                    <h3 class="card-title">Channel Manager</h3>
-                    <p class="card-description">Conecta Airbnb, Booking.com y otras plataformas.</p>
-                    <a href="/pages/channel-manager.html" class="btn card-action">Conectar</a>
-                </div>
-
-                <div class="card">
-                    <div class="card-icon">💬</div>
-                    <h3 class="card-title">WhatsApp Automático</h3>
-                    <p class="card-description">Configura mensajes automáticos multiidioma.</p>
-                    <a href="/pages/mensajes-automaticos.html" class="btn card-action">Configurar</a>
-                </div>
-
-                <div class="card">
-                    <div class="card-icon">🔑</div>
-                    <h3 class="card-title">Smart Locks</h3>
-                    <p class="card-description">Gestiona códigos de acceso automáticos.</p>
-                    <a href="/pages/smart-locks.html" class="btn card-action">Configurar</a>
-                </div>
-
-                <div class="card">
-                    <div class="card-icon">💳</div>
-                    <h3 class="card-title">Fianzas Inteligentes</h3>
-                    <p class="card-description">Automatiza el cobro y liberación de fianzas.</p>
-                    <a href="/pages/fianzas-stripe.html" class="btn card-action">Configurar</a>
-                </div>
-
-                <div class="card">
-                    <div class="card-icon">📈</div>
-                    <h3 class="card-title">Analytics Avanzados</h3>
-                    <p class="card-description">Reportes detallados y métricas de rendimiento.</p>
-                    <a href="/pages/analytics.html" class="btn card-action">Ver Reportes</a>
-                </div>
-            </div>
-        </div>
+        </section>
     </main>
 
-    <!-- API Integration -->
-    <script src="/js/api.js"></script>
-    <script src="/js/auth.js"></script>
     <script>
-        let user = null;
+        // Custom cursor
+        const cursor = document.getElementById('cursor');
+        let mouseX = 0;
+        let mouseY = 0;
+        let cursorX = 0;
+        let cursorY = 0;
 
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Require authentication for dashboard
-            const isAuth = await requireAuth();
-            if (isAuth) {
-                setupDashboard();
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateCursor() {
+            const dx = mouseX - cursorX;
+            const dy = mouseY - cursorY;
+            
+            cursorX += dx * 0.1;
+            cursorY += dy * 0.1;
+            
+            cursor.style.left = cursorX - 10 + 'px';
+            cursor.style.top = cursorY - 10 + 'px';
+            
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // Hover effects
+        document.querySelectorAll('a, button, .stat-card, .action-button').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.classList.add('hover');
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.classList.remove('hover');
+            });
+        });
+
+        // Load user data
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Get user from localStorage (demo or real)
+                const demoUser = JSON.parse(localStorage.getItem('demo_user') || '{}');
+                const isDemo = localStorage.getItem('demo_mode') === 'true';
+
+                if (demoUser.name) {
+                    document.getElementById('userName').textContent = demoUser.name;
+                    document.getElementById('userAvatar').textContent = demoUser.name.charAt(0).toUpperCase();
+                }
+
+                // Load dashboard stats
+                await loadDashboardStats();
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
             }
         });
 
-        function setupDashboard() {
-            user = window.AuthGuard.getUser();
-            
-            hideLoading();
-            
-            // Update user info using AuthGuard
-            window.AuthGuard.addUserInfo('#userEmail');
-            window.AuthGuard.addUserAvatar('#userAvatar');
-            
-            document.getElementById('welcomeMessage').textContent = 
-                `¡Hola ${user.name}! Tu plataforma está ${window.AuthGuard.isDemo() ? 'en modo demo' : 'lista'}.`;
-
-            // Load appropriate data
-            if (window.AuthGuard.isDemo()) {
-                loadDemoData();
-            } else {
-                loadDashboardData();
-            }
-        }
-
-
-        function hideLoading() {
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('statsGrid').style.display = 'grid';
-            document.getElementById('dashboardGrid').style.display = 'grid';
-        }
-
-        function showError(message) {
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('errorState').style.display = 'block';
-            document.getElementById('errorMessage').textContent = message;
-        }
-
-        async function loadDashboardData() {
+        async function loadDashboardStats() {
             try {
-                const analytics = await window.AirHostAPI.getDashboardAnalytics();
-                
-                if (analytics.success) {
-                    updateStats(analytics.data);
-                } else {
-                    throw new Error('Failed to load analytics');
+                // Try to fetch real data from backend
+                const response = await fetch('/api/analytics/dashboard', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        document.getElementById('totalProperties').textContent = data.stats.totalProperties || 0;
+                        document.getElementById('activeReservations').textContent = data.stats.activeReservations || 0;
+                        document.getElementById('totalRevenue').textContent = `€${data.stats.totalRevenue || 0}`;
+                        
+                        // Update status indicator
+                        document.querySelector('.status-indicator').innerHTML = '🟢 Backend Conectado';
+                        document.querySelector('.status-indicator').style.background = 'rgba(0, 208, 132, 0.1)';
+                        return;
+                    }
                 }
-
             } catch (error) {
-                console.error('Dashboard data error:', error);
-                loadDemoData();
+                console.log('Backend not available, using demo data');
             }
-        }
 
-        function loadDemoData() {
-            // Demo data
-            const demoStats = {
-                properties: 3,
-                bookings: 12,
-                messages: 847,
-                revenue: 4250
-            };
-
-            updateStats(demoStats);
-        }
-
-        function updateStats(data) {
-            document.getElementById('propertiesCount').textContent = data.properties || 0;
-            document.getElementById('bookingsCount').textContent = data.bookings || 0;
-            document.getElementById('messagesCount').textContent = data.messages || 0;
-            document.getElementById('revenueAmount').textContent = `€${(data.revenue || 0).toLocaleString()}`;
-        }
-
-        function redirectToLogin() {
-            window.location.href = '/login.html?return=' + encodeURIComponent(window.location.pathname);
-        }
-
-        async function logout() {
-            try {
-                await window.AirHostAPI.logout();
-            } catch (error) {
-                console.error('Logout error:', error);
-            }
+            // Use demo data if backend is not available
+            document.getElementById('totalProperties').textContent = '3';
+            document.getElementById('activeReservations').textContent = '8';
+            document.getElementById('totalRevenue').textContent = '€2,840';
             
-            // Clear local storage
-            localStorage.removeItem('airhost_token');
+            // Update status indicator for demo mode
+            document.querySelector('.status-indicator').innerHTML = '🟡 Modo Demo';
+            document.querySelector('.status-indicator').style.background = 'rgba(255, 159, 10, 0.1)';
+            document.querySelector('.status-indicator').style.color = '#ffa726';
+            document.querySelector('.status-indicator').style.borderColor = 'rgba(255, 159, 10, 0.2)';
+        }
+
+        // Add logout functionality
+        function logout() {
+            localStorage.removeItem('auth_token');
             localStorage.removeItem('demo_mode');
             localStorage.removeItem('demo_user');
-            
-            // Redirect to home
-            window.location.href = '/';
+            window.location.href = '/login.html';
         }
 
-        console.log('📊 Dashboard loaded with authentication');
+        console.log('🚀 AirHost AI Dashboard - Loaded successfully');
     </script>
 </body>
 </html>
