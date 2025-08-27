@@ -1226,7 +1226,7 @@ app.get('/', (req, res) => {
 // 🚀 INICIAR SERVIDOR
 // ====================================
 
-const PORT = process.env.PORT || 3007;
+const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
     console.log(`🚀 AirHost Server v2 running on port ${PORT}`);
