@@ -186,10 +186,10 @@ app.post('/api/auth/register', async (req, res) => {
         const { email, password, name, phone } = req.body;
 
         // Validaciones
-        if (!email || !password || !name || !phone) {
+        if (!email || !password || !name) {
             return res.status(400).json({
                 success: false,
-                error: 'Todos los campos son requeridos'
+                error: 'Email, contraseña y nombre son requeridos'
             });
         }
 
@@ -221,7 +221,7 @@ app.post('/api/auth/register', async (req, res) => {
                 email: email.toLowerCase(),
                 password: hashedPassword,
                 name,
-                phone
+                phone: phone || '' // Hacer phone opcional
             }
         });
 
