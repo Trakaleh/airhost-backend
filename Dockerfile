@@ -1,6 +1,12 @@
 # Use Node.js 18
 FROM node:18-alpine
 
+# Install OpenSSL and other dependencies
+RUN apk add --no-cache openssl
+
+# Set Prisma environment
+ENV PRISMA_CLI_BINARY_TARGETS=linux-musl
+
 # Set working directory for our backend
 WORKDIR /app
 
@@ -20,8 +26,8 @@ RUN npx prisma generate
 # Expose port (Railway uses PORT env variable)
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+# Health check with longer startup period
+HEALTHCHECK --interval=30s --timeout=15s --start-period=60s --retries=5 \
     CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 8080) + '/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
 # Start application
