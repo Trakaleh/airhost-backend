@@ -29,7 +29,7 @@ class AirHostAPI {
         }
         
         // Direct backend access (fallback)
-        return 'https://tu-app.railway.app/api';
+        return 'https://airhost-backend-production.up.railway.app/api';
     }
 
     /**

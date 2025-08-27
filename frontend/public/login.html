@@ -510,6 +510,11 @@
             </div>
             
             <div class="form-group">
+                <label class="form-label" for="registerPhone">Teléfono</label>
+                <input id="registerPhone" name="phone" type="tel" class="form-input" placeholder="+34 123 456 789" required>
+            </div>
+
+            <div class="form-group">
                 <label class="form-label" for="registerPassword">Contraseña</label>
                 <input id="registerPassword" name="password" type="password" class="form-input" placeholder="••••••••" minlength="6" required>
             </div>
@@ -746,6 +751,7 @@
             const formData = new FormData(this);
             const name = formData.get('name');
             const email = formData.get('email');
+            const phone = formData.get('phone');
             const password = formData.get('password');
             const confirmPassword = formData.get('confirmPassword');
             
@@ -762,7 +768,7 @@
                     throw new Error('API module not loaded');
                 }
                 
-                const userData = { name, email, password };
+                const userData = { name, email, phone, password };
                 const response = await window.AirHostAPI.register(userData);
                 
                 if (response.success && response.token) {
@@ -792,7 +798,7 @@
                     
                     if (useDemo) {
                         localStorage.setItem('demo_mode', 'true');
-                        localStorage.setItem('demo_user', JSON.stringify({name, email}));
+                        localStorage.setItem('demo_user', JSON.stringify({name, email, phone}));
                         window.location.href = '/dashboard.html';
                     }
                 } else {

@@ -1,12 +1,8 @@
 const axios = require('axios');
-const { ObjectId } = require('mongodb');
 
 class WhatsAppService {
-    constructor(db) {
-        this.db = db;
-        this.messagesCollection = db.collection('messages');
-        this.templatesCollection = db.collection('message_templates');
-        this.automationRulesCollection = db.collection('automation_rules');
+    constructor() {
+        // Services now use Prisma directly instead of MongoDB collections
         
         // WhatsApp Business API configuration
         this.whatsappConfig = {
