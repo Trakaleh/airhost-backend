@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatización WhatsApp - AirHost AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg-primary: #0a0a0a;
+            --color-bg-secondary: #111111;
+            --color-bg-tertiary: #1a1a1a;
+            --color-text-primary: #ffffff;
+            --color-text-secondary: #b3b3b3;
+            --color-text-tertiary: #666666;
+            --color-accent: #00d084;
+            --color-accent-hover: #00b572;
+            --color-border: #2a2a2a;
+            --color-hover: rgba(255, 255, 255, 0.05);
+            --color-error: #ff4757;
+            --color-warning: #ffa726;
+            --color-whatsapp: #25D366;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--color-bg-secondary);
+            border-right: 1px solid var(--color-border);
+            padding: 2rem 0;
+        }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--color-accent);
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 2rem;
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: var(--color-hover);
+            color: var(--color-text-primary);
+            border-right: 3px solid var(--color-accent);
+        }
+
+        .nav-menu .icon {
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--color-accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: var(--color-accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--color-bg-tertiary);
+            color: var(--color-text-secondary);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-whatsapp {
+            background: var(--color-whatsapp);
+        }
+
+        .btn-whatsapp:hover {
+            background: #1db954;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: 2rem;
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: var(--color-accent);
+            border-bottom-color: var(--color-accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .template-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .template-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--color-accent);
+            box-shadow: 0 10px 30px rgba(0, 208, 132, 0.1);
+        }
+
+        .template-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .template-type {
+            background: var(--color-accent);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .template-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .template-preview {
+            background: var(--color-bg-tertiary);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--color-whatsapp);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+        }
+
+        .template-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .btn-primary {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-accent-hover);
+        }
+
+        .btn-secondary-small {
+            background: var(--color-bg-tertiary);
+            color: var(--color-text-secondary);
+            border: 1px solid var(--color-border);
+        }
+
+        .automation-rules {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .rule-card {
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rule-info h4 {
+            color: var(--color-text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .rule-info p {
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .rule-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-toggle {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: var(--color-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .status-toggle.active {
+            background: var(--color-accent);
+        }
+
+        .status-toggle::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .status-toggle.active::before {
+            transform: translateX(26px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--color-text-primary);
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            color: var(--color-text-primary);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(0, 208, 132, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--color-text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: var(--color-hover);
+            color: var(--color-text-primary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .variable-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .variable-tag {
+            background: var(--color-bg-tertiary);
+            color: var(--color-accent);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease;
+        }
+
+        .variable-tag:hover {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--color-text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                z-index: 100;
+                padding: 1rem 0;
+                height: auto;
+                border-top: 1px solid var(--color-border);
+                border-right: none;
+            }
+            
+            .nav-menu {
+                display: flex;
+                justify-content: space-around;
+                overflow-x: auto;
+            }
+            
+            .nav-menu li {
+                margin: 0;
+                flex-shrink: 0;
+            }
+            
+            .nav-menu a {
+                flex-direction: column;
+                padding: 0.5rem;
+                text-align: center;
+                font-size: 0.75rem;
+            }
+            
+            .nav-menu .icon {
+                margin: 0;
+                margin-bottom: 0.25rem;
+            }
+            
+            .main-content {
+                padding-bottom: 100px;
+            }
+            
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="logo">AirHost AI</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/dashboard.html"><span class="icon">📊</span> Dashboard</a></li>
+                <li><a href="/properties.html"><span class="icon">🏠</span> Propiedades</a></li>
+                <li><a href="/reservations.html"><span class="icon">📅</span> Reservas</a></li>
+                <li><a href="/pages/channel-manager.html"><span class="icon">📱</span> Channel Manager</a></li>
+                <li><a href="/pages/whatsapp-automation.html" class="active"><span class="icon">💬</span> WhatsApp</a></li>
+                <li><a href="/pages/smart-locks.html"><span class="icon">🔑</span> Smart Locks</a></li>
+                <li><a href="/pages/analytics.html"><span class="icon">📈</span> Analytics</a></li>
+                <li><a href="/login.html"><span class="icon">🚪</span> Salir</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1 class="header-title">Automatización WhatsApp</h1>
+                <button class="btn btn-whatsapp" onclick="openTemplateModal()">
+                    ➕ Nueva Plantilla
+                </button>
+            </div>
+
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalMessages">-</div>
+                    <div class="stat-label">Mensajes Enviados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="activeTemplates">-</div>
+                    <div class="stat-label">Plantillas Activas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="automationRules">-</div>
+                    <div class="stat-label">Reglas de Automatización</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="deliveryRate">-%</div>
+                    <div class="stat-label">Tasa de Entrega</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab(event, 'templates')">Plantillas</button>
+                <button class="tab" onclick="switchTab(event, 'automation')">Automatización</button>
+                <button class="tab" onclick="switchTab(event, 'history')">Historial</button>
+            </div>
+
+            <!-- Templates Tab -->
+            <div id="templates" class="tab-content active">
+                <div class="template-grid" id="templatesContainer">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💬</div>
+                        <h3 class="empty-state-title">Cargando plantillas...</h3>
+                        <p>Las plantillas de WhatsApp aparecerán aquí</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Automation Tab -->
+            <div id="automation" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Reglas de Automatización</h3>
+                        <button class="btn btn-secondary" onclick="openAutomationModal()">
+                            ➕ Nueva Regla
+                        </button>
+                    </div>
+                    <div class="automation-rules" id="automationContainer">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">⚙️</div>
+                            <h3 class="empty-state-title">Sin reglas configuradas</h3>
+                            <p>Crea reglas para automatizar el envío de mensajes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Tab -->
+            <div id="history" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Historial de Mensajes</h3>
+                    </div>
+                    <div id="historyContainer">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <h3 class="empty-state-title">Sin mensajes enviados</h3>
+                            <p>El historial de mensajes aparecerá aquí</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Template Modal -->
+    <div id="templateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="templateModalTitle">Nueva Plantilla de Mensaje</h2>
+                <button class="close-btn" onclick="closeTemplateModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="templateForm">
+                    <input type="hidden" id="templateId" name="id">
+                    <div class="form-group">
+                        <label for="templateName" class="form-label">Nombre de la Plantilla</label>
+                        <input type="text" id="templateName" name="name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="templateCategory" class="form-label">Categoría</label>
+                        <select id="templateCategory" name="category" class="form-select" required>
+                            <option value="">Seleccionar categoría</option>
+                            <option value="welcome">Bienvenida</option>
+                            <option value="checkin">Check-in</option>
+                            <option value="checkout">Check-out</option>
+                            <option value="review_request">Solicitud de Reseña</option>
+                            <option value="custom">Personalizado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="templateLanguage" class="form-label">Idioma</label>
+                        <select id="templateLanguage" name="language" class="form-select" required>
+                            <option value="es">Español</option>
+                            <option value="en">English</option>
+                            <option value="fr">Français</option>
+                            <option value="de">Deutsch</option>
+                            <option value="it">Italiano</option>
+                            <option value="pt">Português</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="templateContent" class="form-label">Contenido del Mensaje</label>
+                        <textarea id="templateContent" name="content" class="form-textarea" rows="6" required 
+                                  placeholder="¡Hola {{guest_name}}! Bienvenido a {{property_name}}..."></textarea>
+                        <div class="variable-tags">
+                            <span class="variable-tag" onclick="insertVariable('{{guest_name}}')">{{guest_name}}</span>
+                            <span class="variable-tag" onclick="insertVariable('{{property_name}}')">{{property_name}}</span>
+                            <span class="variable-tag" onclick="insertVariable('{{check_in_date}}')">{{check_in_date}}</span>
+                            <span class="variable-tag" onclick="insertVariable('{{check_out_date}}')">{{check_out_date}}</span>
+                            <span class="variable-tag" onclick="insertVariable('{{access_code}}')">{{access_code}}</span>
+                            <span class="variable-tag" onclick="insertVariable('{{wifi_name}}')">{{wifi_name}}</span>
+                            <span class="variable-tag" onclick="insertVariable('{{wifi_password}}')">{{wifi_password}}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn" id="templateSubmitBtn">Crear Plantilla</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeTemplateModal()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Automation Modal -->
+    <div id="automationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Nueva Regla de Automatización</h2>
+                <button class="close-btn" onclick="closeAutomationModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="automationForm">
+                    <div class="form-group">
+                        <label for="ruleName" class="form-label">Nombre de la Regla</label>
+                        <input type="text" id="ruleName" name="name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ruleEvent" class="form-label">Evento Disparador</label>
+                        <select id="ruleEvent" name="eventType" class="form-select" required>
+                            <option value="">Seleccionar evento</option>
+                            <option value="booking_confirmed">Reserva Confirmada</option>
+                            <option value="checkin_reminder">Recordatorio Check-in</option>
+                            <option value="checkout_reminder">Recordatorio Check-out</option>
+                            <option value="post_checkout">Post Check-out</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ruleTemplate" class="form-label">Plantilla de Mensaje</label>
+                        <select id="ruleTemplate" name="templateId" class="form-select" required>
+                            <option value="">Seleccionar plantilla</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ruleDelay" class="form-label">Retraso (minutos)</label>
+                        <input type="number" id="ruleDelay" name="delayMinutes" class="form-input" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn">Crear Regla</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeAutomationModal()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        let templates = [];
+        let automationRules = [];
+        let messages = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Check authentication
+                const token = localStorage.getItem('airhost_token');
+                if (!token) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                await Promise.all([
+                    loadTemplates(),
+                    loadAutomationRules(),
+                    loadMessages(),
+                    updateStats()
+                ]);
+            } catch (error) {
+                console.error('Error initializing WhatsApp automation page:', error);
+            }
+        });
+
+        // Load templates
+        async function loadTemplates() {
+            try {
+                const response = await window.AirHostAPI.get('/messages/templates');
+                
+                if (response.success && response.templates) {
+                    templates = response.templates;
+                    renderTemplates(templates);
+                } else {
+                    renderEmptyTemplates();
+                }
+            } catch (error) {
+                console.error('Error loading templates:', error);
+                renderEmptyTemplates();
+            }
+        }
+
+        // Load automation rules
+        async function loadAutomationRules() {
+            try {
+                const response = await window.AirHostAPI.get('/messages/automation-rules');
+                
+                if (response.success && response.rules) {
+                    automationRules = response.rules;
+                    renderAutomationRules(automationRules);
+                } else {
+                    renderEmptyAutomation();
+                }
+            } catch (error) {
+                console.error('Error loading automation rules:', error);
+                renderEmptyAutomation();
+            }
+        }
+
+        // Load messages history
+        async function loadMessages() {
+            try {
+                const response = await window.AirHostAPI.get('/messages/history?limit=50');
+                
+                if (response.success && response.messages) {
+                    messages = response.messages;
+                    renderMessageHistory(messages);
+                } else {
+                    renderEmptyHistory();
+                }
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                renderEmptyHistory();
+            }
+        }
+
+        // Update statistics
+        async function updateStats() {
+            try {
+                // Mock data for demo
+                document.getElementById('totalMessages').textContent = Math.floor(Math.random() * 1000) + 500;
+                document.getElementById('activeTemplates').textContent = templates.length || Math.floor(Math.random() * 10) + 5;
+                document.getElementById('automationRules').textContent = automationRules.length || Math.floor(Math.random() * 5) + 3;
+                document.getElementById('deliveryRate').textContent = Math.floor(Math.random() * 10) + 90;
+            } catch (error) {
+                console.error('Error updating stats:', error);
+            }
+        }
+
+        // Render templates
+        function renderTemplates(templates) {
+            const container = document.getElementById('templatesContainer');
+            
+            if (!templates || templates.length === 0) {
+                renderEmptyTemplates();
+                return;
+            }
+
+            container.innerHTML = templates.map(template => `
+                <div class="template-card">
+                    <div class="template-header">
+                        <div class="template-type">${getCategoryName(template.category)}</div>
+                    </div>
+                    <h3 class="template-title">${template.name}</h3>
+                    <div class="template-preview">${template.content.substring(0, 100)}...</div>
+                    <div class="template-actions">
+                        <button class="btn-small btn-primary" onclick="editTemplate('${template.id}')">
+                            ✏️ Editar
+                        </button>
+                        <button class="btn-small btn-secondary-small" onclick="testTemplate('${template.id}')">
+                            🧪 Probar
+                        </button>
+                        <button class="btn-small" style="background: var(--color-error); color: white;" onclick="deleteTemplate('${template.id}')">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderEmptyTemplates() {
+            document.getElementById('templatesContainer').innerHTML = `
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <div class="empty-state-icon">💬</div>
+                    <h3 class="empty-state-title">Sin plantillas configuradas</h3>
+                    <p>Crea tu primera plantilla de WhatsApp para automatizar mensajes</p>
+                </div>
+            `;
+        }
+
+        // Render automation rules
+        function renderAutomationRules(rules) {
+            const container = document.getElementById('automationContainer');
+            
+            if (!rules || rules.length === 0) {
+                renderEmptyAutomation();
+                return;
+            }
+
+            container.innerHTML = rules.map(rule => `
+                <div class="rule-card">
+                    <div class="rule-info">
+                        <h4>${rule.name}</h4>
+                        <p>${getEventName(rule.eventType)} • ${rule.delayMinutes} min retraso</p>
+                    </div>
+                    <div class="rule-status">
+                        <div class="status-toggle ${rule.isActive ? 'active' : ''}" onclick="toggleRule('${rule.id}', ${!rule.isActive})"></div>
+                        <button class="btn-small btn-secondary-small" onclick="editRule('${rule.id}')">✏️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderEmptyAutomation() {
+            document.getElementById('automationContainer').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⚙️</div>
+                    <h3 class="empty-state-title">Sin reglas configuradas</h3>
+                    <p>Crea reglas para automatizar el envío de mensajes</p>
+                </div>
+            `;
+        }
+
+        // Render message history
+        function renderMessageHistory(messages) {
+            const container = document.getElementById('historyContainer');
+            
+            if (!messages || messages.length === 0) {
+                renderEmptyHistory();
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="card">
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--color-border);">
+                                    <th style="padding: 1rem; text-align: left; color: var(--color-text-primary);">Fecha</th>
+                                    <th style="padding: 1rem; text-align: left; color: var(--color-text-primary);">Huésped</th>
+                                    <th style="padding: 1rem; text-align: left; color: var(--color-text-primary);">Mensaje</th>
+                                    <th style="padding: 1rem; text-align: left; color: var(--color-text-primary);">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${messages.map(message => `
+                                    <tr style="border-bottom: 1px solid var(--color-border);">
+                                        <td style="padding: 1rem; color: var(--color-text-secondary);">
+                                            ${new Date(message.sentAt || message.createdAt).toLocaleDateString()}
+                                        </td>
+                                        <td style="padding: 1rem; color: var(--color-text-primary);">
+                                            ${message.guestName}
+                                        </td>
+                                        <td style="padding: 1rem; color: var(--color-text-secondary);">
+                                            ${message.content.substring(0, 50)}...
+                                        </td>
+                                        <td style="padding: 1rem;">
+                                            <span class="status-badge status-${message.status}">
+                                                ${getStatusName(message.status)}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderEmptyHistory() {
+            document.getElementById('historyContainer').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📜</div>
+                    <h3 class="empty-state-title">Sin mensajes enviados</h3>
+                    <p>El historial de mensajes aparecerá aquí</p>
+                </div>
+            `;
+        }
+
+        // Tab switching
+        function switchTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove('active');
+            }
+
+            const tablinks = document.getElementsByClassName('tab');
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove('active');
+            }
+
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        // Modal functions
+        function openTemplateModal(templateId = null) {
+            const modal = document.getElementById('templateModal');
+            const title = document.getElementById('templateModalTitle');
+            const form = document.getElementById('templateForm');
+            
+            if (templateId) {
+                const template = templates.find(t => t.id === templateId);
+                if (template) {
+                    title.textContent = 'Editar Plantilla';
+                    document.getElementById('templateId').value = template.id;
+                    document.getElementById('templateName').value = template.name;
+                    document.getElementById('templateCategory').value = template.category;
+                    document.getElementById('templateLanguage').value = template.language;
+                    document.getElementById('templateContent').value = template.content;
+                    document.getElementById('templateSubmitBtn').textContent = 'Actualizar Plantilla';
+                }
+            } else {
+                title.textContent = 'Nueva Plantilla de Mensaje';
+                form.reset();
+                document.getElementById('templateSubmitBtn').textContent = 'Crear Plantilla';
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function closeTemplateModal() {
+            document.getElementById('templateModal').classList.remove('active');
+        }
+
+        function openAutomationModal() {
+            // Populate template options
+            const templateSelect = document.getElementById('ruleTemplate');
+            templateSelect.innerHTML = '<option value="">Seleccionar plantilla</option>' +
+                templates.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+            
+            document.getElementById('automationModal').classList.add('active');
+        }
+
+        function closeAutomationModal() {
+            document.getElementById('automationModal').classList.remove('active');
+        }
+
+        // Form submissions
+        document.getElementById('templateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const templateData = Object.fromEntries(formData.entries());
+            const isEdit = templateData.id && templateData.id.trim() !== '';
+            
+            try {
+                const submitBtn = document.getElementById('templateSubmitBtn');
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = isEdit ? 'Actualizando...' : 'Creando...';
+                submitBtn.disabled = true;
+
+                let response;
+                if (isEdit) {
+                    response = await window.AirHostAPI.put(`/messages/templates/${templateData.id}`, templateData);
+                } else {
+                    response = await window.AirHostAPI.post('/messages/templates', templateData);
+                }
+
+                if (response.success) {
+                    closeTemplateModal();
+                    await loadTemplates();
+                    await updateStats();
+                } else {
+                    throw new Error(response.error || 'Error al guardar la plantilla');
+                }
+            } catch (error) {
+                console.error('Error saving template:', error);
+                alert('Error al guardar la plantilla: ' + error.message);
+            } finally {
+                const submitBtn = document.getElementById('templateSubmitBtn');
+                submitBtn.textContent = templateData.id ? 'Actualizar Plantilla' : 'Crear Plantilla';
+                submitBtn.disabled = false;
+            }
+        });
+
+        document.getElementById('automationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const ruleData = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await window.AirHostAPI.post('/messages/automation-rules', ruleData);
+                
+                if (response.success) {
+                    closeAutomationModal();
+                    await loadAutomationRules();
+                    await updateStats();
+                } else {
+                    throw new Error(response.error || 'Error al crear la regla');
+                }
+            } catch (error) {
+                console.error('Error creating automation rule:', error);
+                alert('Error al crear la regla: ' + error.message);
+            }
+        });
+
+        // Utility functions
+        function getCategoryName(category) {
+            const names = {
+                'welcome': 'Bienvenida',
+                'checkin': 'Check-in',
+                'checkout': 'Check-out',
+                'review_request': 'Reseña',
+                'custom': 'Personalizado'
+            };
+            return names[category] || category;
+        }
+
+        function getEventName(eventType) {
+            const names = {
+                'booking_confirmed': 'Reserva Confirmada',
+                'checkin_reminder': 'Recordatorio Check-in',
+                'checkout_reminder': 'Recordatorio Check-out',
+                'post_checkout': 'Post Check-out'
+            };
+            return names[eventType] || eventType;
+        }
+
+        function getStatusName(status) {
+            const names = {
+                'pending': 'Pendiente',
+                'sent': 'Enviado',
+                'delivered': 'Entregado',
+                'failed': 'Fallido'
+            };
+            return names[status] || status;
+        }
+
+        function insertVariable(variable) {
+            const textarea = document.getElementById('templateContent');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            
+            textarea.value = text.substring(0, start) + variable + text.substring(end);
+            textarea.setSelectionRange(start + variable.length, start + variable.length);
+            textarea.focus();
+        }
+
+        function editTemplate(templateId) {
+            openTemplateModal(templateId);
+        }
+
+        function testTemplate(templateId) {
+            alert('Función de prueba en desarrollo');
+        }
+
+        function deleteTemplate(templateId) {
+            if (confirm('¿Estás seguro de que quieres eliminar esta plantilla?')) {
+                // Implementation for delete
+                alert('Función de eliminar en desarrollo');
+            }
+        }
+
+        function toggleRule(ruleId, isActive) {
+            // Implementation for toggle rule
+            alert('Función de activar/desactivar en desarrollo');
+        }
+
+        function editRule(ruleId) {
+            alert('Función de editar regla en desarrollo');
+        }
+
+        // Close modals when clicking outside
+        document.getElementById('templateModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeTemplateModal();
+            }
+        });
+
+        document.getElementById('automationModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAutomationModal();
+            }
+        });
+
+        // Handle escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeTemplateModal();
+                closeAutomationModal();
+            }
+        });
+    </script>
+</body>
+</html>

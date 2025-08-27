@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Avanzados - AirHost AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --color-bg-primary: #0a0a0a;
+            --color-bg-secondary: #111111;
+            --color-bg-tertiary: #1a1a1a;
+            --color-text-primary: #ffffff;
+            --color-text-secondary: #b3b3b3;
+            --color-text-tertiary: #666666;
+            --color-accent: #00d084;
+            --color-accent-hover: #00b572;
+            --color-border: #2a2a2a;
+            --color-hover: rgba(255, 255, 255, 0.05);
+            --color-error: #ff4757;
+            --color-warning: #ffa726;
+            --color-success: #2ed573;
+            --color-info: #3742fa;
+            --color-purple: #8b5cf6;
+            --color-orange: #f97316;
+            --color-teal: #14b8a6;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--color-bg-secondary);
+            border-right: 1px solid var(--color-border);
+            padding: 2rem 0;
+        }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--color-accent);
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 2rem;
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: var(--color-hover);
+            color: var(--color-text-primary);
+            border-right: 3px solid var(--color-accent);
+        }
+
+        .nav-menu .icon {
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+
+        .period-selector {
+            display: flex;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .period-btn {
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .period-btn.active {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-color, var(--color-accent));
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-title {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+        }
+
+        .kpi-icon {
+            font-size: 1.5rem;
+            opacity: 0.7;
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-change {
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .kpi-change.positive {
+            color: var(--color-success);
+        }
+
+        .kpi-change.negative {
+            color: var(--color-error);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .breakdown-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .breakdown-list {
+            list-style: none;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .breakdown-label {
+            color: var(--color-text-secondary);
+        }
+
+        .breakdown-value {
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .breakdown-bar {
+            width: 60px;
+            height: 4px;
+            background: var(--color-bg-tertiary);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-left: 1rem;
+        }
+
+        .breakdown-fill {
+            height: 100%;
+            background: var(--color-accent);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .insights-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .insights-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .insights-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .insight-item {
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--insight-color, var(--color-info));
+        }
+
+        .insight-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .insight-text {
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+        }
+
+        .insight-highlight {
+            color: var(--color-text-primary);
+            font-weight: 600;
+        }
+
+        .trend-card {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem;
+            align-items: center;
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .trend-info h4 {
+            color: var(--color-text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .trend-info p {
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .trend-indicator {
+            font-size: 2rem;
+            color: var(--color-accent);
+        }
+
+        .export-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--color-bg-tertiary);
+            color: var(--color-text-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .export-btn:hover {
+            background: var(--color-accent);
+            color: white;
+            border-color: var(--color-accent);
+        }
+
+        .loading-skeleton {
+            background: linear-gradient(90deg, var(--color-bg-tertiary) 25%, var(--color-hover) 50%, var(--color-bg-tertiary) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                z-index: 100;
+                padding: 1rem 0;
+                height: auto;
+                border-top: 1px solid var(--color-border);
+                border-right: none;
+            }
+            
+            .nav-menu {
+                display: flex;
+                justify-content: space-around;
+                overflow-x: auto;
+            }
+            
+            .nav-menu li {
+                margin: 0;
+                flex-shrink: 0;
+            }
+            
+            .nav-menu a {
+                flex-direction: column;
+                padding: 0.5rem;
+                text-align: center;
+                font-size: 0.75rem;
+            }
+            
+            .nav-menu .icon {
+                margin: 0;
+                margin-bottom: 0.25rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .kpi-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .breakdown-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="logo">AirHost AI</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/dashboard.html"><span class="icon">📊</span> Dashboard</a></li>
+                <li><a href="/properties.html"><span class="icon">🏠</span> Propiedades</a></li>
+                <li><a href="/reservations.html"><span class="icon">📅</span> Reservas</a></li>
+                <li><a href="/pages/channel-manager.html"><span class="icon">📱</span> Channel Manager</a></li>
+                <li><a href="/pages/whatsapp-automation.html"><span class="icon">💬</span> WhatsApp</a></li>
+                <li><a href="/pages/smart-locks.html"><span class="icon">🔑</span> Smart Locks</a></li>
+                <li><a href="/pages/advanced-analytics.html" class="active"><span class="icon">📈</span> Analytics</a></li>
+                <li><a href="/login.html"><span class="icon">🚪</span> Salir</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1 class="header-title">Analytics Avanzados</h1>
+                <div class="period-selector">
+                    <button class="period-btn" onclick="changePeriod('7d')">7D</button>
+                    <button class="period-btn active" onclick="changePeriod('30d')">30D</button>
+                    <button class="period-btn" onclick="changePeriod('90d')">90D</button>
+                    <button class="period-btn" onclick="changePeriod('1y')">1A</button>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card" style="--accent-color: var(--color-success);">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Ingresos Totales</span>
+                        <span class="kpi-icon">💰</span>
+                    </div>
+                    <div class="kpi-value" id="totalRevenue">€-</div>
+                    <div class="kpi-change positive" id="revenueChange">
+                        <span>↗</span> +12.5% vs período anterior
+                    </div>
+                </div>
+
+                <div class="kpi-card" style="--accent-color: var(--color-info);">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Tasa de Ocupación</span>
+                        <span class="kpi-icon">🏠</span>
+                    </div>
+                    <div class="kpi-value" id="occupancyRate">-%</div>
+                    <div class="kpi-change positive" id="occupancyChange">
+                        <span>↗</span> +8.2% vs período anterior
+                    </div>
+                </div>
+
+                <div class="kpi-card" style="--accent-color: var(--color-warning);">
+                    <div class="kpi-header">
+                        <span class="kpi-title">ADR (Tarifa Promedio)</span>
+                        <span class="kpi-icon">📊</span>
+                    </div>
+                    <div class="kpi-value" id="averageDailyRate">€-</div>
+                    <div class="kpi-change positive" id="adrChange">
+                        <span>↗</span> +3.7% vs período anterior
+                    </div>
+                </div>
+
+                <div class="kpi-card" style="--accent-color: var(--color-purple);">
+                    <div class="kpi-header">
+                        <span class="kpi-title">RevPAR</span>
+                        <span class="kpi-icon">📈</span>
+                    </div>
+                    <div class="kpi-value" id="revPAR">€-</div>
+                    <div class="kpi-change positive" id="revparChange">
+                        <span>↗</span> +15.3% vs período anterior
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Ingresos por Período</h3>
+                        <button class="export-btn" onclick="exportChart('revenue')">
+                            📄 Exportar
+                        </button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Distribución por Canal</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="channelChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Breakdown Cards -->
+            <div class="breakdown-grid">
+                <div class="breakdown-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Rendimiento por Propiedad</h3>
+                    </div>
+                    <ul class="breakdown-list" id="propertyBreakdown">
+                        <li class="breakdown-item">
+                            <span class="breakdown-label">Cargando...</span>
+                            <div class="loading-skeleton" style="width: 60px; height: 20px;"></div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="breakdown-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Métricas de Canal</h3>
+                    </div>
+                    <ul class="breakdown-list" id="channelBreakdown">
+                        <li class="breakdown-item">
+                            <span class="breakdown-label">Cargando...</span>
+                            <div class="loading-skeleton" style="width: 60px; height: 20px;"></div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="breakdown-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Tendencias Estacionales</h3>
+                    </div>
+                    <div id="seasonalTrends">
+                        <div class="trend-card">
+                            <div class="trend-info">
+                                <h4>Temporada Alta</h4>
+                                <p>Julio - Agosto (+25% ingresos)</p>
+                            </div>
+                            <div class="trend-indicator">📈</div>
+                        </div>
+                        <div class="trend-card">
+                            <div class="trend-info">
+                                <h4>Temporada Media</h4>
+                                <p>Mayo - Junio, Septiembre</p>
+                            </div>
+                            <div class="trend-indicator">➡️</div>
+                        </div>
+                        <div class="trend-card">
+                            <div class="trend-info">
+                                <h4>Temporada Baja</h4>
+                                <p>Enero - Marzo (-15% ingresos)</p>
+                            </div>
+                            <div class="trend-indicator">📉</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="insights-card">
+                <div class="insights-header">
+                    <span style="font-size: 1.5rem;">🤖</span>
+                    <h3 class="insights-title">Insights de IA</h3>
+                </div>
+                <div id="aiInsights">
+                    <div class="insight-item" style="--insight-color: var(--color-success);">
+                        <div class="insight-text">
+                            <span class="insight-highlight">Oportunidad de Crecimiento:</span> 
+                            Tus propiedades en el centro de la ciudad tienen un 23% más de demanda. 
+                            Considera aumentar las tarifas en un 8-12% para maximizar ingresos.
+                        </div>
+                    </div>
+                    <div class="insight-item" style="--insight-color: var(--color-warning);">
+                        <div class="insight-text">
+                            <span class="insight-highlight">Optimización de Precios:</span> 
+                            Los fines de semana muestran baja ocupación. Implementa descuentos del 15% 
+                            para sábados y domingos para aumentar la tasa de ocupación.
+                        </div>
+                    </div>
+                    <div class="insight-item" style="--insight-color: var(--color-info);">
+                        <div class="insight-text">
+                            <span class="insight-highlight">Análisis de Competencia:</span> 
+                            Tus precios están 5% por debajo del mercado. Hay margen para incrementar 
+                            tarifas sin afectar significativamente las reservas.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Metrics -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Métricas de Rendimiento</h3>
+                    <button class="export-btn" onclick="exportReport()">
+                        📊 Exportar Reporte Completo
+                    </button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        let currentPeriod = '30d';
+        let analyticsData = {};
+        let charts = {};
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Check authentication
+                const token = localStorage.getItem('airhost_token');
+                if (!token) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                await loadAnalyticsData();
+                initializeCharts();
+            } catch (error) {
+                console.error('Error initializing analytics page:', error);
+            }
+        });
+
+        // Load analytics data
+        async function loadAnalyticsData() {
+            try {
+                // For demo purposes, generate mock data
+                analyticsData = generateMockData();
+                updateKPIs();
+                updateBreakdowns();
+            } catch (error) {
+                console.error('Error loading analytics data:', error);
+            }
+        }
+
+        // Generate mock analytics data
+        function generateMockData() {
+            const baseRevenue = 15000;
+            const baseOccupancy = 75;
+            const baseADR = 120;
+            
+            return {
+                totalRevenue: baseRevenue + Math.random() * 5000,
+                occupancyRate: baseOccupancy + Math.random() * 20,
+                averageDailyRate: baseADR + Math.random() * 40,
+                revPAR: (baseOccupancy + Math.random() * 20) * (baseADR + Math.random() * 40) / 100,
+                revenueData: generateTimeSeriesData(30, baseRevenue / 30),
+                channelData: [
+                    { channel: 'Airbnb', revenue: baseRevenue * 0.4, bookings: 25 },
+                    { channel: 'Booking.com', revenue: baseRevenue * 0.3, bookings: 18 },
+                    { channel: 'Directo', revenue: baseRevenue * 0.2, bookings: 12 },
+                    { channel: 'Otros', revenue: baseRevenue * 0.1, bookings: 8 }
+                ],
+                propertyData: [
+                    { name: 'Apartamento Centro', revenue: baseRevenue * 0.35, occupancy: 85 },
+                    { name: 'Casa Playa', revenue: baseRevenue * 0.25, occupancy: 72 },
+                    { name: 'Loft Moderno', revenue: baseRevenue * 0.23, occupancy: 68 },
+                    { name: 'Estudio Compacto', revenue: baseRevenue * 0.17, occupancy: 59 }
+                ]
+            };
+        }
+
+        // Generate time series data
+        function generateTimeSeriesData(days, baseValue) {
+            const data = [];
+            for (let i = 0; i < days; i++) {
+                const variance = (Math.random() - 0.5) * 0.3;
+                const trend = i * 0.02; // Slight upward trend
+                const value = baseValue * (1 + variance + trend);
+                data.push({
+                    date: new Date(Date.now() - (days - i) * 24 * 60 * 60 * 1000),
+                    value: Math.max(0, value)
+                });
+            }
+            return data;
+        }
+
+        // Update KPI cards
+        function updateKPIs() {
+            document.getElementById('totalRevenue').textContent = 
+                '€' + Math.round(analyticsData.totalRevenue).toLocaleString();
+            document.getElementById('occupancyRate').textContent = 
+                Math.round(analyticsData.occupancyRate) + '%';
+            document.getElementById('averageDailyRate').textContent = 
+                '€' + Math.round(analyticsData.averageDailyRate);
+            document.getElementById('revPAR').textContent = 
+                '€' + Math.round(analyticsData.revPAR);
+        }
+
+        // Update breakdown sections
+        function updateBreakdowns() {
+            // Property breakdown
+            const propertyBreakdown = document.getElementById('propertyBreakdown');
+            const maxPropertyRevenue = Math.max(...analyticsData.propertyData.map(p => p.revenue));
+            
+            propertyBreakdown.innerHTML = analyticsData.propertyData.map(property => `
+                <li class="breakdown-item">
+                    <span class="breakdown-label">${property.name}</span>
+                    <span class="breakdown-value">€${Math.round(property.revenue).toLocaleString()}</span>
+                    <div class="breakdown-bar">
+                        <div class="breakdown-fill" style="width: ${(property.revenue / maxPropertyRevenue) * 100}%"></div>
+                    </div>
+                </li>
+            `).join('');
+
+            // Channel breakdown
+            const channelBreakdown = document.getElementById('channelBreakdown');
+            const maxChannelRevenue = Math.max(...analyticsData.channelData.map(c => c.revenue));
+            
+            channelBreakdown.innerHTML = analyticsData.channelData.map(channel => `
+                <li class="breakdown-item">
+                    <span class="breakdown-label">${channel.channel}</span>
+                    <span class="breakdown-value">€${Math.round(channel.revenue).toLocaleString()}</span>
+                    <div class="breakdown-bar">
+                        <div class="breakdown-fill" style="width: ${(channel.revenue / maxChannelRevenue) * 100}%"></div>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            initializeRevenueChart();
+            initializeChannelChart();
+            initializePerformanceChart();
+        }
+
+        // Revenue chart
+        function initializeRevenueChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            charts.revenue = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: analyticsData.revenueData.map(d => d.date.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })),
+                    datasets: [{
+                        label: 'Ingresos Diarios',
+                        data: analyticsData.revenueData.map(d => d.value),
+                        borderColor: '#00d084',
+                        backgroundColor: 'rgba(0, 208, 132, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#b3b3b3',
+                                callback: function(value) {
+                                    return '€' + Math.round(value);
+                                }
+                            },
+                            grid: {
+                                color: '#2a2a2a'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#b3b3b3'
+                            },
+                            grid: {
+                                color: '#2a2a2a'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Channel distribution chart
+        function initializeChannelChart() {
+            const ctx = document.getElementById('channelChart').getContext('2d');
+            
+            charts.channel = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: analyticsData.channelData.map(c => c.channel),
+                    datasets: [{
+                        data: analyticsData.channelData.map(c => c.revenue),
+                        backgroundColor: ['#00d084', '#3742fa', '#ffa726', '#8b5cf6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#b3b3b3',
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Performance metrics chart
+        function initializePerformanceChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            
+            charts.performance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    datasets: [
+                        {
+                            label: 'Ocupación (%)',
+                            data: [65, 68, 72, 75, 82, 88, 95, 92, 85, 78, 70, 67],
+                            backgroundColor: 'rgba(0, 208, 132, 0.8)',
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'ADR (€)',
+                            data: [110, 115, 120, 125, 135, 145, 160, 155, 140, 130, 120, 115],
+                            backgroundColor: 'rgba(55, 66, 250, 0.8)',
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#b3b3b3'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: {
+                                color: '#b3b3b3'
+                            },
+                            grid: {
+                                color: '#2a2a2a'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            ticks: {
+                                color: '#b3b3b3'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#b3b3b3'
+                            },
+                            grid: {
+                                color: '#2a2a2a'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Change period
+        function changePeriod(period) {
+            // Update active button
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            currentPeriod = period;
+            
+            // Reload data for new period
+            loadAnalyticsData();
+        }
+
+        // Export functions
+        function exportChart(chartType) {
+            alert(`Exportando gráfico ${chartType}...`);
+        }
+
+        function exportReport() {
+            alert('Generando reporte completo...');
+        }
+    </script>
+</body>
+</html>

@@ -85,39 +85,66 @@ const bcrypt = require('bcryptjs');
 const authenticate = async (req, res, next) => {
     try {
         const token = req.header('Authorization')?.replace('Bearer ', '');
+        console.log('🔐 Authentication attempt:', req.path);
+        console.log('🎫 Token received:', token ? token.substring(0, 20) + '...' : 'NO TOKEN');
         
         if (!token) {
+            console.log('❌ No token provided');
             return res.status(401).json({ 
                 success: false, 
                 error: 'Token requerido' 
             });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await prisma.user.findUnique({
-            where: { id: decoded.userId },
-            select: {
-                id: true,
-                email: true,
-                name: true,
-                phone: true,
-                plan: true,
-                language: true,
-                currency: true,
+        const jwtSecret = process.env.JWT_SECRET || 'airhost-testing-secret-key-2024';
+        console.log('🔑 Using JWT secret:', jwtSecret ? 'SET' : 'NOT SET');
+        const decoded = jwt.verify(token, jwtSecret);
+        console.log('✅ Token decoded successfully, userId:', decoded.userId);
+        // Check if this is the testing admin user
+        if (decoded.userId === 'admin-testing-user-id') {
+            console.log('👤 Testing admin user recognized');
+            req.user = {
+                id: 'admin-testing-user-id',
+                email: 'admin@airhostai.com',
+                name: 'Administrador',
+                phone: '',
+                plan: 'Enterprise',
+                language: 'es',
+                currency: 'EUR',
                 isActive: true
-            }
-        });
-        
-        if (!user) {
-            return res.status(401).json({ 
-                success: false, 
-                error: 'Usuario no encontrado' 
+            };
+        } else {
+            // Regular database user lookup
+            const user = await prisma.user.findUnique({
+                where: { id: decoded.userId },
+                select: {
+                    id: true,
+                    email: true,
+                    name: true,
+                    phone: true,
+                    plan: true,
+                    language: true,
+                    currency: true,
+                    isActive: true
+                }
             });
-        }
+            
+            console.log('👤 User found:', user ? user.email : 'NOT FOUND');
+            
+            if (!user) {
+                console.log('❌ User not found in database');
+                return res.status(401).json({ 
+                    success: false, 
+                    error: 'Usuario no encontrado' 
+                });
+            }
 
-        req.user = user;
+            req.user = user;
+        }
+        console.log('✅ Authentication successful');
         next();
     } catch (error) {
+        console.log('❌ Authentication error:', error.message);
         res.status(401).json({ 
             success: false, 
             error: 'Token inválido' 
@@ -182,80 +209,14 @@ app.get('/api/info', (req, res) => {
 
 // REGISTRO
 app.post('/api/auth/register', async (req, res) => {
-    try {
-        const { email, password, name, phone } = req.body;
-
-        // Validaciones
-        if (!email || !password || !name) {
-            return res.status(400).json({
-                success: false,
-                error: 'Email, contraseña y nombre son requeridos'
-            });
-        }
-
-        if (password.length < 6) {
-            return res.status(400).json({
-                success: false,
-                error: 'La contraseña debe tener al menos 6 caracteres'
-            });
-        }
-
-        // Verificar si el usuario ya existe
-        const existingUser = await prisma.user.findUnique({
-            where: { email: email.toLowerCase() }
-        });
-
-        if (existingUser) {
-            return res.status(400).json({
-                success: false,
-                error: 'Ya existe una cuenta con este email'
-            });
-        }
-
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 12);
-
-        // Crear nuevo usuario
-        const user = await prisma.user.create({
-            data: {
-                email: email.toLowerCase(),
-                password: hashedPassword,
-                name,
-                phone: phone || '' // Hacer phone opcional
-            }
-        });
-
-        // Generar token
-        const token = jwt.sign(
-            { userId: user.id },
-            process.env.JWT_SECRET,
-            { expiresIn: '30d' }
-        );
-
-        console.log(`✅ Nuevo usuario registrado: ${email}`);
-
-        res.status(201).json({
-            success: true,
-            message: 'Usuario registrado correctamente',
-            token,
-            user: {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                plan: user.plan
-            }
-        });
-
-    } catch (error) {
-        console.error('Error en registro:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Error interno del servidor'
-        });
-    }
+    console.log('🔒 Registration attempt blocked - Testing mode active');
+    res.status(403).json({
+        success: false,
+        error: 'Registro deshabilitado durante el periodo de testing. Contacte al administrador.'
+    });
 });
 
-// LOGIN
+// LOGIN - TESTING MODE (ADMIN ONLY)
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -267,51 +228,49 @@ app.post('/api/auth/login', async (req, res) => {
             });
         }
 
-        // Buscar usuario
-        const user = await prisma.user.findUnique({
-            where: { email: email.toLowerCase() }
-        });
-
-        if (!user) {
+        // ====================================
+        // 🔒 TESTING MODE - ADMIN ONLY ACCESS
+        // ====================================
+        console.log('🔒 TESTING MODE: Checking admin credentials');
+        console.log('📧 Email provided:', email);
+        console.log('🔑 Password provided:', password);
+        
+        if (email.toLowerCase() !== 'admin@airhostai.com' || password !== '310100') {
+            console.log('❌ Invalid admin credentials');
+            console.log('Expected email:', 'admin@airhostai.com');
+            console.log('Expected password:', '310100');
             return res.status(401).json({
                 success: false,
-                error: 'Credenciales inválidas'
+                error: 'Acceso restringido durante testing. Solo administradores autorizados.'
             });
         }
 
-        // Verificar contraseña
-        const isValidPassword = await bcrypt.compare(password, user.password);
-        if (!isValidPassword) {
-            return res.status(401).json({
-                success: false,
-                error: 'Credenciales inválidas'
-            });
-        }
+        console.log('✅ Admin access granted');
 
-        // Actualizar último login
-        await prisma.user.update({
-            where: { id: user.id },
-            data: { lastLogin: new Date() }
-        });
-
-        // Generar token
+        // For testing mode, create a simple admin user response without database
+        const adminUserId = 'admin-testing-user-id';
+        
+        // Generate token
+        const jwtSecret = process.env.JWT_SECRET || 'airhost-testing-secret-key-2024';
         const token = jwt.sign(
-            { userId: user.id },
-            process.env.JWT_SECRET,
+            { userId: adminUserId },
+            jwtSecret,
             { expiresIn: '30d' }
         );
 
-        console.log(`✅ Usuario logueado: ${email}`);
+        console.log(`✅ Admin logged in successfully`);
+        console.log('🎫 Token generated:', token.substring(0, 50) + '...');
 
         res.json({
             success: true,
-            message: 'Login exitoso',
+            message: 'Login exitoso - Modo Testing',
             token,
             user: {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                plan: user.plan
+                id: adminUserId,
+                email: 'admin@airhostai.com',
+                name: 'Administrador',
+                plan: 'Enterprise',
+                role: 'admin'
             }
         });
 
@@ -490,12 +449,13 @@ app.post('/api/properties', authenticate, async (req, res) => {
                 city: propertyData.city,
                 country: propertyData.country || 'España',
                 postalCode: propertyData.postalCode,
-                propertyType: propertyData.propertyType || 'apartment',
+                propertyType: propertyData.type || 'apartment', // Fix: use 'type' from frontend
                 maxGuests: propertyData.maxGuests || 2,
                 bedrooms: propertyData.bedrooms || 1,
                 bathrooms: propertyData.bathrooms || 1,
                 basePrice: propertyData.basePrice || 50,
-                depositAmount: propertyData.depositAmount || 100
+                depositAmount: propertyData.depositAmount || 100,
+                images: propertyData.images || []
             }
         });
 
@@ -543,6 +503,92 @@ app.get('/api/properties/:id', authenticate, async (req, res) => {
             property
         });
     } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: 'Error interno del servidor'
+        });
+    }
+});
+
+// ACTUALIZAR PROPIEDAD
+app.put('/api/properties/:id', authenticate, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updateData = req.body;
+        
+        // Verify property ownership
+        const existingProperty = await prisma.property.findFirst({
+            where: {
+                id: id,
+                ownerId: req.user.id
+            }
+        });
+
+        if (!existingProperty) {
+            return res.status(404).json({
+                success: false,
+                error: 'Propiedad no encontrada'
+            });
+        }
+
+        // Remove id from update data
+        delete updateData.id;
+        delete updateData.ownerId;
+
+        const updatedProperty = await prisma.property.update({
+            where: { id: id },
+            data: updateData
+        });
+
+        console.log(`✅ Propiedad actualizada: ${updatedProperty.name} (${updatedProperty.id})`);
+        
+        res.json({
+            success: true,
+            message: 'Propiedad actualizada correctamente',
+            property: updatedProperty
+        });
+    } catch (error) {
+        console.error('Error actualizando propiedad:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error interno del servidor'
+        });
+    }
+});
+
+// ELIMINAR PROPIEDAD
+app.delete('/api/properties/:id', authenticate, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Verify property ownership
+        const existingProperty = await prisma.property.findFirst({
+            where: {
+                id: id,
+                ownerId: req.user.id
+            }
+        });
+
+        if (!existingProperty) {
+            return res.status(404).json({
+                success: false,
+                error: 'Propiedad no encontrada'
+            });
+        }
+
+        // Delete the property (this will cascade delete related records if configured)
+        await prisma.property.delete({
+            where: { id: id }
+        });
+
+        console.log(`✅ Propiedad eliminada: ${existingProperty.name} (${id})`);
+        
+        res.json({
+            success: true,
+            message: 'Propiedad eliminada correctamente'
+        });
+    } catch (error) {
+        console.error('Error eliminando propiedad:', error);
         res.status(500).json({
             success: false,
             error: 'Error interno del servidor'
@@ -651,6 +697,176 @@ app.post('/api/reservations', authenticate, async (req, res) => {
         });
     } catch (error) {
         console.error('Error creando reserva:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error interno del servidor'
+        });
+    }
+});
+
+// OBTENER RESERVA POR ID
+app.get('/api/reservations/:id', authenticate, async (req, res) => {
+    try {
+        const reservation = await prisma.reservation.findFirst({
+            where: {
+                id: req.params.id,
+                property: {
+                    ownerId: req.user.id
+                }
+            },
+            include: {
+                property: {
+                    select: {
+                        id: true,
+                        name: true,
+                        address: true,
+                        city: true,
+                        basePrice: true
+                    }
+                }
+            }
+        });
+
+        if (!reservation) {
+            return res.status(404).json({
+                success: false,
+                error: 'Reserva no encontrada'
+            });
+        }
+
+        res.json({
+            success: true,
+            reservation
+        });
+    } catch (error) {
+        console.error('Error obteniendo reserva:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error interno del servidor'
+        });
+    }
+});
+
+// ACTUALIZAR RESERVA
+app.put('/api/reservations/:id', authenticate, async (req, res) => {
+    try {
+        const { guest, checkIn, checkOut, pricing, status } = req.body;
+
+        // Verificar que la reserva existe y pertenece al usuario
+        const existingReservation = await prisma.reservation.findFirst({
+            where: {
+                id: req.params.id,
+                property: {
+                    ownerId: req.user.id
+                }
+            },
+            include: {
+                property: true
+            }
+        });
+
+        if (!existingReservation) {
+            return res.status(404).json({
+                success: false,
+                error: 'Reserva no encontrada'
+            });
+        }
+
+        // Calcular noches si se proporcionaron nuevas fechas
+        let nights = existingReservation.nights;
+        let checkInDate = existingReservation.checkIn;
+        let checkOutDate = existingReservation.checkOut;
+
+        if (checkIn && checkOut) {
+            checkInDate = new Date(checkIn);
+            checkOutDate = new Date(checkOut);
+            nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
+        }
+
+        const updateData = {
+            ...(guest?.name && { guestName: guest.name }),
+            ...(guest?.email && { guestEmail: guest.email }),
+            ...(guest?.phone && { guestPhone: guest.phone }),
+            ...(guest?.guestCount && { guestCount: guest.guestCount }),
+            ...(checkIn && { checkIn: checkInDate }),
+            ...(checkOut && { checkOut: checkOutDate }),
+            ...(checkIn && checkOut && { nights }),
+            ...(pricing?.baseAmount && { baseAmount: pricing.baseAmount }),
+            ...(pricing?.totalAmount && { totalAmount: pricing.totalAmount }),
+            ...(status && { status }),
+            updatedAt: new Date()
+        };
+
+        const reservation = await prisma.reservation.update({
+            where: { id: req.params.id },
+            data: updateData,
+            include: {
+                property: {
+                    select: {
+                        id: true,
+                        name: true,
+                        address: true,
+                        city: true
+                    }
+                }
+            }
+        });
+
+        console.log(`✅ Reserva actualizada: ${reservation.id}`);
+
+        res.json({
+            success: true,
+            message: 'Reserva actualizada correctamente',
+            reservation
+        });
+    } catch (error) {
+        console.error('Error actualizando reserva:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error interno del servidor'
+        });
+    }
+});
+
+// CANCELAR RESERVA
+app.delete('/api/reservations/:id', authenticate, async (req, res) => {
+    try {
+        // Verificar que la reserva existe y pertenece al usuario
+        const existingReservation = await prisma.reservation.findFirst({
+            where: {
+                id: req.params.id,
+                property: {
+                    ownerId: req.user.id
+                }
+            }
+        });
+
+        if (!existingReservation) {
+            return res.status(404).json({
+                success: false,
+                error: 'Reserva no encontrada'
+            });
+        }
+
+        // Marcar como cancelada en lugar de eliminar
+        const reservation = await prisma.reservation.update({
+            where: { id: req.params.id },
+            data: {
+                status: 'cancelled',
+                cancelledAt: new Date(),
+                updatedAt: new Date()
+            }
+        });
+
+        console.log(`✅ Reserva cancelada: ${reservation.id}`);
+
+        res.json({
+            success: true,
+            message: 'Reserva cancelada correctamente',
+            reservation
+        });
+    } catch (error) {
+        console.error('Error cancelando reserva:', error);
         res.status(500).json({
             success: false,
             error: 'Error interno del servidor'

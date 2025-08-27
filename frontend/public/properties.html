@@ -310,6 +310,116 @@
             resize: vertical;
         }
 
+        /* Image Upload Styles */
+        .image-upload-section {
+            border: 2px dashed var(--color-border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            background: var(--color-bg-tertiary);
+            transition: all 0.3s ease;
+        }
+
+        .image-upload-section:hover {
+            border-color: var(--color-accent);
+            background: rgba(0, 208, 132, 0.05);
+        }
+
+        .upload-area {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--color-text-tertiary);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            color: var(--color-text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext {
+            color: var(--color-text-tertiary);
+            font-size: 0.875rem;
+        }
+
+        .image-preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .image-preview {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--color-error);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        .remove-image:hover {
+            background: #ff3742;
+        }
+
+        .upload-progress {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--color-bg-secondary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--color-accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
         .loading-spinner {
             display: inline-flex;
             align-items: center;
@@ -449,14 +559,15 @@
         </main>
     </div>
 
-    <!-- Add Property Modal -->
-    <div id="addPropertyModal" class="modal">
+    <!-- Add/Edit Property Modal -->
+    <div id="propertyModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Añadir Nueva Propiedad</h2>
-                <button class="close-btn" onclick="closeAddPropertyModal()">&times;</button>
+                <h2 class="modal-title" id="modalTitle">Añadir Nueva Propiedad</h2>
+                <button class="close-btn" onclick="closePropertyModal()">&times;</button>
             </div>
-            <form id="addPropertyForm">
+            <form id="propertyForm">
+                <input type="hidden" id="propertyId" name="id">
                 <div class="form-group">
                     <label for="propertyName" class="form-label">Nombre de la Propiedad</label>
                     <input type="text" id="propertyName" name="name" class="form-input" required>
@@ -497,10 +608,47 @@
                     <textarea id="propertyDescription" name="description" class="form-input form-textarea" rows="4"></textarea>
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="btn">Crear Propiedad</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeAddPropertyModal()">Cancelar</button>
+                    <label class="form-label">Imágenes de la Propiedad</label>
+                    <div class="image-upload-section">
+                        <div class="upload-area" onclick="document.getElementById('imageUpload').click()">
+                            <input type="file" id="imageUpload" accept="image/*" multiple onchange="handleImageUpload(this)">
+                            <div class="upload-icon">📸</div>
+                            <div class="upload-text">Haz clic para subir imágenes</div>
+                            <div class="upload-subtext">Máximo 10 imágenes, hasta 5MB cada una</div>
+                        </div>
+                        <div class="upload-progress" id="uploadProgress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                        </div>
+                        <div class="image-preview-container" id="imagePreviewContainer"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn" id="submitBtn">Crear Propiedad</button>
+                    <button type="button" class="btn btn-secondary" onclick="closePropertyModal()">Cancelar</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Confirmar Eliminación</h2>
+                <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div style="padding: 1rem 0; text-align: center;">
+                <div style="font-size: 3rem; color: var(--color-error); margin-bottom: 1rem;">⚠️</div>
+                <p style="margin-bottom: 1rem;">¿Estás seguro de que quieres eliminar la propiedad?</p>
+                <p style="font-weight: 600; color: var(--color-accent);" id="propertyNameToDelete"></p>
+                <p style="color: var(--color-text-secondary); font-size: 0.9rem; margin-top: 1rem;">Esta acción no se puede deshacer.</p>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancelar</button>
+                <button class="btn" id="confirmDeleteBtn" style="background: var(--color-error);">Eliminar</button>
+            </div>
         </div>
     </div>
 
@@ -508,6 +656,10 @@
     <script src="/js/auth.js"></script>
     <script>
         let properties = [];
+        let currentProperty = null;
+        let selectedImages = [];
+        const MAX_IMAGES = 10;
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', async function() {
@@ -575,7 +727,12 @@
 
             const propertiesHTML = properties.map(property => `
                 <div class="property-card">
-                    <div class="property-image">🏠</div>
+                    <div class="property-image">
+                        ${property.images && property.images.length > 0 
+                            ? `<img src="${property.images[0]}" alt="${property.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">` 
+                            : '🏠'
+                        }
+                    </div>
                     <div class="property-content">
                         <h3 class="property-name">${property.name}</h3>
                         <div class="property-address">
@@ -603,6 +760,9 @@
                             <button class="btn btn-small" onclick="viewProperty('${property.id}')">
                                 👁️ Ver
                             </button>
+                            <button class="btn btn-small" style="background: var(--color-error);" onclick="deleteProperty('${property.id}', '${property.name}')">
+                                🗑️ Eliminar
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -617,16 +777,41 @@
 
         // Modal functions
         function openAddPropertyModal() {
-            document.getElementById('addPropertyModal').classList.add('active');
+            currentProperty = null;
+            document.getElementById('modalTitle').textContent = 'Añadir Nueva Propiedad';
+            document.getElementById('submitBtn').textContent = 'Crear Propiedad';
+            document.getElementById('propertyForm').reset();
+            document.getElementById('propertyId').value = '';
+            document.getElementById('propertyModal').classList.add('active');
         }
 
-        function closeAddPropertyModal() {
-            document.getElementById('addPropertyModal').classList.remove('active');
-            document.getElementById('addPropertyForm').reset();
+        function openEditPropertyModal(property) {
+            currentProperty = property;
+            document.getElementById('modalTitle').textContent = 'Editar Propiedad';
+            document.getElementById('submitBtn').textContent = 'Actualizar Propiedad';
+            
+            // Fill form with property data
+            document.getElementById('propertyId').value = property.id;
+            document.getElementById('propertyName').value = property.name || '';
+            document.getElementById('propertyAddress').value = property.address || '';
+            document.getElementById('propertyCity').value = property.city || '';
+            document.getElementById('propertyType').value = property.type || '';
+            document.getElementById('propertyBedrooms').value = property.bedrooms || '';
+            document.getElementById('propertyBathrooms').value = property.bathrooms || '';
+            document.getElementById('propertyMaxGuests').value = property.maxGuests || '';
+            document.getElementById('propertyDescription').value = property.description || '';
+            
+            document.getElementById('propertyModal').classList.add('active');
         }
 
-        // Handle add property form
-        document.getElementById('addPropertyForm').addEventListener('submit', async function(e) {
+        function closePropertyModal() {
+            document.getElementById('propertyModal').classList.remove('active');
+            document.getElementById('propertyForm').reset();
+            currentProperty = null;
+        }
+
+        // Handle property form (create/update)
+        document.getElementById('propertyForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const formData = new FormData(this);
@@ -637,38 +822,128 @@
             propertyData.bathrooms = parseInt(propertyData.bathrooms);
             propertyData.maxGuests = parseInt(propertyData.maxGuests);
             
+            const isEdit = propertyData.id && propertyData.id.trim() !== '';
+            
             try {
                 const submitBtn = this.querySelector('button[type="submit"]');
-                submitBtn.innerHTML = '<div class="spinner"></div> Creando...';
+                const originalText = submitBtn.textContent;
+                submitBtn.innerHTML = `<div class="spinner"></div> ${isEdit ? 'Actualizando...' : 'Creando...'}`;
                 submitBtn.disabled = true;
+
+                // Handle image upload
+                let uploadedImages = [];
+                if (selectedImages.length > 0) {
+                    showUploadProgress(true);
+                    
+                    // Convert selected images to base64 URLs for storage
+                    uploadedImages = selectedImages.map(image => ({
+                        url: image.url,
+                        filename: image.file?.name || `image-${Date.now()}.jpg`,
+                        size: image.file?.size || 0,
+                        type: image.file?.type || 'image/jpeg'
+                    }));
+                }
+
+                // Add images to property data
+                if (uploadedImages.length > 0) {
+                    propertyData.images = uploadedImages.map(img => img.url);
+                }
                 
-                const response = await window.AirHostAPI.createProperty(propertyData);
+                let response;
+                if (isEdit) {
+                    response = await window.AirHostAPI.updateProperty(propertyData.id, propertyData);
+                } else {
+                    response = await window.AirHostAPI.createProperty(propertyData);
+                }
                 
                 if (response.success) {
-                    closeAddPropertyModal();
-                    showSuccess('Propiedad creada exitosamente');
+                    showUploadProgress(false);
+                    closePropertyModal();
+                    showSuccess(isEdit ? 'Propiedad actualizada exitosamente' : 'Propiedad creada exitosamente');
                     await loadProperties();
                 } else {
-                    throw new Error(response.error || 'Error al crear la propiedad');
+                    throw new Error(response.error || `Error al ${isEdit ? 'actualizar' : 'crear'} la propiedad`);
                 }
             } catch (error) {
-                console.error('Error creating property:', error);
-                showError(`Error al crear la propiedad: ${error.message}`);
+                console.error('Error saving property:', error);
+                showError(`Error al ${isEdit ? 'actualizar' : 'crear'} la propiedad: ${error.message}`);
             } finally {
                 const submitBtn = this.querySelector('button[type="submit"]');
-                submitBtn.innerHTML = 'Crear Propiedad';
+                submitBtn.textContent = currentProperty ? 'Actualizar Propiedad' : 'Crear Propiedad';
                 submitBtn.disabled = false;
             }
         });
 
         // Property actions
         function editProperty(propertyId) {
-            alert(`Función de editar propiedad ${propertyId} - En desarrollo`);
+            const property = properties.find(p => p.id === propertyId);
+            if (property) {
+                openEditPropertyModal(property);
+            } else {
+                showError('Propiedad no encontrada');
+            }
         }
 
         function viewProperty(propertyId) {
-            alert(`Función de ver detalles de propiedad ${propertyId} - En desarrollo`);
+            const property = properties.find(p => p.id === propertyId);
+            if (property) {
+                // Create a simple details view in an alert for now
+                const details = [
+                    `🏠 ${property.name}`,
+                    `📍 ${property.address}, ${property.city}`,
+                    `🏷️ Tipo: ${property.type || 'No especificado'}`,
+                    `🛏️ ${property.bedrooms || 0} habitaciones`,
+                    `🚿 ${property.bathrooms || 0} baños`,
+                    `👥 Hasta ${property.maxGuests || 0} huéspedes`,
+                    property.description ? `📝 ${property.description}` : '',
+                    `📅 Creada: ${new Date(property.createdAt).toLocaleDateString()}`
+                ].filter(Boolean).join('\n');
+                
+                alert(details);
+                // TODO: Implement proper details modal/page
+            } else {
+                showError('Propiedad no encontrada');
+            }
         }
+
+        let propertyToDelete = null;
+
+        function deleteProperty(propertyId, propertyName) {
+            propertyToDelete = propertyId;
+            document.getElementById('propertyNameToDelete').textContent = propertyName;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            propertyToDelete = null;
+        }
+
+        // Handle delete confirmation
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
+            if (!propertyToDelete) return;
+            
+            try {
+                this.innerHTML = '<div class="spinner"></div> Eliminando...';
+                this.disabled = true;
+                
+                const response = await window.AirHostAPI.deleteProperty(propertyToDelete);
+                
+                if (response.success) {
+                    closeDeleteModal();
+                    showSuccess('Propiedad eliminada exitosamente');
+                    await loadProperties();
+                } else {
+                    throw new Error(response.error || 'Error al eliminar la propiedad');
+                }
+            } catch (error) {
+                console.error('Error deleting property:', error);
+                showError(`Error al eliminar la propiedad: ${error.message}`);
+            } finally {
+                this.innerHTML = 'Eliminar';
+                this.disabled = false;
+            }
+        });
 
         // Utility functions
         function showError(message) {
@@ -696,18 +971,195 @@
         }
 
         // Close modal when clicking outside
-        document.getElementById('addPropertyModal').addEventListener('click', function(e) {
+        document.getElementById('propertyModal').addEventListener('click', function(e) {
             if (e.target === this) {
-                closeAddPropertyModal();
+                closePropertyModal();
+            }
+        });
+
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeleteModal();
             }
         });
 
         // Handle escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                closeAddPropertyModal();
+                closePropertyModal();
+                closeDeleteModal();
             }
         });
+
+        // ====================================
+        // 📸 IMAGE UPLOAD FUNCTIONALITY
+        // ====================================
+
+        function handleImageUpload(input) {
+            const files = Array.from(input.files);
+            
+            // Validate file count
+            if (selectedImages.length + files.length > MAX_IMAGES) {
+                showError(`Máximo ${MAX_IMAGES} imágenes permitidas`);
+                return;
+            }
+
+            files.forEach(file => {
+                // Validate file size
+                if (file.size > MAX_FILE_SIZE) {
+                    showError(`La imagen "${file.name}" es demasiado grande. Máximo 5MB.`);
+                    return;
+                }
+
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    showError(`El archivo "${file.name}" no es una imagen válida.`);
+                    return;
+                }
+
+                // Create image preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageData = {
+                        file: file,
+                        url: e.target.result,
+                        id: Date.now() + Math.random() // Simple ID
+                    };
+                    
+                    selectedImages.push(imageData);
+                    renderImagePreviews();
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Clear input
+            input.value = '';
+        }
+
+        function renderImagePreviews() {
+            const container = document.getElementById('imagePreviewContainer');
+            
+            container.innerHTML = selectedImages.map(image => `
+                <div class="image-preview">
+                    <img src="${image.url}" alt="Preview">
+                    <button class="remove-image" onclick="removeImage('${image.id}')" type="button">
+                        ×
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removeImage(imageId) {
+            selectedImages = selectedImages.filter(img => img.id !== imageId);
+            renderImagePreviews();
+        }
+
+        function clearImages() {
+            selectedImages = [];
+            renderImagePreviews();
+            document.getElementById('imageUpload').value = '';
+        }
+
+        async function uploadImages(propertyId) {
+            if (selectedImages.length === 0) return [];
+
+            const uploadPromises = selectedImages.map(async (image, index) => {
+                try {
+                    // For now, we'll use a mock upload that returns base64
+                    // In production, this would upload to a file server
+                    return {
+                        url: image.url,
+                        filename: `property-${propertyId}-${index}.jpg`,
+                        size: image.file.size,
+                        type: image.file.type
+                    };
+                } catch (error) {
+                    console.error('Error uploading image:', error);
+                    return null;
+                }
+            });
+
+            const uploadedImages = await Promise.all(uploadPromises);
+            return uploadedImages.filter(img => img !== null);
+        }
+
+        function showUploadProgress(show = true) {
+            const progress = document.getElementById('uploadProgress');
+            const progressFill = document.getElementById('progressFill');
+            
+            if (show) {
+                progress.style.display = 'block';
+                let width = 0;
+                const interval = setInterval(() => {
+                    width += 10;
+                    progressFill.style.width = width + '%';
+                    
+                    if (width >= 100) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            progress.style.display = 'none';
+                            progressFill.style.width = '0%';
+                        }, 500);
+                    }
+                }, 100);
+            } else {
+                progress.style.display = 'none';
+                progressFill.style.width = '0%';
+            }
+        }
+
+        // Update the openPropertyModal function to clear images
+        const originalOpenPropertyModal = window.openPropertyModal || function() {};
+        function openPropertyModal() {
+            clearImages();
+            originalOpenPropertyModal();
+            document.getElementById('propertyModal').classList.add('active');
+            document.getElementById('modalTitle').textContent = 'Añadir Nueva Propiedad';
+            document.getElementById('submitBtn').textContent = 'Crear Propiedad';
+            document.getElementById('propertyForm').reset();
+            document.getElementById('propertyId').value = '';
+            currentProperty = null;
+        }
+
+        // Update the openEditPropertyModal function to handle existing images
+        function openEditPropertyModal(property) {
+            clearImages();
+            
+            document.getElementById('propertyModal').classList.add('active');
+            document.getElementById('modalTitle').textContent = 'Editar Propiedad';
+            document.getElementById('submitBtn').textContent = 'Actualizar Propiedad';
+            
+            // Fill form with property data
+            document.getElementById('propertyId').value = property.id;
+            document.getElementById('propertyName').value = property.name || '';
+            document.getElementById('propertyAddress').value = property.address || '';
+            document.getElementById('propertyCity').value = property.city || '';
+            document.getElementById('propertyType').value = property.type || '';
+            document.getElementById('propertyBedrooms').value = property.bedrooms || '';
+            document.getElementById('propertyBathrooms').value = property.bathrooms || '';
+            document.getElementById('propertyMaxGuests').value = property.maxGuests || '';
+            document.getElementById('propertyDescription').value = property.description || '';
+
+            // Load existing images if any
+            if (property.images && property.images.length > 0) {
+                selectedImages = property.images.map((url, index) => ({
+                    id: `existing-${index}`,
+                    url: url,
+                    file: null, // Existing image, no file object
+                    existing: true
+                }));
+                renderImagePreviews();
+            }
+
+            currentProperty = property;
+        }
+
+        function closePropertyModal() {
+            document.getElementById('propertyModal').classList.remove('active');
+            document.getElementById('propertyForm').reset();
+            clearImages();
+            currentProperty = null;
+        }
     </script>
 </body>
 </html>

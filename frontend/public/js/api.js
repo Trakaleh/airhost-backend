@@ -237,35 +237,74 @@ class AirHostAPI {
     }
 
     // ====================================
-    // 📅 BOOKING METHODS
+    // 📅 RESERVATION METHODS
+    // ====================================
+
+    /**
+     * Get all reservations
+     */
+    async getReservations() {
+        return this.get('/reservations');
+    }
+
+    /**
+     * Get reservation by ID
+     */
+    async getReservation(id) {
+        return this.get(`/reservations/${id}`);
+    }
+
+    /**
+     * Create reservation
+     */
+    async createReservation(reservationData) {
+        return this.post('/reservations', reservationData);
+    }
+
+    /**
+     * Update reservation
+     */
+    async updateReservation(id, reservationData) {
+        return this.put(`/reservations/${id}`, reservationData);
+    }
+
+    /**
+     * Cancel reservation
+     */
+    async cancelReservation(id) {
+        return this.delete(`/reservations/${id}`);
+    }
+
+    // ====================================
+    // 📅 BOOKING METHODS (LEGACY)
     // ====================================
 
     /**
      * Get all bookings
      */
     async getBookings() {
-        return this.get('/bookings');
+        return this.get('/reservations'); // Redirect to reservations
     }
 
     /**
      * Get booking by ID
      */
     async getBooking(id) {
-        return this.get(`/bookings/${id}`);
+        return this.get(`/reservations/${id}`); // Redirect to reservations
     }
 
     /**
      * Create booking
      */
     async createBooking(bookingData) {
-        return this.post('/bookings', bookingData);
+        return this.post('/reservations', bookingData); // Redirect to reservations
     }
 
     /**
      * Update booking
      */
     async updateBooking(id, bookingData) {
-        return this.put(`/bookings/${id}`, bookingData);
+        return this.put(`/reservations/${id}`, bookingData); // Redirect to reservations
     }
 
     // ====================================

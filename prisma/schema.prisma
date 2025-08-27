@@ -80,6 +80,9 @@ model Property {
   
   propertyType String // apartment, house, villa, studio, room
   
+  // Images
+  images     Json?    // Array of image URLs
+  
   // Capacidad
   maxGuests  Int
   bedrooms   Int
