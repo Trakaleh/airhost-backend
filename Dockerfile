@@ -2,26 +2,30 @@
 FROM node:18-alpine
 
 # Install OpenSSL and other dependencies
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl libc6-compat
 
 # Set Prisma environment
 ENV PRISMA_CLI_BINARY_TARGETS=linux-musl
+ENV PRISMA_QUERY_ENGINE_BINARY=/app/node_modules/.prisma/client/libquery_engine-linux-musl.so.node
 
 # Set working directory for our backend
 WORKDIR /app
 
-# Copy backend package files
+# Copy package files and schema first
 COPY backend/package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies
-RUN npm ci --only=production
+# Install ALL dependencies (including dev dependencies for Prisma CLI)
+RUN npm install
+
+# Generate Prisma client for Alpine Linux
+RUN npx prisma generate
 
 # Copy backend source code
 COPY backend/ ./
 
-# Generate Prisma client
-RUN npx prisma generate
+# Clean up dev dependencies
+RUN npm prune --production
 
 # Expose port (Railway uses PORT env variable)
 EXPOSE 8080
