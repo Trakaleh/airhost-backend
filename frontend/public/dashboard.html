@@ -626,6 +626,10 @@
         </section>
     </main>
 
+    <!-- AirHost AI API -->
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    
     <script>
         // Custom cursor
         const cursor = document.getElementById('cursor');
@@ -685,29 +689,47 @@
 
         async function loadDashboardStats() {
             try {
-                // Try to fetch real data from backend
-                const response = await fetch('/api/analytics/dashboard', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
-                    }
-                });
+                // Check authentication first
+                if (!window.AirHostAPI) {
+                    console.error('AirHost API not loaded');
+                    throw new Error('API not available');
+                }
 
-                if (response.ok) {
-                    const data = await response.json();
+                // Check for valid token
+                const token = localStorage.getItem('airhost_token');
+                if (!token) {
+                    console.log('No auth token found, redirecting to login');
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                // Fetch real data from backend using API
+                const data = await window.AirHostAPI.getDashboardAnalytics();
+                
+                if (data.success && data.stats) {
+                    document.getElementById('totalProperties').textContent = data.stats.totalProperties || 0;
+                    document.getElementById('activeReservations').textContent = data.stats.activeReservations || 0;
+                    document.getElementById('totalRevenue').textContent = `€${data.stats.totalRevenue || 0}`;
                     
-                    if (data.success) {
-                        document.getElementById('totalProperties').textContent = data.stats.totalProperties || 0;
-                        document.getElementById('activeReservations').textContent = data.stats.activeReservations || 0;
-                        document.getElementById('totalRevenue').textContent = `€${data.stats.totalRevenue || 0}`;
-                        
-                        // Update status indicator
-                        document.querySelector('.status-indicator').innerHTML = '🟢 Backend Conectado';
-                        document.querySelector('.status-indicator').style.background = 'rgba(0, 208, 132, 0.1)';
-                        return;
-                    }
+                    // Update status indicator
+                    document.querySelector('.status-indicator').innerHTML = '🟢 Backend Conectado';
+                    document.querySelector('.status-indicator').style.background = 'rgba(0, 208, 132, 0.1)';
+                    document.querySelector('.status-indicator').style.color = '#00d084';
+                    document.querySelector('.status-indicator').style.borderColor = 'rgba(0, 208, 132, 0.2)';
+                    return;
                 }
             } catch (error) {
-                console.log('Backend not available, using demo data');
+                console.error('Backend connection failed:', error);
+                
+                // If authentication error, redirect to login
+                if (error.message && (error.message.includes('401') || 
+                    error.message.includes('Token') || 
+                    error.message.includes('expirada') ||
+                    error.message.includes('Unauthorized'))) {
+                    alert('Sesión expirada. Por favor, inicia sesión de nuevo.');
+                    window.location.href = '/login.html';
+                    return;
+                }
             }
 
             // Use demo data if backend is not available
@@ -724,9 +746,17 @@
 
         // Add logout functionality
         function logout() {
+            // Clear all auth-related items
+            localStorage.removeItem('airhost_token');
             localStorage.removeItem('auth_token');
             localStorage.removeItem('demo_mode');
             localStorage.removeItem('demo_user');
+            
+            // Clear API token
+            if (window.AirHostAPI) {
+                window.AirHostAPI.removeToken();
+            }
+            
             window.location.href = '/login.html';
         }
 
