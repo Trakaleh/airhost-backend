@@ -479,37 +479,29 @@
         <div class="logo">AirHost AI</div>
         <p class="subtitle">Automatización inteligente para hosts de Airbnb</p>
 
-        <!-- Testing Mode Notice -->
-        <div style="
-            background: linear-gradient(45deg, #ffa726, #ff9800);
-            color: #1a1a1a;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-            text-align: center;
-            font-weight: 600;
-            border: 1px solid rgba(255, 167, 38, 0.3);
-        ">
-            🧪 <strong>MODO TESTING</strong><br>
-            <span style="font-size: 0.875rem; font-weight: 400;">
-                Solo acceso administrativo<br>
-                Email: <code>admin@airhostai.com</code> | Contraseña: <code>310100</code>
-            </span>
-        </div>
 
         <!-- Error message container -->
         <div id="errorMessage" class="error-message" style="display: none;"></div>
 
-        <!-- Login Form -->
-        <form id="loginForm" class="auth-form">
+        <!-- Auto Login in Progress -->
+        <div id="autoLoginStatus" style="text-align: center; padding: 2rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🔐</div>
+            <h3 style="color: var(--color-text-primary); margin-bottom: 1rem;">Iniciando sesión...</h3>
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+            </div>
+        </div>
+
+        <!-- Fallback Login Form (hidden by default) -->
+        <form id="loginForm" class="auth-form" style="display: none;">
             <div class="form-group">
                 <label class="form-label" for="loginEmail">Email</label>
-                <input id="loginEmail" name="email" type="email" class="form-input" value="admin@airhostai.com" placeholder="admin@airhostai.com" required>
+                <input id="loginEmail" name="email" type="email" class="form-input" placeholder="tu@email.com" required>
             </div>
             
             <div class="form-group">
                 <label class="form-label" for="loginPassword">Contraseña</label>
-                <input id="loginPassword" name="password" type="password" class="form-input" value="310100" placeholder="310100" required>
+                <input id="loginPassword" name="password" type="password" class="form-input" placeholder="••••••••" required>
             </div>
             
             <button type="submit" class="btn">Iniciar Sesión</button>
@@ -905,28 +897,64 @@
             }
         });
 
-        // Test API connection on page load
+        // Auto-login on page load
         document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                if (typeof window.AirHostAPI !== 'undefined') {
-                    const isHealthy = await window.AirHostAPI.healthCheck();
-                    
-                    const indicator = document.createElement('div');
-                    indicator.className = `status-indicator ${isHealthy ? 'status-online' : 'status-demo'}`;
-                    indicator.textContent = isHealthy ? '🟢 API Online' : '🟡 Demo Mode';
-                    document.body.appendChild(indicator);
-                    
-                    console.log(isHealthy ? '✅ Backend API is online' : '⚠️ Backend API offline - Demo mode available');
-                }
-            } catch (error) {
-                console.error('API health check failed:', error);
-                
-                const indicator = document.createElement('div');
-                indicator.className = 'status-indicator status-demo';
-                indicator.textContent = '🟡 Demo Mode';
-                document.body.appendChild(indicator);
+            // Check if user is already logged in
+            const existingToken = localStorage.getItem('airhost_token');
+            if (existingToken) {
+                // User already has a token, redirect to dashboard
+                window.location.href = '/dashboard.html';
+                return;
             }
+
+            // Perform automatic login
+            await performAutoLogin();
         });
+
+        async function performAutoLogin() {
+            try {
+                console.log('🔐 Attempting auto-login...');
+                
+                if (typeof window.AirHostAPI === 'undefined') {
+                    console.error('❌ API module not loaded');
+                    showManualLogin('API no disponible');
+                    return;
+                }
+
+                // Try automatic login with admin credentials
+                const response = await window.AirHostAPI.login('admin@airhostai.com', '310100');
+                
+                if (response.success && response.token) {
+                    console.log('✅ Auto-login successful');
+                    window.AirHostAPI.setToken(response.token);
+                    
+                    // Redirect to dashboard
+                    const returnUrl = new URLSearchParams(window.location.search).get('return');
+                    window.location.href = returnUrl || '/dashboard.html';
+                    
+                } else {
+                    console.error('❌ Auto-login failed:', response.error);
+                    showManualLogin(response.error || 'Error de autenticación');
+                }
+                
+            } catch (error) {
+                console.error('❌ Auto-login error:', error);
+                showManualLogin(error.message);
+            }
+        }
+
+        function showManualLogin(errorMessage) {
+            // Hide auto-login status
+            document.getElementById('autoLoginStatus').style.display = 'none';
+            
+            // Show manual login form
+            document.getElementById('loginForm').style.display = 'block';
+            
+            // Show error message if it's not a network error
+            if (errorMessage && !errorMessage.includes('Failed to fetch')) {
+                showError('Error: ' + errorMessage + '. Usa el formulario manual.');
+            }
+        }
 
         console.log('🔐 AirHost AI Login - New design loaded');
     </script>

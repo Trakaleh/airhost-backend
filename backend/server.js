@@ -366,6 +366,26 @@ app.post('/api/auth/google', async (req, res) => {
 // PERFIL DEL USUARIO
 app.get('/api/auth/me', authenticate, async (req, res) => {
     try {
+        // For testing mode, return the user directly from middleware
+        if (req.user.id === 'admin-testing-user-id') {
+            console.log('👤 Returning testing user profile');
+            return res.json({
+                success: true,
+                user: {
+                    id: req.user.id,
+                    email: req.user.email,
+                    name: req.user.name,
+                    phone: req.user.phone || '',
+                    plan: req.user.plan,
+                    language: req.user.language || 'es',
+                    currency: req.user.currency || 'EUR',
+                    createdAt: new Date(),
+                    lastLogin: new Date()
+                }
+            });
+        }
+
+        // Regular database user lookup for production
         const user = await prisma.user.findUnique({
             where: { id: req.user.id },
             select: {
@@ -381,11 +401,19 @@ app.get('/api/auth/me', authenticate, async (req, res) => {
             }
         });
 
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: 'Usuario no encontrado'
+            });
+        }
+
         res.json({
             success: true,
             user
         });
     } catch (error) {
+        console.error('Error en /api/auth/me:', error);
         res.status(500).json({
             success: false,
             error: 'Error interno del servidor'

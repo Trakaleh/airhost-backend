@@ -28,15 +28,25 @@ class AuthGuard {
                 // Validate token with backend
                 try {
                     const response = await window.AirHostAPI.getProfile();
-                    if (response.success) {
+                    if (response.success && response.user) {
                         this.user = response.user;
                         this.isAuthenticated = true;
-                                        console.log('✅ User authenticated with backend');
+                        console.log('✅ User authenticated with backend:', response.user.email);
                         return true;
+                    } else {
+                        console.warn('❌ Profile validation failed:', response.error || 'No user data');
+                        this.clearAuth();
                     }
                 } catch (error) {
-                    console.warn('Token validation failed:', error);
-                    this.clearAuth();
+                    console.warn('❌ Token validation failed:', error.message);
+                    // Only clear auth if it's a 401 error (invalid token)
+                    if (error.message.includes('401') || error.message.includes('Sesión expirada')) {
+                        this.clearAuth();
+                    } else {
+                        // For other errors (network, server), keep token for retry
+                        console.log('🔄 Keeping token for retry on network errors');
+                        return token ? true : false;
+                    }
                 }
             }
 
