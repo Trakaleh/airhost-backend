@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Propiedades - AirHost AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg-primary: #0a0a0a;
+            --color-bg-secondary: #111111;
+            --color-bg-tertiary: #1a1a1a;
+            --color-text-primary: #ffffff;
+            --color-text-secondary: #b3b3b3;
+            --color-text-tertiary: #666666;
+            --color-accent: #00d084;
+            --color-accent-hover: #00b572;
+            --color-border: #2a2a2a;
+            --color-hover: rgba(255, 255, 255, 0.05);
+            --color-error: #ff4757;
+            --color-warning: #ffa726;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--color-bg-secondary);
+            border-right: 1px solid var(--color-border);
+            padding: 2rem 0;
+        }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--color-accent);
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 2rem;
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: var(--color-hover);
+            color: var(--color-text-primary);
+            border-right: 3px solid var(--color-accent);
+        }
+
+        .nav-menu .icon {
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+
+        .btn {
+            background: var(--color-accent);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: var(--color-accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-hover);
+            border-color: var(--color-accent);
+        }
+
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .property-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .property-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--color-accent);
+            box-shadow: 0 10px 30px rgba(0, 208, 132, 0.1);
+        }
+
+        .property-image {
+            height: 200px;
+            background: var(--color-bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--color-text-tertiary);
+        }
+
+        .property-content {
+            padding: 1.5rem;
+        }
+
+        .property-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .property-address {
+            color: var(--color-text-secondary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .property-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--color-bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--color-accent);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+        }
+
+        .property-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            flex: 1;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            margin: 2rem;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--color-text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .close-btn:hover {
+            color: var(--color-text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--color-text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            color: var(--color-text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(0, 208, 132, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .loading-spinner {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--color-border);
+            border-top: 2px solid var(--color-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--color-text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-primary);
+        }
+
+        .error-message {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            color: var(--color-error);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .success-message {
+            background: rgba(0, 208, 132, 0.1);
+            border: 1px solid rgba(0, 208, 132, 0.3);
+            color: var(--color-accent);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                z-index: 100;
+                padding: 1rem 0;
+                height: auto;
+                border-top: 1px solid var(--color-border);
+                border-right: none;
+            }
+            
+            .nav-menu {
+                display: flex;
+                justify-content: space-around;
+            }
+            
+            .nav-menu li {
+                margin: 0;
+            }
+            
+            .nav-menu a {
+                flex-direction: column;
+                padding: 0.5rem;
+                text-align: center;
+            }
+            
+            .nav-menu .icon {
+                margin: 0;
+            }
+            
+            .main-content {
+                padding-bottom: 100px;
+            }
+            
+            .properties-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="logo">AirHost AI</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/dashboard.html"><span class="icon">📊</span> Dashboard</a></li>
+                <li><a href="/properties.html" class="active"><span class="icon">🏠</span> Propiedades</a></li>
+                <li><a href="/pages/channel-manager.html"><span class="icon">📱</span> Channel Manager</a></li>
+                <li><a href="/pages/mensajes-automaticos.html"><span class="icon">💬</span> Mensajes</a></li>
+                <li><a href="/pages/smart-locks.html"><span class="icon">🔑</span> Smart Locks</a></li>
+                <li><a href="/pages/analytics.html"><span class="icon">📈</span> Analytics</a></li>
+                <li><a href="/login.html"><span class="icon">🚪</span> Salir</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1 class="header-title">Gestión de Propiedades</h1>
+                <button class="btn" onclick="openAddPropertyModal()">
+                    <span>+</span> Añadir Propiedad
+                </button>
+            </div>
+
+            <!-- Properties Grid -->
+            <div id="propertiesContainer">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    Cargando propiedades...
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Property Modal -->
+    <div id="addPropertyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Añadir Nueva Propiedad</h2>
+                <button class="close-btn" onclick="closeAddPropertyModal()">&times;</button>
+            </div>
+            <form id="addPropertyForm">
+                <div class="form-group">
+                    <label for="propertyName" class="form-label">Nombre de la Propiedad</label>
+                    <input type="text" id="propertyName" name="name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="propertyAddress" class="form-label">Dirección</label>
+                    <input type="text" id="propertyAddress" name="address" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="propertyCity" class="form-label">Ciudad</label>
+                    <input type="text" id="propertyCity" name="city" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="propertyType" class="form-label">Tipo de Propiedad</label>
+                    <select id="propertyType" name="type" class="form-input" required>
+                        <option value="">Seleccionar tipo</option>
+                        <option value="apartment">Apartamento</option>
+                        <option value="house">Casa</option>
+                        <option value="studio">Estudio</option>
+                        <option value="villa">Villa</option>
+                        <option value="room">Habitación</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="propertyBedrooms" class="form-label">Habitaciones</label>
+                    <input type="number" id="propertyBedrooms" name="bedrooms" class="form-input" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="propertyBathrooms" class="form-label">Baños</label>
+                    <input type="number" id="propertyBathrooms" name="bathrooms" class="form-input" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="propertyMaxGuests" class="form-label">Huéspedes Máximos</label>
+                    <input type="number" id="propertyMaxGuests" name="maxGuests" class="form-input" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="propertyDescription" class="form-label">Descripción</label>
+                    <textarea id="propertyDescription" name="description" class="form-input form-textarea" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn">Crear Propiedad</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeAddPropertyModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        let properties = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Check authentication
+                const token = localStorage.getItem('airhost_token');
+                if (!token) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                await loadProperties();
+            } catch (error) {
+                console.error('Error initializing properties page:', error);
+                showError('Error cargando la página');
+            }
+        });
+
+        // Load properties from backend
+        async function loadProperties() {
+            try {
+                const container = document.getElementById('propertiesContainer');
+                container.innerHTML = `
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                        Cargando propiedades...
+                    </div>
+                `;
+
+                const response = await window.AirHostAPI.getProperties();
+                
+                if (response.success && response.properties) {
+                    properties = response.properties;
+                    renderProperties(properties);
+                } else {
+                    throw new Error(response.error || 'Error al cargar propiedades');
+                }
+            } catch (error) {
+                console.error('Error loading properties:', error);
+                document.getElementById('propertiesContainer').innerHTML = `
+                    <div class="error-message">
+                        ❌ Error al cargar las propiedades: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Render properties grid
+        function renderProperties(properties) {
+            const container = document.getElementById('propertiesContainer');
+            
+            if (!properties || properties.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏠</div>
+                        <h3 class="empty-state-title">No tienes propiedades aún</h3>
+                        <p>Añade tu primera propiedad para empezar a gestionar tus alquileres</p>
+                        <button class="btn" onclick="openAddPropertyModal()" style="margin-top: 1rem;">
+                            <span>+</span> Añadir Primera Propiedad
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const propertiesHTML = properties.map(property => `
+                <div class="property-card">
+                    <div class="property-image">🏠</div>
+                    <div class="property-content">
+                        <h3 class="property-name">${property.name}</h3>
+                        <div class="property-address">
+                            <span>📍</span>
+                            <span>${property.address}, ${property.city}</span>
+                        </div>
+                        <div class="property-stats">
+                            <div class="stat">
+                                <div class="stat-value">${property.bedrooms || 0}</div>
+                                <div class="stat-label">Habitaciones</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">${property.bathrooms || 0}</div>
+                                <div class="stat-label">Baños</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">${property.maxGuests || 0}</div>
+                                <div class="stat-label">Huéspedes</div>
+                            </div>
+                        </div>
+                        <div class="property-actions">
+                            <button class="btn btn-small btn-secondary" onclick="editProperty('${property.id}')">
+                                ✏️ Editar
+                            </button>
+                            <button class="btn btn-small" onclick="viewProperty('${property.id}')">
+                                👁️ Ver
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="properties-grid">
+                    ${propertiesHTML}
+                </div>
+            `;
+        }
+
+        // Modal functions
+        function openAddPropertyModal() {
+            document.getElementById('addPropertyModal').classList.add('active');
+        }
+
+        function closeAddPropertyModal() {
+            document.getElementById('addPropertyModal').classList.remove('active');
+            document.getElementById('addPropertyForm').reset();
+        }
+
+        // Handle add property form
+        document.getElementById('addPropertyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const propertyData = Object.fromEntries(formData.entries());
+            
+            // Convert numbers
+            propertyData.bedrooms = parseInt(propertyData.bedrooms);
+            propertyData.bathrooms = parseInt(propertyData.bathrooms);
+            propertyData.maxGuests = parseInt(propertyData.maxGuests);
+            
+            try {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = '<div class="spinner"></div> Creando...';
+                submitBtn.disabled = true;
+                
+                const response = await window.AirHostAPI.createProperty(propertyData);
+                
+                if (response.success) {
+                    closeAddPropertyModal();
+                    showSuccess('Propiedad creada exitosamente');
+                    await loadProperties();
+                } else {
+                    throw new Error(response.error || 'Error al crear la propiedad');
+                }
+            } catch (error) {
+                console.error('Error creating property:', error);
+                showError(`Error al crear la propiedad: ${error.message}`);
+            } finally {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = 'Crear Propiedad';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Property actions
+        function editProperty(propertyId) {
+            alert(`Función de editar propiedad ${propertyId} - En desarrollo`);
+        }
+
+        function viewProperty(propertyId) {
+            alert(`Función de ver detalles de propiedad ${propertyId} - En desarrollo`);
+        }
+
+        // Utility functions
+        function showError(message) {
+            const container = document.getElementById('propertiesContainer');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            container.insertBefore(errorDiv, container.firstChild);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const container = document.getElementById('propertiesContainer');
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            container.insertBefore(successDiv, container.firstChild);
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 5000);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('addPropertyModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddPropertyModal();
+            }
+        });
+
+        // Handle escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAddPropertyModal();
+            }
+        });
+    </script>
+</body>
+</html>
