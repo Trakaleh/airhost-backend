@@ -1,38 +1,34 @@
 # Use Node.js 18
 FROM node:18-alpine
 
-# Install OpenSSL and other dependencies
-RUN apk add --no-cache openssl libc6-compat
+# Install OpenSSL and other system dependencies
+RUN apk add --no-cache openssl
 
-# Set Prisma environment
-ENV PRISMA_CLI_BINARY_TARGETS=linux-musl
-ENV PRISMA_QUERY_ENGINE_BINARY=/app/node_modules/.prisma/client/libquery_engine-linux-musl.so.node
-
-# Set working directory for our backend
+# Set working directory
 WORKDIR /app
 
-# Copy package files and schema first
+# Copy all package files
 COPY backend/package*.json ./
 COPY prisma ./prisma/
 
-# Install ALL dependencies (including dev dependencies for Prisma CLI)
+# Install dependencies (including dev deps for Prisma CLI)
 RUN npm install
 
-# Generate Prisma client for Alpine Linux
-RUN npx prisma generate
-
-# Copy backend source code
+# Copy backend source
 COPY backend/ ./
 
-# Clean up dev dependencies
+# Generate Prisma client
+RUN npx prisma generate
+
+# Remove dev dependencies to reduce image size
 RUN npm prune --production
 
-# Expose port (Railway uses PORT env variable)
+# Expose port
 EXPOSE 8080
 
-# Health check with longer startup period
-HEALTHCHECK --interval=30s --timeout=15s --start-period=60s --retries=5 \
+# Health check
+HEALTHCHECK --interval=30s --timeout=15s --start-period=60s --retries=3 \
     CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 8080) + '/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
-# Start application
+# Start the application
 CMD ["npm", "start"]
