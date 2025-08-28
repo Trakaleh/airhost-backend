@@ -33,7 +33,8 @@
       "Bash(netlify:*)",
       "Bash(nslookup:*)",
       "Bash(find:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(railway:*)"
     ],
     "deny": [],
     "ask": []
