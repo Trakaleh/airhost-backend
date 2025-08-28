@@ -90,7 +90,7 @@ model Property {
   bathrooms  Int
   
   // Channel Manager (JSON for flexible channel data)
-  channels Json? // { airbnb: { listingId, icalUrl, isActive, lastSync }, booking: {...} }
+  channelsConfig Json? // { airbnb: { listingId, icalUrl, isActive, lastSync }, booking: {...} }
   
   // Smart Lock
   smartLockBrand    String  @default("none") // nuki, august, yale, none
