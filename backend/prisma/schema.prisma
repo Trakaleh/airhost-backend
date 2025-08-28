@@ -1,0 +1,558 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String
+  company   String?
+  
+  // Plan y suscripción
+  plan      String   @default("basic") // basic, pro, enterprise
+  
+  // Stripe
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  subscriptionStatus   String   @default("active") // active, canceled, past_due
+  currentPeriodEnd     DateTime?
+  
+  // Preferencias
+  language    String  @default("es") // es, en, fr
+  currency    String  @default("EUR") // EUR, USD, GBP
+  timezone    String  @default("Europe/Madrid")
+  
+  // Notificaciones
+  emailNotifications     Boolean @default(true)
+  whatsappNotifications  Boolean @default(true)
+  
+  // OAuth
+  provider  String?  // google, facebook, etc
+  avatar    String?  // Profile picture URL
+  
+  // Estado
+  lastLogin DateTime?
+  isActive  Boolean  @default(true)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relaciones
+  properties       Property[]
+  incidents        Incident[] @relation("ReportedIncidents")
+  resolvedIncidents Incident[] @relation("ResolvedIncidents")
+  smartLocks       SmartLock[]
+  accessCodes      AccessCode[]
+  messageTemplates MessageTemplate[]
+  automationRules  AutomationRule[]
+  messages         Message[]
+  payments         Payment[]
+  pricingRules     PricingRule[]
+  analyticsData    AnalyticsData[]
+  channels         Channel[]
+  
+  @@map("users")
+}
+
+model Property {
+  id          String   @id @default(cuid())
+  ownerId     String
+  
+  // Información básica
+  name        String
+  description String?
+  address     String
+  city        String
+  country     String
+  postalCode  String?
+  
+  propertyType String // apartment, house, villa, studio, room
+  
+  // Images
+  images     Json?    // Array of image URLs
+  
+  // Capacidad
+  maxGuests  Int
+  bedrooms   Int
+  bathrooms  Int
+  
+  // Channel Manager
+  airbnbListingId  String?
+  airbnbIcalUrl    String?
+  airbnbLastSync   DateTime?
+  airbnbIsActive   Boolean @default(false)
+  
+  bookingListingId String?
+  bookingIcalUrl   String?
+  bookingLastSync  DateTime?
+  bookingIsActive  Boolean @default(false)
+  
+  vrboListingId   String?
+  vrboIcalUrl     String?
+  vrboLastSync    DateTime?
+  vrboIsActive    Boolean @default(false)
+  
+  // Smart Lock
+  smartLockBrand    String  @default("none") // nuki, august, yale, none
+  smartLockId       String?
+  smartLockApiToken String?
+  smartLockIsActive Boolean @default(false)
+  
+  // Precios
+  basePrice     Float
+  currency      String @default("EUR")
+  cleaningFee   Float  @default(0)
+  depositAmount Float
+  
+  // Información de acceso
+  wifiName             String?
+  wifiPassword         String?
+  checkInInstructions  String?
+  checkOutInstructions String?
+  houseRules           String?
+  
+  // Templates de mensajes
+  welcomeTemplate         String @default("¡Hola {{guest_name}}! Bienvenido a {{property_name}}.")
+  accessInfoTemplate      String @default("Tu código de acceso es: {{access_code}}")
+  checkoutReminderTemplate String @default("Recordatorio: Check-out hoy a las {{checkout_time}}")
+  reviewRequestTemplate   String @default("¡Esperamos tu reseña de 5⭐!")
+  
+  // Estado
+  isActive      Boolean @default(true)
+  autoMessaging Boolean @default(true)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relaciones
+  owner         User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  reservations  Reservation[]
+  incidents     Incident[]
+  smartLocks    SmartLock[]
+  pricingRules  PricingRule[]
+  analyticsData AnalyticsData[]
+  channels      Channel[]
+  
+  @@map("properties")
+}
+
+model Reservation {
+  id         String   @id @default(cuid())
+  propertyId String
+  
+  // Información del huésped
+  guestName     String
+  guestEmail    String
+  guestPhone    String?
+  guestLanguage String  @default("es")
+  guestCountry  String?
+  guestCount    Int     @default(1)
+  
+  // Fechas
+  checkIn  DateTime
+  checkOut DateTime
+  nights   Int
+  
+  // Origen y estado
+  source     String // airbnb, booking, vrbo, direct, manual
+  externalId String?
+  status     String @default("confirmed") // confirmed, checked_in, checked_out, cancelled
+  
+  // Precios
+  baseAmount     Float
+  cleaningFee    Float  @default(0)
+  totalAmount    Float
+  currency       String @default("EUR")
+  
+  // Códigos de acceso
+  accessCode      String?
+  accessCodeGeneratedAt DateTime?
+  accessCodeExpiresAt   DateTime?
+  accessCodeUsedAt      DateTime?
+  
+  // Fianza
+  stripePaymentIntentId String?
+  depositAmount         Float?
+  depositCurrency       String?
+  depositStatus         String? @default("pending") // pending, authorized, captured, released
+  depositAuthorizedAt   DateTime?
+  depositReleasedAt     DateTime?
+  
+  // Mensajes enviados (JSON)
+  messagesSent Json? // Array de objetos con type, sent_at, platform, content, status
+  
+  // Notas
+  notes String?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relaciones
+  property    Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  incidents   Incident[]
+  accessCodes AccessCode[]
+  payments    Payment[]
+  
+  @@map("reservations")
+}
+
+model Incident {
+  id            String   @id @default(cuid())
+  reservationId String
+  propertyId    String
+  reportedById  String
+  resolvedById  String?
+  
+  // Información del incidente
+  type            String // damage, missing_items, cleanliness, noise, other
+  title           String
+  description     String
+  estimatedCost   Float
+  currency        String @default("EUR")
+  
+  // Evidencia (URLs de archivos)
+  evidencePhotos Json? // Array de URLs
+  evidenceVideos Json? // Array de URLs
+  
+  // Estado
+  status String @default("reported") // reported, under_review, charged, resolved, dismissed
+  
+  // Resolución
+  actionTaken    String?
+  chargedAmount  Float?
+  chargedAt      DateTime?
+  stripeChargeId String?
+  resolutionNotes String?
+  resolvedAt     DateTime?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relaciones
+  reservation  Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  property     Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  reportedBy   User        @relation("ReportedIncidents", fields: [reportedById], references: [id])
+  resolvedBy   User?       @relation("ResolvedIncidents", fields: [resolvedById], references: [id])
+  
+  @@map("incidents")
+}
+
+// ====================================
+// 🔐 SMART LOCKS MANAGEMENT
+// ====================================
+
+model SmartLock {
+  id         String   @id @default(cuid())
+  ownerId    String
+  propertyId String
+  
+  // Device info
+  brand      String   // nuki, august, yale, salto
+  deviceId   String   // External device ID
+  deviceName String   // User-friendly name
+  
+  // API Configuration
+  apiCredentials Json? // Brand-specific API keys/tokens
+  
+  // Settings
+  settings   Json?    // Device-specific settings
+  status     String   @default("active") // active, inactive, error
+  lastSync   DateTime?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  owner       User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  property    Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  accessCodes AccessCode[]
+  
+  @@map("smart_locks")
+}
+
+model AccessCode {
+  id        String   @id @default(cuid())
+  lockId    String
+  ownerId   String
+  bookingId String?
+  
+  // Code details
+  code      String   // The actual access code
+  codeName  String   // User-friendly name
+  
+  // Validity
+  validFrom  DateTime
+  validUntil DateTime
+  
+  // Usage
+  usedAt     DateTime?
+  usageCount Int      @default(0)
+  
+  // Guest info
+  guestInfo Json?    // Guest contact details
+  
+  // Status
+  status    String   @default("active") // active, expired, used, revoked
+  revokedAt DateTime?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  lock        SmartLock    @relation(fields: [lockId], references: [id], onDelete: Cascade)
+  owner       User         @relation(fields: [ownerId], references: [id])
+  reservation Reservation? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  
+  @@map("access_codes")
+}
+
+// ====================================
+// 💬 MESSAGING SYSTEM
+// ====================================
+
+model MessageTemplate {
+  id        String   @id @default(cuid())
+  ownerId   String
+  
+  name      String
+  category  String   // welcome, checkin, checkout, review_request, custom
+  language  String   @default("es")
+  content   String   // Template with placeholders like {{guest_name}}
+  variables Json?    // Array of available variables
+  
+  isActive  Boolean  @default(true)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  owner           User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  automationRules AutomationRule[]
+  messages        Message[]
+  
+  @@map("message_templates")
+}
+
+model AutomationRule {
+  id           String   @id @default(cuid())
+  ownerId      String
+  templateId   String
+  
+  name         String
+  description  String?
+  eventType    String   // booking_confirmed, checkin_reminder, checkout_reminder
+  
+  // Conditions
+  conditions   Json?    // Conditional logic
+  delayMinutes Int      @default(0)
+  
+  // Target properties
+  propertyIds  Json?    // Array of property IDs (null = all properties)
+  
+  // Status
+  isActive       Boolean @default(true)
+  executionCount Int     @default(0)
+  lastExecuted   DateTime?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  owner    User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  template MessageTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  
+  @@map("automation_rules")
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  ownerId    String
+  templateId String?
+  
+  // Recipient
+  guestName  String
+  guestPhone String
+  guestEmail String?
+  
+  // Message content
+  content    String
+  platform   String   // whatsapp, sms, email
+  
+  // Status
+  status     String   @default("pending") // pending, sent, delivered, failed
+  sentAt     DateTime?
+  deliveredAt DateTime?
+  errorMessage String?
+  
+  // Metadata
+  metadata   Json?    // Additional message data
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  owner    User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  template MessageTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  
+  @@map("messages")
+}
+
+// ====================================
+// 💳 PAYMENTS & PRICING
+// ====================================
+
+model Payment {
+  id            String   @id @default(cuid())
+  reservationId String
+  ownerId       String
+  
+  // Payment details
+  amount        Float
+  currency      String   @default("EUR")
+  type          String   // booking, deposit, damage, cleaning
+  
+  // Stripe integration
+  stripePaymentIntentId String?
+  stripeChargeId        String?
+  stripeCustomerId      String?
+  
+  // Status
+  status        String   @default("pending") // pending, authorized, captured, refunded, failed
+  
+  // Dates
+  authorizedAt  DateTime?
+  capturedAt    DateTime?
+  refundedAt    DateTime?
+  
+  // Metadata
+  description   String?
+  metadata      Json?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  reservation Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  owner       User        @relation(fields: [ownerId], references: [id])
+  
+  @@map("payments")
+}
+
+model PricingRule {
+  id         String   @id @default(cuid())
+  propertyId String
+  ownerId    String
+  
+  name       String
+  type       String   // seasonal, length_of_stay, advance_booking, last_minute
+  
+  // Conditions
+  conditions Json     // Date ranges, booking length, etc.
+  
+  // Pricing adjustments
+  adjustmentType String // percentage, fixed_amount
+  adjustmentValue Float
+  
+  // Priority (higher number = higher priority)
+  priority   Int      @default(0)
+  
+  // Status
+  isActive   Boolean  @default(true)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  owner    User     @relation(fields: [ownerId], references: [id])
+  
+  @@map("pricing_rules")
+}
+
+// ====================================
+// 📊 ANALYTICS & REPORTING
+// ====================================
+
+model AnalyticsData {
+  id         String   @id @default(cuid())
+  ownerId    String
+  propertyId String?
+  
+  // Metrics
+  metric     String   // occupancy_rate, revenue, avg_booking_value, etc.
+  value      Float
+  period     String   // daily, weekly, monthly, yearly
+  date       DateTime
+  
+  // Metadata
+  metadata   Json?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  
+  // Relations
+  owner    User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  property Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  @@unique([ownerId, propertyId, metric, period, date])
+  @@map("analytics_data")
+}
+
+// ====================================
+// 🔄 CHANNEL MANAGER ENHANCED
+// ====================================
+
+model Channel {
+  id         String   @id @default(cuid())
+  propertyId String
+  ownerId    String
+  
+  // Channel info
+  name       String   // airbnb, booking, vrbo, expedia
+  listingId  String   // External listing ID
+  
+  // API Configuration
+  apiCredentials Json?
+  icalUrl        String?
+  
+  // Sync settings
+  syncEnabled    Boolean @default(true)
+  lastSync       DateTime?
+  syncErrors     Json?   // Array of sync errors
+  
+  // Status
+  isActive       Boolean @default(true)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  owner    User     @relation(fields: [ownerId], references: [id])
+  
+  @@unique([propertyId, name])
+  @@map("channels")
+}

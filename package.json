@@ -5,8 +5,7 @@
   "main": "backend/server.js",
   "scripts": {
     "start": "cd backend && node server.js",
-    "build": "cd backend && npm install --production && npx prisma generate",
-    "postinstall": "cd backend && npm install --production && npx prisma generate && npx prisma db push --accept-data-loss"
+    "build": "echo 'Build completed'"
   },
   "keywords": [
     "airbnb",

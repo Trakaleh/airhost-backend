@@ -1,0 +1,12 @@
+[variables]
+NODE_ENV = 'production'
+
+[phases.build]
+dependsOn = ['install']
+cmds = ['cd backend && npm run build']
+
+[phases.install]
+cmds = ['cd backend && npm ci --omit=dev']
+
+[start]
+cmd = 'cd backend && npm start'
