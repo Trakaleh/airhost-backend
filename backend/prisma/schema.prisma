@@ -61,7 +61,6 @@ model User {
   payments         Payment[]
   pricingRules     PricingRule[]
   analyticsData    AnalyticsData[]
-  channels         Channel[]
   notifications    Notification[]
   
   @@map("users")
@@ -543,7 +542,6 @@ model AnalyticsData {
 model Channel {
   id         String   @id @default(cuid())
   propertyId String
-  ownerId    String
   
   // Channel info
   name       String   // airbnb, booking, vrbo, expedia
@@ -567,7 +565,6 @@ model Channel {
   
   // Relations
   property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  owner    User     @relation(fields: [ownerId], references: [id])
   
   @@unique([propertyId, name])
   @@map("channels")
