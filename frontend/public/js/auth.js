@@ -86,8 +86,8 @@ class AuthGuard {
         if (!isAuth) {
             console.log('🔒 Authentication required, redirecting to login');
             const currentPath = window.location.pathname + window.location.search;
-            // Use relative path for login redirect
-            window.location.href = `../login.html?return=${encodeURIComponent(currentPath)}`;
+            // Use clean URL for login redirect
+            window.location.href = `/login?return=${encodeURIComponent(currentPath)}`;
             return false;
         }
         
@@ -104,7 +104,7 @@ class AuthGuard {
         }
         
         this.clearAuth();
-        window.location.href = '../login.html';
+        window.location.href = '/login';
     }
 
     clearAuth() {
@@ -127,7 +127,7 @@ class AuthGuard {
             if (e.key === 'airhost_token' && !e.newValue) {
                 console.log('🔒 Token removed in another tab, logging out');
                 this.clearAuth();
-                window.location.href = '../login.html';
+                window.location.href = '/login';
             }
         });
 

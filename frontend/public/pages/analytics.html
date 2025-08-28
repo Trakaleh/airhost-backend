@@ -774,12 +774,12 @@
                 <a href="/" class="logo">AirHost AI</a>
                 <ul class="nav-links">
                     <li><a href="/" class="btn back-link">← Volver al Inicio</a></li>
-                    <li><a href="/pages/analytics.html">Dashboard</a></li>
-                    <li><a href="/pages/channel-manager.html">Channel Manager</a></li>
-                    <li><a href="/pages/smart-locks.html">Smart Locks</a></li>
-                    <li><a href="/pages/precios.html">Precios</a></li>
-                    <li><a href="/pages/contacto.html">Contacto</a></li>
-                    <li><a href="/login.html" class="btn btn-primary">Acceder</a></li>
+                    <li><a href="/analytics">Dashboard</a></li>
+                    <li><a href="/channel-manager">Channel Manager</a></li>
+                    <li><a href="/smart-locks">Smart Locks</a></li>
+                    <li><a href="/precios">Precios</a></li>
+                    <li><a href="/contacto">Contacto</a></li>
+                    <li><a href="/login" class="btn btn-primary">Acceder</a></li>
                 </ul>
             </nav>
         </div>
@@ -1540,6 +1540,18 @@
     <script defer src="../js/api.js"></script>
     <script>
         console.log('Analytics loaded with API integration');
+    </script>
+    <script defer src="../js/api.js"></script>
+    <script defer src="../js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Require authentication before loading the page
+            if (!await window.requireAuth()) {
+                return; // Will redirect to login
+            }
+            
+            console.log('Analytics loaded with authentication');
+        });
     </script>
 </body>
 </html>

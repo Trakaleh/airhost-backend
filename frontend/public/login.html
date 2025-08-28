@@ -575,7 +575,7 @@
             <li>Sin tarjeta de crédito requerida</li>
         </ul>
 
-        <a href="/index-new.html" class="back-link">
+        <a href="/" class="back-link">
             <span>←</span>
             Volver al inicio
         </a>
@@ -745,7 +745,7 @@
                     if (useDemo) {
                         localStorage.setItem('demo_mode', 'true');
                         localStorage.setItem('demo_user', JSON.stringify({email, name: 'Usuario Demo'}));
-                        window.location.href = '/dashboard.html';
+                        window.location.href = '/dashboard';
                     }
                 } else {
                     showError(error.message);
@@ -793,7 +793,7 @@
                     document.querySelector('.login-container').style.opacity = '0.7';
                     
                     setTimeout(() => {
-                        window.location.href = '/dashboard.html';
+                        window.location.href = '/dashboard';
                     }, 300);
                     
                 } else {
@@ -813,7 +813,7 @@
                     if (useDemo) {
                         localStorage.setItem('demo_mode', 'true');
                         localStorage.setItem('demo_user', JSON.stringify({name, email, phone}));
-                        window.location.href = '/dashboard.html';
+                        window.location.href = '/dashboard';
                     }
                 } else {
                     showError(error.message);
@@ -846,7 +846,7 @@
                 document.querySelector('.login-container').style.opacity = '0.7';
                 
                 setTimeout(() => {
-                    window.location.href = '/dashboard.html';
+                    window.location.href = '/dashboard';
                 }, 300);
                 
             } catch (error) {
@@ -882,7 +882,7 @@
                 document.querySelector('.login-container').style.opacity = '0.7';
                 
                 setTimeout(() => {
-                    window.location.href = '/dashboard.html';
+                    window.location.href = '/dashboard';
                 }, 300);
                 
             } catch (error) {
@@ -904,7 +904,7 @@
             const existingToken = localStorage.getItem('airhost_token');
             if (existingToken) {
                 // User already has a token, redirect to dashboard
-                window.location.href = '/dashboard.html';
+                window.location.href = '/dashboard';
                 return;
             }
             

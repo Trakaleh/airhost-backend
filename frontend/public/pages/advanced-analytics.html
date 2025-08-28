@@ -472,14 +472,14 @@
                 <a href="/" class="logo">AirHost AI</a>
             </div>
             <ul class="nav-menu">
-                <li><a href="/dashboard.html"><span class="icon">📊</span> Dashboard</a></li>
-                <li><a href="/properties.html"><span class="icon">🏠</span> Propiedades</a></li>
-                <li><a href="/reservations.html"><span class="icon">📅</span> Reservas</a></li>
-                <li><a href="/pages/channel-manager.html"><span class="icon">📱</span> Channel Manager</a></li>
-                <li><a href="/pages/whatsapp-automation.html"><span class="icon">💬</span> WhatsApp</a></li>
-                <li><a href="/pages/smart-locks.html"><span class="icon">🔑</span> Smart Locks</a></li>
-                <li><a href="/pages/advanced-analytics.html" class="active"><span class="icon">📈</span> Analytics</a></li>
-                <li><a href="/login.html"><span class="icon">🚪</span> Salir</a></li>
+                <li><a href="/dashboard"><span class="icon">📊</span> Dashboard</a></li>
+                <li><a href="/properties"><span class="icon">🏠</span> Propiedades</a></li>
+                <li><a href="/reservations"><span class="icon">📅</span> Reservas</a></li>
+                <li><a href="/channel-manager"><span class="icon">📱</span> Channel Manager</a></li>
+                <li><a href="/whatsapp-automation"><span class="icon">💬</span> WhatsApp</a></li>
+                <li><a href="/smart-locks"><span class="icon">🔑</span> Smart Locks</a></li>
+                <li><a href="/analytics" class="active"><span class="icon">📈</span> Analytics</a></li>
+                <li><a data-logout><span class="icon">🚪</span> Salir</a></li>
             </ul>
         </nav>
 
@@ -681,7 +681,7 @@
                 // Check authentication
                 const token = localStorage.getItem('airhost_token');
                 if (!token) {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                     return;
                 }
 

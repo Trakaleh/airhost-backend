@@ -1,9 +1,23 @@
-/channel-manager           /pages/channel-manager.html                    302
-/mensajes-automaticos      /pages/mensajes-automaticos.html               302  
-/smart-locks              /pages/smart-locks.html                        302
-/fianzas-stripe           /pages/fianzas-stripe.html                     302
-/analytics                /pages/advanced-analytics.html                 302
+# Core application pages
+/dashboard                /dashboard.html                                302
+/login                    /login.html                                    302
+/properties               /properties.html                               302
+/reservations             /reservations.html                             302
+
+# Feature pages - clean URLs
+/channel-manager          /pages/channel-manager.html                    302
 /property-management      /pages/property-management.html                302
-/precios                  /pages/precios.html                           302
-/contacto                 /pages/contacto.html                          302
 /whatsapp-automation      /pages/whatsapp-automation.html               302
+/smart-locks              /pages/smart-locks.html                        302
+/analytics                /pages/advanced-analytics.html                 302
+/fianzas-stripe           /pages/fianzas-stripe.html                     302
+/pricing-ai               /pages/pricing-ai.html                         302
+/real-time-dashboard      /pages/real-time-dashboard.html                302
+
+# Additional feature pages
+/mensajes-automaticos     /pages/mensajes-automaticos.html               302
+/precios                  /pages/precios.html                            302
+/contacto                 /pages/contacto.html                           302
+
+# Catch-all for SPA behavior
+/*                        /index.html                                    200
