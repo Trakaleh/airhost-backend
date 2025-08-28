@@ -4,10 +4,10 @@
   "description": "Backend completo para AirHost Assistant - Sistema de automatización de Airbnb",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "npx prisma db push --accept-data-loss && node server.js",
     "dev": "nodemon server.js",
     "build": "npx prisma generate",
-    "postinstall": "npx prisma generate && npx prisma db push --accept-data-loss",
+    "postinstall": "npx prisma generate",
     "test": "echo 'Tests coming soon'"
   },
   "keywords": [
