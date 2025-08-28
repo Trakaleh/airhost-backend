@@ -300,7 +300,7 @@ app.get('/api/health', async (req, res) => {
             success: true,
             status: 'healthy',
             timestamp: new Date().toISOString(),
-            version: '2.0.0',
+            version: '2.1.0',
             environment: process.env.NODE_ENV,
             database: 'connected',
             orm: 'prisma',
@@ -323,7 +323,7 @@ app.get('/api/info', (req, res) => {
     res.json({
         name: 'AirHost Assistant API v2',
         description: 'Sistema completo de automatización para Airbnb con PostgreSQL',
-        version: '2.0.0',
+        version: '2.1.0',
         database: 'PostgreSQL + Prisma',
         features: [
             'Autenticación JWT',
@@ -2676,7 +2676,7 @@ app.get('/', (req, res) => {
     res.json({
         message: '🏠 AirHost Assistant API v2',
         status: 'running',
-        version: '2.0.0',
+        version: '2.1.0',
         database: 'PostgreSQL + Prisma',
         endpoints: {
             // Core API
@@ -2781,7 +2781,7 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3007;
 
 server.listen(PORT, () => {
-    console.log(`🚀 AirHost Server v2 running on port ${PORT}`);
+    console.log(`🚀 AirHost Server v2.1 running on port ${PORT} - Advanced Features Enabled`);
     console.log(`🌐 Local: http://localhost:${PORT}`);
     console.log(`🔧 Health: http://localhost:${PORT}/api/health`);
     console.log(`🔌 WebSocket: ws://localhost:${PORT}/ws`);
