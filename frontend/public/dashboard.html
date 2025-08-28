@@ -1,37 +1,50 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="dns-prefetch" href="//fonts.googleapis.com">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta name="referrer" content="same-origin">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="dns-prefetch" href="//fonts.googleapis.com">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta name="referrer" content="same-origin">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - AirHost AI</title>
+    <title>Dashboard - AirHost AI Pro</title>
+    <meta name="description" content="Dashboard profesional de AirHost AI - Gestión inteligente de propiedades">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="same-origin">
     <style>
         :root {
-            /* Dark theme with grain texture from osmo.supply */
-            --color-bg-primary: #0a0a0a;
-            --color-bg-secondary: #111111;
-            --color-bg-tertiary: #1a1a1a;
+            /* Advanced Dark Theme - Opus 4.1 Enhanced */
+            --color-bg-primary: #0f0f0f;
+            --color-bg-secondary: #1a1a1a;
+            --color-bg-tertiary: #262626;
+            --color-bg-elevated: rgba(26, 26, 26, 0.95);
+            --color-bg-glass: rgba(26, 26, 26, 0.6);
             --color-text-primary: #ffffff;
-            --color-text-secondary: #b3b3b3;
-            --color-text-tertiary: #666666;
-            --color-accent: #00d084; /* Verde como osmo.supply */
-            --color-accent-hover: #00b572;
-            --color-border: #2a2a2a;
-            --color-hover: rgba(255, 255, 255, 0.05);
-            --color-error: #ff4757;
-            --color-warning: #ffa726;
+            --color-text-secondary: #d4d4d4;
+            --color-text-tertiary: #a1a1a1;
+            --color-text-quaternary: #737373;
+            --color-accent: #00e891;
+            --color-accent-hover: #00d084;
+            --color-accent-muted: rgba(0, 232, 145, 0.1);
+            --color-border: rgba(255, 255, 255, 0.1);
+            --color-border-strong: rgba(255, 255, 255, 0.2);
+            --color-hover: rgba(255, 255, 255, 0.06);
+            --color-error: #ef4444;
+            --color-warning: #f59e0b;
+            --color-success: #22c55e;
+            --color-info: #3b82f6;
+            
+            /* Enhanced Gradients */
+            --gradient-primary: linear-gradient(135deg, #00e891 0%, #00b572 100%);
+            --gradient-secondary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-card: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(38, 38, 38, 0.4) 100%);
+            --gradient-glow: radial-gradient(ellipse at center, rgba(0, 232, 145, 0.15) 0%, transparent 70%);
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.5);
+            --shadow-xl: 0 16px 40px rgba(0, 0, 0, 0.6);
+            --shadow-glow: 0 0 30px rgba(0, 232, 145, 0.3);
             
             /* Typography */
             --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -88,7 +101,7 @@
             min-height: 100vh;
         }
 
-        /* Grain texture background like osmo.supply */
+        /* Advanced Background System */
         body::before {
             content: '';
             position: fixed;
@@ -97,10 +110,39 @@
             right: 0;
             bottom: 0;
             background: 
-                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" stitchTiles="stitch"/><feColorMatrix in="colorNoise" type="saturate" values="0"/></filter></defs><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.02"/></svg>') repeat,
-                radial-gradient(ellipse at center, rgba(0, 208, 132, 0.03) 0%, transparent 50%);
+                /* Noise texture */
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="2" stitchTiles="stitch"/><feColorMatrix in="colorNoise" type="saturate" values="0"/></filter></defs><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.04"/></svg>') repeat,
+                /* Gradient orbs */
+                radial-gradient(ellipse 800px 600px at 20% 10%, rgba(0, 232, 145, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse 600px 800px at 80% 90%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse 400px 400px at 50% 50%, rgba(139, 92, 246, 0.04) 0%, transparent 50%);
+            z-index: -2;
+            opacity: 1;
+        }
+        
+        /* Animated background particles */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(2px 2px at 20px 30px, rgba(0, 232, 145, 0.2), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(99, 102, 241, 0.15), transparent),
+                radial-gradient(1px 1px at 90px 40px, rgba(139, 92, 246, 0.1), transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(0, 232, 145, 0.1), transparent);
+            background-size: 150px 150px;
+            animation: particleFloat 20s linear infinite;
             z-index: -1;
-            opacity: 0.8;
+            opacity: 0.3;
+        }
+        
+        @keyframes particleFloat {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-10px, -10px) rotate(180deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
         }
 
         /* Custom cursor */
@@ -120,28 +162,57 @@
             transform: scale(1.5);
         }
 
-        /* Sidebar */
+        /* Enhanced Sidebar */
         .sidebar {
             position: fixed;
             left: 0;
             top: 0;
-            width: 280px;
+            width: 320px;
             height: 100vh;
-            background: rgba(17, 17, 17, 0.8);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid var(--color-border);
+            background: var(--color-bg-elevated);
+            backdrop-filter: blur(24px) saturate(180%);
+            border-right: 1px solid var(--color-border-strong);
             padding: var(--space-8);
             z-index: 100;
+            box-shadow: var(--shadow-lg);
+            overflow-y: auto;
+            
+            /* Glass morphism effect */
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: var(--gradient-glow);
+                z-index: -1;
+            }
         }
 
         .sidebar-logo {
-            font-size: var(--font-size-xl);
+            font-size: var(--font-size-2xl);
             font-weight: 900;
             margin-bottom: var(--space-8);
-            background: linear-gradient(135deg, var(--color-text-primary) 0%, var(--color-accent) 100%);
+            background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            position: relative;
+            
+            &::after {
+                content: 'Pro';
+                position: absolute;
+                top: -8px;
+                right: -20px;
+                font-size: 10px;
+                font-weight: 800;
+                color: var(--color-accent);
+                background: var(--color-accent-muted);
+                padding: 2px 6px;
+                border-radius: 6px;
+                border: 1px solid var(--color-accent);
+            }
         }
 
         .sidebar-nav {
@@ -222,45 +293,152 @@
             color: var(--color-text-tertiary);
         }
 
-        /* Main content */
+        /* Enhanced Main Content */
         .main-content {
-            margin-left: 280px;
+            margin-left: 320px;
             padding: var(--space-8);
             min-height: 100vh;
+            background: transparent;
+        }
+        
+        /* Floating Navigation Bar */
+        .floating-nav {
+            position: fixed;
+            top: var(--space-6);
+            right: var(--space-6);
+            display: flex;
+            gap: var(--space-3);
+            z-index: 200;
+        }
+        
+        .nav-button {
+            width: 48px;
+            height: 48px;
+            background: var(--color-bg-elevated);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+            
+            &:hover {
+                background: var(--color-accent);
+                color: var(--color-bg-primary);
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-lg);
+            }
         }
 
         .dashboard-header {
             margin-bottom: var(--space-8);
+            position: relative;
+            padding: var(--space-8);
+            background: var(--color-bg-glass);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-2xl);
+            overflow: hidden;
+            
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: var(--gradient-primary);
+            }
         }
-
+        
         .dashboard-title {
-            font-size: var(--font-size-3xl);
-            font-weight: 800;
+            font-size: var(--font-size-4xl);
+            font-weight: 900;
             margin-bottom: var(--space-2);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-
+        
         .dashboard-subtitle {
             color: var(--color-text-secondary);
             font-size: var(--font-size-lg);
+            font-weight: 500;
+        }
+        
+        .dashboard-time {
+            position: absolute;
+            top: var(--space-6);
+            right: var(--space-8);
+            color: var(--color-text-tertiary);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
         }
 
-        /* Stats Cards */
+        /* Enhanced Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: var(--space-6);
             margin-bottom: var(--space-8);
         }
+        
+        /* Performance metrics overview */
+        .metrics-overview {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+        
+        .metrics-chart {
+            background: var(--color-bg-glass);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-8);
+            position: relative;
+            overflow: hidden;
+            
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: var(--gradient-primary);
+            }
+        }
 
         .stat-card {
-            background: rgba(17, 17, 17, 0.6);
-            backdrop-filter: blur(20px);
+            background: var(--color-bg-glass);
+            backdrop-filter: blur(20px) saturate(180%);
             border: 1px solid var(--color-border);
-            border-radius: var(--radius-xl);
-            padding: var(--space-6);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-8);
             transition: all var(--transition-normal);
             position: relative;
             overflow: hidden;
+            
+            /* Hover glow effect */
+            &::after {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: var(--gradient-glow);
+                opacity: 0;
+                transition: opacity var(--transition-normal);
+                z-index: -1;
+            }
         }
 
         .stat-card::before {
@@ -276,13 +454,18 @@
         }
 
         .stat-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-6px) scale(1.02);
             border-color: var(--color-accent);
-            background: rgba(17, 17, 17, 0.8);
+            background: var(--color-bg-elevated);
+            box-shadow: var(--shadow-glow), var(--shadow-xl);
         }
-
+        
         .stat-card:hover::before {
             transform: scaleX(1);
+        }
+        
+        .stat-card:hover::after {
+            opacity: 1;
         }
 
         .stat-card-header {
@@ -299,15 +482,25 @@
         }
 
         .stat-card-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(0, 208, 132, 0.1);
-            border-radius: var(--radius-lg);
+            width: 56px;
+            height: 56px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-xl);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--color-accent);
-            font-size: var(--font-size-lg);
+            color: var(--color-bg-primary);
+            font-size: var(--font-size-xl);
+            position: relative;
+            
+            &::before {
+                content: '';
+                position: absolute;
+                inset: 2px;
+                background: var(--color-bg-secondary);
+                border-radius: calc(var(--radius-xl) - 2px);
+                z-index: -1;
+            }
         }
 
         .stat-card-value {
@@ -440,25 +633,190 @@
             color: var(--color-text-tertiary);
         }
 
-        /* Status indicator */
+        /* Enhanced Status System */
         .status-indicator {
             position: fixed;
-            top: var(--space-5);
-            right: var(--space-5);
-            padding: var(--space-2) var(--space-4);
+            bottom: var(--space-6);
+            left: var(--space-6);
+            padding: var(--space-3) var(--space-5);
             border-radius: var(--radius-full);
-            font-size: var(--font-size-xs);
+            font-size: var(--font-size-sm);
             font-weight: 600;
             z-index: 1000;
-            backdrop-filter: blur(10px);
-            background: rgba(0, 208, 132, 0.1);
-            color: var(--color-accent);
-            border: 1px solid rgba(0, 208, 132, 0.2);
+            backdrop-filter: blur(20px) saturate(180%);
+            background: var(--color-bg-elevated);
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-border-strong);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            transition: all var(--transition-fast);
+            
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-lg);
+            }
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 18px;
+            height: 18px;
+            background: var(--color-error);
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--color-bg-primary);
+        }
+        
+        /* Chart Styles */
+        .chart-placeholder {
+            margin-top: var(--space-6);
+        }
+        
+        .chart-bars {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            height: 120px;
+            gap: var(--space-2);
+            margin-bottom: var(--space-3);
+        }
+        
+        .chart-bar {
+            flex: 1;
+            background: var(--gradient-primary);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+            
+            &:hover {
+                transform: scaleY(1.1);
+                filter: brightness(1.2);
+            }
+            
+            &::after {
+                content: attr(data-value);
+                position: absolute;
+                top: -25px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: var(--font-size-xs);
+                color: var(--color-text-tertiary);
+                opacity: 0;
+                transition: opacity var(--transition-fast);
+            }
+            
+            &:hover::after {
+                opacity: 1;
+            }
+        }
+        
+        .chart-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--font-size-xs);
+            color: var(--color-text-tertiary);
+            font-weight: 600;
+        }
+        
+        /* Quick Insights */
+        .quick-insights {
+            background: var(--color-bg-glass);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-8);
+            position: relative;
+            overflow: hidden;
+            
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: var(--gradient-secondary);
+            }
+        }
+        
+        .insight-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-4);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-3);
+            transition: all var(--transition-fast);
+            border: 1px solid transparent;
+            
+            &:last-child {
+                margin-bottom: 0;
+            }
+            
+            &:hover {
+                background: var(--color-hover);
+                border-color: var(--color-border);
+                transform: translateX(4px);
+            }
+            
+            &.positive {
+                border-left: 3px solid var(--color-success);
+            }
+            
+            &.neutral {
+                border-left: 3px solid var(--color-info);
+            }
+            
+            &.warning {
+                border-left: 3px solid var(--color-warning);
+            }
+        }
+        
+        .insight-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-lg);
+            border-radius: var(--radius-lg);
+            background: var(--color-bg-secondary);
+        }
+        
+        .insight-content {
+            flex: 1;
+        }
+        
+        .insight-title {
+            font-weight: 600;
+            margin-bottom: var(--space-1);
+            color: var(--color-text-primary);
+        }
+        
+        .insight-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
         }
 
-        /* Responsive */
+        /* Enhanced Responsive Design */
+        @media (max-width: 1200px) {
+            .metrics-overview {
+                grid-template-columns: 1fr;
+            }
+        }
+        
         @media (max-width: 768px) {
             .sidebar {
+                width: 100%;
                 transform: translateX(-100%);
                 transition: transform var(--transition-normal);
             }
@@ -477,15 +835,88 @@
             }
 
             .actions-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
+            }
+            
+            .floating-nav {
+                position: fixed;
+                bottom: var(--space-4);
+                left: var(--space-4);
+                right: var(--space-4);
+                top: auto;
+                background: var(--color-bg-elevated);
+                backdrop-filter: blur(20px) saturate(180%);
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-2xl);
+                padding: var(--space-4);
+                justify-content: space-around;
+            }
+            
+            .dashboard-title {
+                font-size: var(--font-size-2xl);
+            }
+            
+            .dashboard-time {
+                position: static;
+                margin-top: var(--space-2);
             }
         }
 
-        /* Hover effects for better UX */
+        /* Advanced Hover Effects */
         .sidebar-nav a,
         .action-button,
-        .stat-card {
+        .stat-card,
+        .nav-button,
+        .insight-item {
             cursor: pointer;
+        }
+        
+        /* Loading States */
+        .loading {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: loading-shimmer 2s infinite;
+        }
+        
+        @keyframes loading-shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        /* Pulse animation for real-time updates */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* Success/Error states */
+        .state-success {
+            border-color: var(--color-success) !important;
+            background: rgba(34, 197, 94, 0.1) !important;
+        }
+        
+        .state-error {
+            border-color: var(--color-error) !important;
+            background: rgba(239, 68, 68, 0.1) !important;
+        }
+        
+        .state-warning {
+            border-color: var(--color-warning) !important;
+            background: rgba(245, 158, 11, 0.1) !important;
         }
     </style>
 </head>
@@ -493,9 +924,23 @@
     <!-- Custom Cursor -->
     <div class="cursor" id="cursor"></div>
 
-    <!-- Status Indicator -->
+    <!-- Enhanced Status System -->
+    <div class="floating-nav">
+        <button class="nav-button" id="notificationBtn" title="Notificaciones">
+            <span id="notificationIcon">🔔</span>
+            <span class="notification-badge" id="notificationBadge">3</span>
+        </button>
+        <button class="nav-button" id="settingsBtn" title="Configuración">
+            ⚙️
+        </button>
+        <button class="nav-button" id="profileBtn" title="Perfil">
+            👤
+        </button>
+    </div>
+    
     <div class="status-indicator">
-        🟢 Sistema Activo
+        <span id="statusIcon">🟢</span>
+        <span id="statusText">Sistema Activo</span>
     </div>
 
     <!-- Sidebar -->
@@ -533,9 +978,56 @@
     <!-- Main Content -->
     <main class="main-content">
         <header class="dashboard-header">
-            <h1 class="dashboard-title">Dashboard</h1>
-            <p class="dashboard-subtitle">Bienvenido a tu centro de control de AirHost AI</p>
+            <h1 class="dashboard-title">Dashboard Pro</h1>
+            <p class="dashboard-subtitle">Centro de control inteligente para tu negocio de alquiler vacacional</p>
+            <div class="dashboard-time" id="currentTime">Cargando...</div>
         </header>
+        
+        <!-- Performance Overview Section -->
+        <section class="metrics-overview">
+            <div class="metrics-chart">
+                <h3 class="section-title">Rendimiento General</h3>
+                <div class="chart-placeholder" id="performanceChart">
+                    <div class="chart-bars">
+                        <div class="chart-bar" style="height: 60%" data-value="60%"></div>
+                        <div class="chart-bar" style="height: 80%" data-value="80%"></div>
+                        <div class="chart-bar" style="height: 45%" data-value="45%"></div>
+                        <div class="chart-bar" style="height: 90%" data-value="90%"></div>
+                        <div class="chart-bar" style="height: 75%" data-value="75%"></div>
+                        <div class="chart-bar" style="height: 95%" data-value="95%"></div>
+                        <div class="chart-bar" style="height: 85%" data-value="85%"></div>
+                    </div>
+                    <div class="chart-labels">
+                        <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quick-insights">
+                <h3 class="section-title">Insights Rápidos</h3>
+                <div class="insight-item positive">
+                    <div class="insight-icon">📈</div>
+                    <div class="insight-content">
+                        <div class="insight-title">Ingresos en alza</div>
+                        <div class="insight-desc">+23% vs mes anterior</div>
+                    </div>
+                </div>
+                <div class="insight-item neutral">
+                    <div class="insight-icon">⏰</div>
+                    <div class="insight-content">
+                        <div class="insight-title">Check-in hoy</div>
+                        <div class="insight-desc">3 huéspedes a las 15:00</div>
+                    </div>
+                </div>
+                <div class="insight-item warning">
+                    <div class="insight-icon">⚠️</div>
+                    <div class="insight-content">
+                        <div class="insight-title">Mantenimiento</div>
+                        <div class="insight-desc">Villa Madrid - Revisión</div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- Stats Grid -->
         <section class="stats-grid">
@@ -693,40 +1185,110 @@
             });
         });
 
-        // Load user data
+        // Enhanced Dashboard Initialization
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                // Get user from localStorage (demo or real)
+                // Initialize real-time clock
+                initializeClock();
+                
+                // Initialize navigation handlers
+                initializeNavigation();
+                
+                // Load user data
+                await loadUserProfile();
+                
+                // Load dashboard stats with loading states
+                await loadDashboardStats();
+                
+                // Start real-time updates
+                startRealTimeUpdates();
+                
+                // Initialize performance chart
+                initializePerformanceChart();
+                
+                console.log('🚀 AirHost AI Dashboard Pro - Initialized successfully');
+                
+            } catch (error) {
+                console.error('❌ Error initializing dashboard:', error);
+                showErrorState();
+            }
+        });
+        
+        // Real-time clock functionality
+        function initializeClock() {
+            function updateClock() {
+                const now = new Date();
+                const options = {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                };
+                document.getElementById('currentTime').textContent = now.toLocaleDateString('es-ES', options);
+            }
+            
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+        
+        // Navigation handlers
+        function initializeNavigation() {
+            document.getElementById('notificationBtn').addEventListener('click', () => {
+                toggleNotifications();
+            });
+            
+            document.getElementById('settingsBtn').addEventListener('click', () => {
+                window.location.href = '/contacto';
+            });
+            
+            document.getElementById('profileBtn').addEventListener('click', () => {
+                toggleProfileMenu();
+            });
+        }
+        
+        // Enhanced user profile loading
+        async function loadUserProfile() {
+            try {
                 const demoUser = JSON.parse(localStorage.getItem('demo_user') || '{}');
                 const isDemo = localStorage.getItem('demo_mode') === 'true';
 
                 if (demoUser.name) {
                     document.getElementById('userName').textContent = demoUser.name;
                     document.getElementById('userAvatar').textContent = demoUser.name.charAt(0).toUpperCase();
+                } else {
+                    // Try to load from API
+                    if (window.AirHostAPI) {
+                        const profile = await window.AirHostAPI.getUserProfile();
+                        if (profile.success) {
+                            document.getElementById('userName').textContent = profile.user.name;
+                            document.getElementById('userAvatar').textContent = profile.user.name.charAt(0).toUpperCase();
+                        }
+                    }
                 }
-
-                // Load dashboard stats
-                await loadDashboardStats();
-
             } catch (error) {
-                console.error('Error loading dashboard:', error);
+                console.warn('Could not load user profile:', error);
             }
-        });
+        }
 
         async function loadDashboardStats() {
             try {
+                // Show loading states
+                showLoadingStates();
+                
                 // Check authentication first
                 if (!window.AirHostAPI) {
-                    console.error('AirHost API not loaded');
+                    console.warn('AirHost API not loaded, using demo data');
                     throw new Error('API not available');
                 }
 
                 // Check for valid token
                 const token = localStorage.getItem('airhost_token');
                 if (!token) {
-                    console.log('No auth token found, redirecting to login');
-                    window.location.href = '/login';
-                    return;
+                    console.log('No auth token found, using demo mode');
+                    throw new Error('No authentication token');
                 }
 
                 // Fetch multiple data sources in parallel
@@ -777,16 +1339,24 @@
                 }
             }
 
-            // Use demo data if backend is not available
-            updateDashboardStats({
+            // Use enhanced demo data if backend is not available
+            const demoStats = {
                 totalProperties: 3,
                 activeReservations: 8,
                 totalRevenue: 2840,
                 whatsappMessages: 1247
-            });
+            };
+            
+            updateDashboardStats(demoStats);
+            hideLoadingStates();
             
             // Update status indicator for demo mode
-            updateStatusIndicator('demo', '🟡 Modo Demo');
+            updateStatusIndicator('demo', '🟡 Modo Demo - Datos Simulados');
+            
+            // Start demo mode updates
+            setTimeout(() => {
+                updateActivityFeed();
+            }, 1000);
         }
 
         // Helper function to update dashboard stats
@@ -808,30 +1378,45 @@
             }
         }
 
-        // Helper function to update status indicator
+        // Enhanced status indicator with animations
         function updateStatusIndicator(type, message) {
             const indicator = document.querySelector('.status-indicator');
             if (!indicator) return;
             
-            indicator.innerHTML = message;
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
             
-            switch(type) {
-                case 'connected':
-                    indicator.style.background = 'rgba(0, 208, 132, 0.1)';
-                    indicator.style.color = '#00d084';
-                    indicator.style.borderColor = 'rgba(0, 208, 132, 0.2)';
-                    break;
-                case 'demo':
-                    indicator.style.background = 'rgba(255, 159, 10, 0.1)';
-                    indicator.style.color = '#ffa726';
-                    indicator.style.borderColor = 'rgba(255, 159, 10, 0.2)';
-                    break;
-                case 'error':
-                    indicator.style.background = 'rgba(255, 71, 87, 0.1)';
-                    indicator.style.color = '#ff4757';
-                    indicator.style.borderColor = 'rgba(255, 71, 87, 0.2)';
-                    break;
-            }
+            // Animate the change
+            indicator.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                statusText.textContent = message.replace(/^[🟢🟡🔴]\s/, '');
+                
+                switch(type) {
+                    case 'connected':
+                        statusIcon.textContent = '🟢';
+                        indicator.style.background = 'var(--color-bg-elevated)';
+                        indicator.style.color = 'var(--color-success)';
+                        indicator.style.borderColor = 'var(--color-success)';
+                        indicator.classList.remove('pulse');
+                        break;
+                    case 'demo':
+                        statusIcon.textContent = '🟡';
+                        indicator.style.background = 'var(--color-bg-elevated)';
+                        indicator.style.color = 'var(--color-warning)';
+                        indicator.style.borderColor = 'var(--color-warning)';
+                        indicator.classList.add('pulse');
+                        break;
+                    case 'error':
+                        statusIcon.textContent = '🔴';
+                        indicator.style.background = 'var(--color-bg-elevated)';
+                        indicator.style.color = 'var(--color-error)';
+                        indicator.style.borderColor = 'var(--color-error)';
+                        indicator.classList.add('pulse');
+                        break;
+                }
+                
+                indicator.style.transform = 'scale(1)';
+            }, 150);
         }
 
         // Add logout functionality
@@ -850,7 +1435,264 @@
             window.location.href = '/login.html';
         }
 
-        console.log('🚀 AirHost AI Dashboard - Loaded successfully');
+        // Real-time updates system
+        function startRealTimeUpdates() {
+            // Update stats every 30 seconds
+            setInterval(async () => {
+                try {
+                    const stats = await getLatestStats();
+                    updateDashboardStats(stats);
+                    updateActivityFeed();
+                } catch (error) {
+                    console.warn('Real-time update failed:', error);
+                }
+            }, 30000);
+        }
+        
+        // Performance chart initialization
+        function initializePerformanceChart() {
+            const chartBars = document.querySelectorAll('.chart-bar');
+            
+            // Animate chart bars on load
+            chartBars.forEach((bar, index) => {
+                setTimeout(() => {
+                    bar.style.transform = 'scaleY(1)';
+                    bar.style.transformOrigin = 'bottom';
+                }, index * 100);
+            });
+        }
+        
+        // Loading states management
+        function showLoadingStates() {
+            document.querySelectorAll('.stat-card-value').forEach(el => {
+                el.classList.add('loading');
+            });
+        }
+        
+        function hideLoadingStates() {
+            document.querySelectorAll('.stat-card-value').forEach(el => {
+                el.classList.remove('loading');
+            });
+        }
+        
+        // Error state management
+        function showErrorState() {
+            document.querySelectorAll('.stat-card').forEach(el => {
+                el.classList.add('state-error');
+            });
+            
+            updateStatusIndicator('error', '🔴 Error de Conexión');
+        }
+        
+        // Notification system
+        function toggleNotifications() {
+            // Create notification panel if it doesn't exist
+            let panel = document.getElementById('notificationPanel');
+            if (!panel) {
+                panel = createNotificationPanel();
+                document.body.appendChild(panel);
+            }
+            
+            panel.classList.toggle('visible');
+        }
+        
+        function createNotificationPanel() {
+            const panel = document.createElement('div');
+            panel.id = 'notificationPanel';
+            panel.className = 'notification-panel';
+            panel.innerHTML = `
+                <div class="notification-header">
+                    <h3>Notificaciones</h3>
+                    <button onclick="toggleNotifications()">✕</button>
+                </div>
+                <div class="notification-list">
+                    <div class="notification-item">
+                        <div class="notification-icon">💬</div>
+                        <div class="notification-content">
+                            <div class="notification-title">WhatsApp enviado</div>
+                            <div class="notification-desc">Mensaje de bienvenida automático</div>
+                            <div class="notification-time">Hace 2 min</div>
+                        </div>
+                    </div>
+                    <div class="notification-item">
+                        <div class="notification-icon">📅</div>
+                        <div class="notification-content">
+                            <div class="notification-title">Nueva reserva</div>
+                            <div class="notification-desc">Villa Barcelona - 5 noches</div>
+                            <div class="notification-time">Hace 15 min</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add notification panel styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .notification-panel {
+                    position: fixed;
+                    top: 80px;
+                    right: var(--space-6);
+                    width: 320px;
+                    max-height: 400px;
+                    background: var(--color-bg-elevated);
+                    backdrop-filter: blur(20px) saturate(180%);
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--radius-2xl);
+                    box-shadow: var(--shadow-xl);
+                    z-index: 1000;
+                    transform: translateY(-20px);
+                    opacity: 0;
+                    pointer-events: none;
+                    transition: all var(--transition-normal);
+                    overflow: hidden;
+                }
+                
+                .notification-panel.visible {
+                    transform: translateY(0);
+                    opacity: 1;
+                    pointer-events: auto;
+                }
+                
+                .notification-header {
+                    padding: var(--space-4) var(--space-6);
+                    border-bottom: 1px solid var(--color-border);
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                
+                .notification-header h3 {
+                    font-size: var(--font-size-lg);
+                    font-weight: 600;
+                    margin: 0;
+                }
+                
+                .notification-header button {
+                    background: none;
+                    border: none;
+                    color: var(--color-text-secondary);
+                    cursor: pointer;
+                    font-size: var(--font-size-lg);
+                }
+                
+                .notification-list {
+                    max-height: 300px;
+                    overflow-y: auto;
+                }
+                
+                .notification-item {
+                    display: flex;
+                    gap: var(--space-3);
+                    padding: var(--space-4) var(--space-6);
+                    border-bottom: 1px solid var(--color-border);
+                    transition: background var(--transition-fast);
+                }
+                
+                .notification-item:hover {
+                    background: var(--color-hover);
+                }
+                
+                .notification-item:last-child {
+                    border-bottom: none;
+                }
+                
+                .notification-icon {
+                    width: 32px;
+                    height: 32px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: var(--font-size-base);
+                }
+                
+                .notification-content {
+                    flex: 1;
+                }
+                
+                .notification-title {
+                    font-weight: 600;
+                    margin-bottom: var(--space-1);
+                }
+                
+                .notification-desc {
+                    font-size: var(--font-size-sm);
+                    color: var(--color-text-secondary);
+                    margin-bottom: var(--space-1);
+                }
+                
+                .notification-time {
+                    font-size: var(--font-size-xs);
+                    color: var(--color-text-tertiary);
+                }
+            `;
+            
+            if (!document.getElementById('notificationStyles')) {
+                style.id = 'notificationStyles';
+                document.head.appendChild(style);
+            }
+            
+            return panel;
+        }
+        
+        // Enhanced activity feed updates
+        function updateActivityFeed() {
+            const activities = [
+                {
+                    icon: '💬',
+                    title: 'WhatsApp automático enviado',
+                    desc: 'Mensaje de bienvenida a nuevo huésped',
+                    time: 'Hace ' + Math.floor(Math.random() * 10 + 1) + ' min'
+                },
+                {
+                    icon: '📅',
+                    title: 'Nueva reserva sincronizada',
+                    desc: 'Propiedad Villa ' + ['Barcelona', 'Madrid', 'Valencia'][Math.floor(Math.random() * 3)] + ' - ' + Math.floor(Math.random() * 7 + 1) + ' noches',
+                    time: 'Hace ' + Math.floor(Math.random() * 60 + 1) + ' min'
+                },
+                {
+                    icon: '🔑',
+                    title: 'Código de acceso generado',
+                    desc: 'Smart Lock - Código: ' + Math.floor(Math.random() * 9000 + 1000),
+                    time: 'Hace ' + Math.floor(Math.random() * 120 + 1) + ' min'
+                }
+            ];
+            
+            const activitiesContainer = document.getElementById('recentActivities');
+            if (activitiesContainer) {
+                activitiesContainer.innerHTML = activities.map(activity => `
+                    <div class="activity-item">
+                        <div class="activity-icon">${activity.icon}</div>
+                        <div class="activity-content">
+                            <div class="activity-title">${activity.title}</div>
+                            <div class="activity-desc">${activity.desc}</div>
+                        </div>
+                        <div class="activity-time">${activity.time}</div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        // Get latest stats for real-time updates
+        async function getLatestStats() {
+            try {
+                if (window.AirHostAPI) {
+                    const response = await window.AirHostAPI.getDashboardAnalytics();
+                    return response.success ? response.stats : null;
+                }
+            } catch (error) {
+                console.warn('Could not fetch latest stats:', error);
+            }
+            
+            // Return randomized demo data for demonstration
+            return {
+                totalProperties: Math.floor(Math.random() * 2) + 3,
+                activeReservations: Math.floor(Math.random() * 5) + 8,
+                totalRevenue: Math.floor(Math.random() * 500) + 2500,
+                whatsappMessages: Math.floor(Math.random() * 100) + 1200
+            };
+        }
+        
+        console.log('🚀 AirHost AI Dashboard Pro - Fully Enhanced');
     </script>
 </body>
 </html>
