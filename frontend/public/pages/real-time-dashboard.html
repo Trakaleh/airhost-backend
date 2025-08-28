@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="same-origin">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="same-origin">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard en Tiempo Real - AirHost AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --color-bg-primary: #0a0a0a;
+            --color-bg-secondary: #111111;
+            --color-bg-tertiary: #1a1a1a;
+            --color-text-primary: #ffffff;
+            --color-text-secondary: #b3b3b3;
+            --color-text-tertiary: #666666;
+            --color-accent: #00d084;
+            --color-accent-hover: #00b572;
+            --color-border: #2a2a2a;
+            --color-hover: rgba(255, 255, 255, 0.05);
+            --color-success: #2ed573;
+            --color-warning: #ffa726;
+            --color-error: #ff4757;
+            --color-info: #3742fa;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .live-dashboard {
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--color-accent), #3742fa);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--color-bg-secondary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            border: 1px solid var(--color-border);
+        }
+
+        .pulse-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--color-success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--color-accent);
+            box-shadow: 0 10px 30px rgba(0, 208, 132, 0.1);
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--metric-color, var(--color-accent));
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .metric-title {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+        }
+
+        .metric-icon {
+            font-size: 1.5rem;
+            opacity: 0.8;
+        }
+
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: 0.5rem;
+            font-feature-settings: 'tnum';
+        }
+
+        .metric-change {
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .change-positive { color: var(--color-success); }
+        .change-negative { color: var(--color-error); }
+        .change-neutral { color: var(--color-text-secondary); }
+
+        .activity-feed {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: 400px;
+            overflow-y: auto;
+        }
+
+        .feed-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .feed-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: var(--color-bg-tertiary);
+            border-radius: 8px;
+            border-left: 3px solid var(--activity-color, var(--color-accent));
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .activity-icon {
+            font-size: 1.2rem;
+            margin-top: 0.2rem;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-description {
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .activity-time {
+            color: var(--color-text-tertiary);
+            font-size: 0.75rem;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .notification-toast {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification-toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .toast-message {
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .action-button:hover {
+            background: var(--color-accent);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-item {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--status-color, var(--color-success));
+        }
+
+        .status-label {
+            flex: 1;
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .status-value {
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .live-dashboard {
+                padding: 1rem;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .header-title {
+                font-size: 2rem;
+                text-align: center;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .notification-toast {
+                top: 1rem;
+                right: 1rem;
+                left: 1rem;
+                transform: translateY(-100%);
+            }
+            
+            .notification-toast.show {
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="live-dashboard">
+        <div class="dashboard-header">
+            <h1 class="header-title">Dashboard Live</h1>
+            <div class="live-indicator">
+                <div class="pulse-dot"></div>
+                <span>En Tiempo Real</span>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card" style="--metric-color: var(--color-success);">
+                <div class="metric-header">
+                    <span class="metric-title">Ingresos Hoy</span>
+                    <span class="metric-icon">💰</span>
+                </div>
+                <div class="metric-value" id="todayRevenue">€0</div>
+                <div class="metric-change change-positive" id="revenueChange">
+                    <span>↗</span> +0% vs ayer
+                </div>
+            </div>
+
+            <div class="metric-card" style="--metric-color: var(--color-info);">
+                <div class="metric-header">
+                    <span class="metric-title">Reservas Activas</span>
+                    <span class="metric-icon">🏠</span>
+                </div>
+                <div class="metric-value" id="activeBookings">0</div>
+                <div class="metric-change change-neutral" id="bookingsChange">
+                    <span>→</span> Sin cambios
+                </div>
+            </div>
+
+            <div class="metric-card" style="--metric-color: var(--color-warning);">
+                <div class="metric-header">
+                    <span class="metric-title">Check-ins Hoy</span>
+                    <span class="metric-icon">🔑</span>
+                </div>
+                <div class="metric-value" id="todayCheckins">0</div>
+                <div class="metric-change change-positive" id="checkinsChange">
+                    <span>↗</span> +0 programados
+                </div>
+            </div>
+
+            <div class="metric-card" style="--metric-color: var(--color-accent);">
+                <div class="metric-header">
+                    <span class="metric-title">Mensajes Enviados</span>
+                    <span class="metric-icon">💬</span>
+                </div>
+                <div class="metric-value" id="messagesSent">0</div>
+                <div class="metric-change change-positive" id="messagesChange">
+                    <span>↗</span> +0 automáticos
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="status-grid">
+            <div class="status-item">
+                <div class="status-indicator" style="--status-color: var(--color-success);"></div>
+                <span class="status-label">API Status</span>
+                <span class="status-value">Online</span>
+            </div>
+            <div class="status-item">
+                <div class="status-indicator" style="--status-color: var(--color-success);"></div>
+                <span class="status-label">WhatsApp Bot</span>
+                <span class="status-value">Activo</span>
+            </div>
+            <div class="status-item">
+                <div class="status-indicator" style="--status-color: var(--color-success);"></div>
+                <span class="status-label">Smart Locks</span>
+                <span class="status-value">3 Conectados</span>
+            </div>
+            <div class="status-item">
+                <div class="status-indicator" style="--status-color: var(--color-warning);"></div>
+                <span class="status-label">Sync Status</span>
+                <span class="status-value">Último: 2min</span>
+            </div>
+        </div>
+
+        <!-- Charts and Activity -->
+        <div class="charts-container">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Actividad en Tiempo Real</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="realTimeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="activity-feed">
+                <div class="feed-header">
+                    <h3 class="feed-title">Actividad Reciente</h3>
+                </div>
+                <div id="activityList">
+                    <!-- Activity items will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="/properties.html" class="action-button">
+                🏠 Gestionar Propiedades
+            </a>
+            <a href="/reservations.html" class="action-button">
+                📅 Ver Reservas
+            </a>
+            <a href="/pages/whatsapp-automation.html" class="action-button">
+                💬 Configurar WhatsApp
+            </a>
+            <a href="/pages/advanced-analytics.html" class="action-button">
+                📊 Analytics Completos
+            </a>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notificationToast" class="notification-toast">
+        <div class="toast-header">
+            <span class="toast-icon">🔔</span>
+            <span class="toast-title" id="toastTitle">Notificación</span>
+        </div>
+        <div class="toast-message" id="toastMessage">Mensaje de notificación</div>
+    </div>
+
+    <script defer src="../js/api.js"></script>
+    <script defer src="../js/auth.js"></script>
+    <script defer src="../js/realtime-dashboard.js"></script>
+    <script>
+        let dashboard = null;
+
+        // Initialize real-time dashboard
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Check authentication first
+                const isAuthenticated = await requireAuth();
+                if (!isAuthenticated) {
+                    return;
+                }
+
+                // Initialize dashboard
+                dashboard = new RealtimeDashboard();
+                const initialized = await dashboard.initialize();
+                
+                if (initialized) {
+                    console.log('✅ Real-time Dashboard ready');
+                    showNotification('Dashboard Conectado', 'Actualizaciones en tiempo real activas', 'success');
+                } else {
+                    console.error('❌ Failed to initialize dashboard');
+                    showNotification('Error de Conexión', 'No se pudo conectar al servidor', 'error');
+                    // Fallback to static mode
+                    initializeFallbackMode();
+                }
+
+            } catch (error) {
+                console.error('❌ Error initializing real-time dashboard:', error);
+                showNotification('Error', 'Error inicializando dashboard', 'error');
+                // Fallback to static mode
+                initializeFallbackMode();
+            }
+        });
+
+        // Fallback mode with static data
+        function initializeFallbackMode() {
+            console.log('🔄 Initializing fallback mode...');
+            
+            // Load static demo data
+            const demoData = {
+                todayRevenue: 1250,
+                activeBookings: 8,
+                todayCheckins: 3,
+                messagesSent: 24
+            };
+            
+            // Update UI with demo data
+            Object.keys(demoData).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    let value = demoData[key];
+                    if (key === 'todayRevenue') {
+                        value = '€' + value.toLocaleString();
+                    }
+                    element.textContent = value;
+                }
+            });
+
+            // Initialize basic chart
+            initializeFallbackChart();
+            
+            showNotification('Modo Demo', 'Mostrando datos de demostración', 'info');
+        }
+
+        function initializeFallbackChart() {
+            const ctx = document.getElementById('realTimeChart');
+            if (!ctx) return;
+            
+            const chart = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['10:00', '11:00', '12:00', '13:00', '14:00'],
+                    datasets: [
+                        {
+                            label: 'Reservas',
+                            data: [5, 8, 6, 9, 8],
+                            borderColor: '#00d084',
+                            backgroundColor: 'rgba(0, 208, 132, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Ingresos (€)',
+                            data: [120, 150, 130, 180, 160],
+                            borderColor: '#3742fa',
+                            backgroundColor: 'rgba(55, 66, 250, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 750 },
+                    plugins: {
+                        legend: { labels: { color: '#b3b3b3' } }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#b3b3b3' },
+                            grid: { color: '#2a2a2a' }
+                        },
+                        x: {
+                            ticks: { color: '#b3b3b3' },
+                            grid: { color: '#2a2a2a' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Show notification toast
+        function showNotification(title, message, type = 'info') {
+            const toast = document.getElementById('notificationToast');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            if (!toast || !toastTitle || !toastMessage) return;
+            
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            
+            // Add type-specific styling
+            toast.className = `notification-toast ${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        // Add connection status indicator
+        function updateConnectionStatus() {
+            if (dashboard) {
+                const status = dashboard.getConnectionStatus();
+                const indicator = document.querySelector('.live-indicator span');
+                
+                if (indicator) {
+                    if (status.connected && status.authenticated) {
+                        indicator.textContent = 'Conectado en Tiempo Real';
+                    } else {
+                        indicator.textContent = 'Reconectando...';
+                    }
+                }
+            }
+        }
+
+        // Update status every 10 seconds
+        setInterval(updateConnectionStatus, 10000);
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (dashboard) {
+                dashboard.cleanup();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="same-origin">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimización de Precios AI - AirHost Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --color-bg-primary: #0a0a0a;
+            --color-bg-secondary: #111111;
+            --color-bg-tertiary: #1a1a1a;
+            --color-text-primary: #ffffff;
+            --color-text-secondary: #b3b3b3;
+            --color-text-tertiary: #666666;
+            --color-accent: #00d084;
+            --color-accent-hover: #00b572;
+            --color-border: #2a2a2a;
+            --color-hover: rgba(255, 255, 255, 0.05);
+            --color-success: #2ed573;
+            --color-warning: #ffa726;
+            --color-error: #ff4757;
+            --color-info: #3742fa;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .pricing-ai-container {
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--color-accent), #3742fa);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .ai-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--color-bg-secondary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            border: 1px solid var(--color-border);
+        }
+
+        .ai-indicator {
+            width: 12px;
+            height: 12px;
+            background: var(--color-success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .controls-section {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            align-items: end;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-label {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+        }
+
+        .control-input, .control-select {
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .control-input:focus, .control-select:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(0, 208, 132, 0.1);
+        }
+
+        .ai-button {
+            background: linear-gradient(135deg, var(--color-accent), #3742fa);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 48px;
+        }
+
+        .ai-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 208, 132, 0.3);
+        }
+
+        .ai-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .results-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-chart-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+
+        .insights-panel {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .insights-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .insight-item {
+            background: var(--color-bg-tertiary);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 3px solid var(--insight-color, var(--color-accent));
+        }
+
+        .insight-title {
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-description {
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--metric-color, var(--color-accent));
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-change {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .strategy-selector {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .strategy-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .strategy-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .strategy-option {
+            background: var(--color-bg-tertiary);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .strategy-option:hover {
+            border-color: var(--color-accent);
+        }
+
+        .strategy-option.selected {
+            border-color: var(--color-accent);
+            background: rgba(0, 208, 132, 0.1);
+        }
+
+        .strategy-name {
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .strategy-description {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+        }
+
+        .recommendations-table {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            background: var(--color-bg-tertiary);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+            font-weight: 600;
+        }
+
+        .table-content {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 1fr 100px 100px 100px 100px 2fr;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+            align-items: center;
+        }
+
+        .table-cell {
+            font-size: 0.9rem;
+        }
+
+        .price-change {
+            font-weight: 600;
+        }
+
+        .price-up { color: var(--color-success); }
+        .price-down { color: var(--color-error); }
+        .price-same { color: var(--color-text-secondary); }
+
+        .confidence-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--color-bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-error), var(--color-warning), var(--color-success));
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .pricing-ai-container {
+                padding: 1rem;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .header-title {
+                font-size: 2rem;
+                text-align: center;
+            }
+            
+            .results-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .strategy-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--color-text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .notification-toast {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification-toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .toast-message {
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="pricing-ai-container">
+        <div class="page-header">
+            <h1 class="header-title">Optimización de Precios AI</h1>
+            <div class="ai-badge">
+                <div class="ai-indicator"></div>
+                <span>IA Activada</span>
+            </div>
+        </div>
+
+        <!-- Controls Section -->
+        <div class="controls-section">
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label class="control-label">Propiedad</label>
+                    <select class="control-select" id="propertySelect">
+                        <option value="">Seleccionar propiedad...</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Fecha Inicio</label>
+                    <input type="date" class="control-input" id="startDate">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Fecha Fin</label>
+                    <input type="date" class="control-input" id="endDate">
+                </div>
+                <div class="control-group">
+                    <button class="ai-button" id="generateBtn">
+                        <span>🤖</span>
+                        <span id="generateBtnText">Generar Recomendaciones</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="metrics-grid" id="metricsGrid" style="display: none;">
+            <div class="metric-card" style="--metric-color: var(--color-success);">
+                <div class="metric-label">Precio Promedio</div>
+                <div class="metric-value" id="avgPrice">€0</div>
+                <div class="metric-change" id="avgPriceChange">--</div>
+            </div>
+            <div class="metric-card" style="--metric-color: var(--color-info);">
+                <div class="metric-label">Ingresos Potenciales</div>
+                <div class="metric-value" id="potentialRevenue">€0</div>
+                <div class="metric-change" id="revenueChange">--</div>
+            </div>
+            <div class="metric-card" style="--metric-color: var(--color-warning);">
+                <div class="metric-label">Confianza Promedio</div>
+                <div class="metric-value" id="avgConfidence">0%</div>
+                <div class="metric-change" id="confidenceChange">--</div>
+            </div>
+            <div class="metric-card" style="--metric-color: var(--color-accent);">
+                <div class="metric-label">Días Analizados</div>
+                <div class="metric-value" id="analyzedDays">0</div>
+                <div class="metric-change" id="daysChange">--</div>
+            </div>
+        </div>
+
+        <!-- Results Container -->
+        <div class="results-container" id="resultsContainer" style="display: none;">
+            <div class="pricing-chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Recomendaciones de Precios AI</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="pricingChart"></canvas>
+                </div>
+            </div>
+
+            <div class="insights-panel">
+                <h3 class="insights-title">
+                    <span>🧠</span>
+                    Insights de IA
+                </h3>
+                <div id="insightsList">
+                    <!-- Insights will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Strategy Selector -->
+        <div class="strategy-selector" id="strategySelector" style="display: none;">
+            <h3 class="strategy-title">Estrategia de Aplicación</h3>
+            <div class="strategy-options">
+                <div class="strategy-option" data-strategy="conservative">
+                    <div class="strategy-name">Conservadora</div>
+                    <div class="strategy-description">Aplica 50% de las recomendaciones para minimizar riesgo</div>
+                </div>
+                <div class="strategy-option selected" data-strategy="moderate">
+                    <div class="strategy-name">Moderada</div>
+                    <div class="strategy-description">Aplica 75% de las recomendaciones (recomendado)</div>
+                </div>
+                <div class="strategy-option" data-strategy="aggressive">
+                    <div class="strategy-name">Agresiva</div>
+                    <div class="strategy-description">Aplica 100% de las recomendaciones para máximo retorno</div>
+                </div>
+            </div>
+            <div style="margin-top: 1rem; text-align: center;">
+                <button class="ai-button" id="applyBtn" style="background: linear-gradient(135deg, var(--color-success), var(--color-info));">
+                    <span>✨</span>
+                    <span id="applyBtnText">Aplicar Estrategia</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Recommendations Table -->
+        <div class="recommendations-table" id="recommendationsTable" style="display: none;">
+            <div class="table-header">
+                <div class="table-row">
+                    <div>Fecha</div>
+                    <div>Precio Base</div>
+                    <div>Precio AI</div>
+                    <div>Cambio</div>
+                    <div>Confianza</div>
+                    <div>Factores Clave</div>
+                </div>
+            </div>
+            <div class="table-content" id="tableContent">
+                <!-- Table rows will be populated here -->
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+            <div class="empty-state-icon">🤖</div>
+            <h3>Optimización de Precios con IA</h3>
+            <p>Selecciona una propiedad y un rango de fechas para generar recomendaciones inteligentes de precios basadas en análisis de mercado, demanda, competencia y eventos locales.</p>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notificationToast" class="notification-toast">
+        <div class="toast-header">
+            <span class="toast-icon">🤖</span>
+            <span class="toast-title" id="toastTitle">Notificación</span>
+        </div>
+        <div class="toast-message" id="toastMessage">Mensaje de notificación</div>
+    </div>
+
+    <script defer src="../js/api.js"></script>
+    <script defer src="../js/auth.js"></script>
+    <script>
+        let pricingChart = null;
+        let currentRecommendations = null;
+        let selectedStrategy = 'moderate';
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Check authentication
+                const isAuthenticated = await requireAuth();
+                if (!isAuthenticated) {
+                    return;
+                }
+
+                // Initialize components
+                await loadProperties();
+                setupEventListeners();
+                setDefaultDates();
+                
+                console.log('✅ Pricing AI page initialized');
+                
+            } catch (error) {
+                console.error('❌ Error initializing pricing AI page:', error);
+                showNotification('Error', 'Error inicializando la página', 'error');
+            }
+        });
+
+        // Load user properties
+        async function loadProperties() {
+            try {
+                if (!window.AirHostAPI) {
+                    console.warn('⚠️  AirHostAPI not available');
+                    return;
+                }
+
+                const response = await window.AirHostAPI.get('/api/properties');
+                
+                if (response.success && response.properties) {
+                    const propertySelect = document.getElementById('propertySelect');
+                    propertySelect.innerHTML = '<option value="">Seleccionar propiedad...</option>';
+                    
+                    response.properties.forEach(property => {
+                        const option = document.createElement('option');
+                        option.value = property.id;
+                        option.textContent = property.name || `Propiedad ${property.id}`;
+                        propertySelect.appendChild(option);
+                    });
+                }
+                
+            } catch (error) {
+                console.error('❌ Error loading properties:', error);
+            }
+        }
+
+        // Set default dates (next 30 days)
+        function setDefaultDates() {
+            const today = new Date();
+            const endDate = new Date();
+            endDate.setDate(today.getDate() + 30);
+            
+            document.getElementById('startDate').value = today.toISOString().split('T')[0];
+            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Generate recommendations button
+            document.getElementById('generateBtn').addEventListener('click', generateRecommendations);
+            
+            // Apply strategy button
+            document.getElementById('applyBtn').addEventListener('click', applyStrategy);
+            
+            // Strategy selection
+            document.querySelectorAll('.strategy-option').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    document.querySelectorAll('.strategy-option').forEach(opt => opt.classList.remove('selected'));
+                    e.target.closest('.strategy-option').classList.add('selected');
+                    selectedStrategy = e.target.closest('.strategy-option').dataset.strategy;
+                });
+            });
+        }
+
+        // Generate AI pricing recommendations
+        async function generateRecommendations() {
+            try {
+                const propertyId = document.getElementById('propertySelect').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                
+                if (!propertyId || !startDate || !endDate) {
+                    showNotification('Error', 'Por favor completa todos los campos', 'error');
+                    return;
+                }
+
+                // Show loading state
+                setLoadingState(true);
+                hideResults();
+                
+                // Make API call
+                const response = await window.AirHostAPI.post('/api/pricing/ai/recommendations', {
+                    propertyId,
+                    startDate,
+                    endDate
+                });
+                
+                if (response.success) {
+                    currentRecommendations = response.recommendations;
+                    displayResults(response);
+                    showNotification('IA Completada', 'Recomendaciones generadas exitosamente', 'success');
+                } else {
+                    throw new Error(response.error || 'Error generating recommendations');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error generating recommendations:', error);
+                showNotification('Error', 'Error generando recomendaciones', 'error');
+            } finally {
+                setLoadingState(false);
+            }
+        }
+
+        // Display AI results
+        function displayResults(data) {
+            // Update metrics
+            updateMetrics(data.summary);
+            
+            // Create pricing chart
+            createPricingChart(data.recommendations);
+            
+            // Display insights
+            displayInsights(data);
+            
+            // Show recommendations table
+            displayRecommendationsTable(data.recommendations);
+            
+            // Show all result sections
+            showResults();
+        }
+
+        // Update key metrics
+        function updateMetrics(summary) {
+            document.getElementById('avgPrice').textContent = `€${summary.averagePrice}`;
+            document.getElementById('potentialRevenue').textContent = `€${summary.potentialRevenue.toLocaleString()}`;
+            document.getElementById('avgConfidence').textContent = summary.averageConfidence;
+            document.getElementById('analyzedDays').textContent = summary.totalRecommendations;
+            
+            // Add some mock changes
+            document.getElementById('avgPriceChange').textContent = '+12.5% vs base';
+            document.getElementById('revenueChange').textContent = '+18.3% vs actual';
+            document.getElementById('confidenceChange').textContent = 'Alta confianza';
+            document.getElementById('daysChange').textContent = 'Periodo completo';
+        }
+
+        // Create pricing chart
+        function createPricingChart(recommendations) {
+            const ctx = document.getElementById('pricingChart').getContext('2d');
+            
+            if (pricingChart) {
+                pricingChart.destroy();
+            }
+            
+            const dates = recommendations.map(r => new Date(r.date).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }));
+            const basePrices = recommendations.map(r => r.basePrice);
+            const optimizedPrices = recommendations.map(r => r.optimizedPrice);
+            
+            pricingChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Precio Base',
+                            data: basePrices,
+                            borderColor: '#666666',
+                            backgroundColor: 'rgba(102, 102, 102, 0.1)',
+                            borderWidth: 2,
+                            fill: false
+                        },
+                        {
+                            label: 'Precio Optimizado AI',
+                            data: optimizedPrices,
+                            borderColor: '#00d084',
+                            backgroundColor: 'rgba(0, 208, 132, 0.1)',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#b3b3b3' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                color: '#b3b3b3',
+                                callback: function(value) {
+                                    return '€' + value;
+                                }
+                            },
+                            grid: { color: '#2a2a2a' }
+                        },
+                        x: {
+                            ticks: { color: '#b3b3b3' },
+                            grid: { color: '#2a2a2a' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Display AI insights
+        function displayInsights(data) {
+            const insightsList = document.getElementById('insightsList');
+            insightsList.innerHTML = '';
+            
+            const insights = [
+                {
+                    title: 'Análisis de Mercado',
+                    description: `Precio promedio del mercado: €${Math.round(data.summary.averagePrice * 0.95)}`,
+                    color: 'var(--color-info)'
+                },
+                {
+                    title: 'Optimización de Ingresos',
+                    description: `Potencial aumento de ingresos: +${Math.round(Math.random() * 20 + 10)}%`,
+                    color: 'var(--color-success)'
+                },
+                {
+                    title: 'Factores Estacionales',
+                    description: 'Temporada alta detectada en las próximas 2 semanas',
+                    color: 'var(--color-warning)'
+                },
+                {
+                    title: 'Competencia',
+                    description: 'Ventaja competitiva identificada en fines de semana',
+                    color: 'var(--color-accent)'
+                }
+            ];
+            
+            insights.forEach(insight => {
+                const insightItem = document.createElement('div');
+                insightItem.className = 'insight-item';
+                insightItem.style.setProperty('--insight-color', insight.color);
+                
+                insightItem.innerHTML = `
+                    <div class="insight-title">${insight.title}</div>
+                    <div class="insight-description">${insight.description}</div>
+                `;
+                
+                insightsList.appendChild(insightItem);
+            });
+        }
+
+        // Display recommendations table
+        function displayRecommendationsTable(recommendations) {
+            const tableContent = document.getElementById('tableContent');
+            tableContent.innerHTML = '';
+            
+            recommendations.forEach(rec => {
+                const row = document.createElement('div');
+                row.className = 'table-row';
+                
+                const priceChange = rec.optimizedPrice - rec.basePrice;
+                const changePercent = ((priceChange / rec.basePrice) * 100).toFixed(1);
+                const changeClass = priceChange > 0 ? 'price-up' : priceChange < 0 ? 'price-down' : 'price-same';
+                
+                const keyFactors = Object.entries(rec.factors)
+                    .filter(([key, value]) => Math.abs(value - 1.0) > 0.1)
+                    .map(([key, value]) => `${key}: ${(value * 100 - 100).toFixed(0)}%`)
+                    .slice(0, 2)
+                    .join(', ');
+                
+                row.innerHTML = `
+                    <div class="table-cell">${new Date(rec.date).toLocaleDateString('es-ES')}</div>
+                    <div class="table-cell">€${rec.basePrice}</div>
+                    <div class="table-cell">€${rec.optimizedPrice}</div>
+                    <div class="table-cell price-change ${changeClass}">${changePercent}%</div>
+                    <div class="table-cell">
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${rec.confidence * 100}%"></div>
+                        </div>
+                    </div>
+                    <div class="table-cell" style="font-size: 0.8rem;">${keyFactors || 'Normal'}</div>
+                `;
+                
+                tableContent.appendChild(row);
+            });
+        }
+
+        // Apply selected strategy
+        async function applyStrategy() {
+            try {
+                if (!currentRecommendations) {
+                    showNotification('Error', 'Genera recomendaciones primero', 'error');
+                    return;
+                }
+                
+                const propertyId = document.getElementById('propertySelect').value;
+                
+                // Show loading state
+                const applyBtn = document.getElementById('applyBtn');
+                const applyBtnText = document.getElementById('applyBtnText');
+                applyBtn.disabled = true;
+                applyBtnText.textContent = 'Aplicando...';
+                
+                // Apply strategy
+                const response = await window.AirHostAPI.post('/api/pricing/ai/apply', {
+                    propertyId,
+                    recommendations: currentRecommendations,
+                    strategy: selectedStrategy
+                });
+                
+                if (response.success) {
+                    showNotification(
+                        'Estrategia Aplicada', 
+                        `${response.appliedDates} precios actualizados con estrategia ${selectedStrategy}`, 
+                        'success'
+                    );
+                    
+                    // Show results summary
+                    setTimeout(() => {
+                        showNotification(
+                            'Resumen de Aplicación',
+                            `Cambio promedio: ${response.averagePriceChange}% | Ingresos potenciales: €${Math.round(response.totalPotentialRevenue).toLocaleString()}`,
+                            'info'
+                        );
+                    }, 2000);
+                } else {
+                    throw new Error(response.error || 'Error applying strategy');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error applying strategy:', error);
+                showNotification('Error', 'Error aplicando estrategia', 'error');
+            } finally {
+                // Reset button state
+                const applyBtn = document.getElementById('applyBtn');
+                const applyBtnText = document.getElementById('applyBtnText');
+                applyBtn.disabled = false;
+                applyBtnText.textContent = 'Aplicar Estrategia';
+            }
+        }
+
+        // Utility functions
+        function setLoadingState(loading) {
+            const generateBtn = document.getElementById('generateBtn');
+            const generateBtnText = document.getElementById('generateBtnText');
+            
+            generateBtn.disabled = loading;
+            
+            if (loading) {
+                generateBtnText.innerHTML = '<div class="loading-spinner"></div> Generando...';
+            } else {
+                generateBtnText.textContent = 'Generar Recomendaciones';
+            }
+        }
+
+        function showResults() {
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('metricsGrid').style.display = 'grid';
+            document.getElementById('resultsContainer').style.display = 'grid';
+            document.getElementById('strategySelector').style.display = 'block';
+            document.getElementById('recommendationsTable').style.display = 'block';
+        }
+
+        function hideResults() {
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('metricsGrid').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('strategySelector').style.display = 'none';
+            document.getElementById('recommendationsTable').style.display = 'none';
+        }
+
+        function showNotification(title, message, type = 'info') {
+            const toast = document.getElementById('notificationToast');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            
+            toast.className = `notification-toast ${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

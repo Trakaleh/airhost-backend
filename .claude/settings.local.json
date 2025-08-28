@@ -31,7 +31,9 @@
       "Bash(railway logs:*)",
       "Bash(npm install:*)",
       "Bash(netlify:*)",
-      "Bash(nslookup:*)"
+      "Bash(nslookup:*)",
+      "Bash(find:*)",
+      "Bash(powershell:*)"
     ],
     "deny": [],
     "ask": []

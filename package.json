@@ -6,11 +6,19 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "nodemon backend/server.js",
-    "build": "npx prisma generate",
+    "build": "npm run optimize:assets && npm run db:generate && echo 'Build completed successfully'",
+    "build:fast": "npx prisma generate --no-engine",
+    "build:production": "NODE_ENV=production npm run build && npm run optimize:full",
     "db:migrate": "npx prisma migrate dev",
     "db:generate": "npx prisma generate",
     "db:studio": "npx prisma studio",
-    "test": "echo 'Tests coming soon'"
+    "optimize:assets": "node optimize-build.js",
+    "optimize:full": "npm run optimize:assets && npm run clean:cache",
+    "prebuild": "echo 'Starting build process...'",
+    "postbuild": "echo 'Build optimization completed'",
+    "test": "echo 'Tests coming soon'",
+    "clean": "rm -rf node_modules/.cache && npm cache clean --force",
+    "clean:cache": "rm -rf backend/node_modules/.cache || true"
   },
   "keywords": [
     "airbnb",

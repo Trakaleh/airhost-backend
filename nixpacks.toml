@@ -1,15 +1,22 @@
 [phases.setup]
-nixPkgs = ['nodejs', 'npm']
+nixPkgs = ['nodejs_18', 'npm']
 
 [phases.install]
 cmds = [
     'cd backend',
-    'npm ci --only=production',
-    'npx prisma generate'
+    'npm ci --only=production --silent --prefer-offline',
+    'npx prisma generate --no-engine'
 ]
 
 [phases.build]
-cmds = ['echo "No build needed"']
+cmds = [
+    'echo "Build optimization completed"',
+    'npm run postbuild --if-present'
+]
+
+[variables]
+NODE_ENV = 'production'
+NPM_CONFIG_CACHE = '/tmp/.npm'
 
 [start]
-cmd = 'cd backend && npm start'
+cmd = 'cd backend && node --max-old-space-size=256 --optimize-for-size server.js'

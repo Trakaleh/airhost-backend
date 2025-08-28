@@ -2,12 +2,17 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "dockerfile",
-    "dockerfilePath": "Dockerfile"
+    "dockerfilePath": "Dockerfile",
+    "buildArgs": {
+      "NODE_ENV": "production"
+    }
   },
   "deploy": {
     "healthcheckPath": "/api/health",
-    "healthcheckTimeout": 30,
+    "healthcheckTimeout": 20,
+    "startCommand": "node --max-old-space-size=256 --optimize-for-size backend/server.js",
     "restartPolicyType": "on_failure",
-    "restartPolicyMaxRetries": 3
+    "restartPolicyMaxRetries": 3,
+    "numReplicas": 1
   }
 }

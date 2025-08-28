@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="same-origin">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="same-origin">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - AirHost AI</title>
@@ -483,17 +493,8 @@
         <!-- Error message container -->
         <div id="errorMessage" class="error-message" style="display: none;"></div>
 
-        <!-- Auto Login in Progress -->
-        <div id="autoLoginStatus" style="text-align: center; padding: 2rem;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">🔐</div>
-            <h3 style="color: var(--color-text-primary); margin-bottom: 1rem;">Iniciando sesión...</h3>
-            <div class="loading-spinner">
-                <div class="spinner"></div>
-            </div>
-        </div>
-
-        <!-- Fallback Login Form (hidden by default) -->
-        <form id="loginForm" class="auth-form" style="display: none;">
+        <!-- Manual Login Form -->
+        <form id="loginForm" class="auth-form">
             <div class="form-group">
                 <label class="form-label" for="loginEmail">Email</label>
                 <input id="loginEmail" name="email" type="email" class="form-input" placeholder="tu@email.com" required>
@@ -581,7 +582,7 @@
     </div>
 
     <!-- API Module -->
-    <script src="/js/api.js"></script>
+    <script defer src="/js/api.js"></script>
     
     <script>
         // Custom cursor
@@ -897,7 +898,7 @@
             }
         });
 
-        // Auto-login on page load
+        // Check if user is already logged in on page load
         document.addEventListener('DOMContentLoaded', async () => {
             // Check if user is already logged in
             const existingToken = localStorage.getItem('airhost_token');
@@ -906,55 +907,10 @@
                 window.location.href = '/dashboard.html';
                 return;
             }
-
-            // Perform automatic login
-            await performAutoLogin();
+            
+            // Show the manual login form immediately
+            console.log('🔐 Manual login required');
         });
-
-        async function performAutoLogin() {
-            try {
-                console.log('🔐 Attempting auto-login...');
-                
-                if (typeof window.AirHostAPI === 'undefined') {
-                    console.error('❌ API module not loaded');
-                    showManualLogin('API no disponible');
-                    return;
-                }
-
-                // Try automatic login with admin credentials
-                const response = await window.AirHostAPI.login('admin@airhostai.com', '310100');
-                
-                if (response.success && response.token) {
-                    console.log('✅ Auto-login successful');
-                    window.AirHostAPI.setToken(response.token);
-                    
-                    // Redirect to dashboard
-                    const returnUrl = new URLSearchParams(window.location.search).get('return');
-                    window.location.href = returnUrl || '/dashboard.html';
-                    
-                } else {
-                    console.error('❌ Auto-login failed:', response.error);
-                    showManualLogin(response.error || 'Error de autenticación');
-                }
-                
-            } catch (error) {
-                console.error('❌ Auto-login error:', error);
-                showManualLogin(error.message);
-            }
-        }
-
-        function showManualLogin(errorMessage) {
-            // Hide auto-login status
-            document.getElementById('autoLoginStatus').style.display = 'none';
-            
-            // Show manual login form
-            document.getElementById('loginForm').style.display = 'block';
-            
-            // Show error message if it's not a network error
-            if (errorMessage && !errorMessage.includes('Failed to fetch')) {
-                showError('Error: ' + errorMessage + '. Usa el formulario manual.');
-            }
-        }
 
         console.log('🔐 AirHost AI Login - New design loaded');
     </script>

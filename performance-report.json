@@ -1,0 +1,36 @@
+{
+  "timestamp": "2025-08-27T19:56:36.210Z",
+  "performance": {
+    "buildTime": null,
+    "deployTime": null,
+    "bundleSize": {
+      "js/api.js": {
+        "size": 5931,
+        "sizeKB": 5.79
+      },
+      "js/auth.js": {
+        "size": 2985,
+        "sizeKB": 2.92
+      },
+      "totalJS": {
+        "size": 8916,
+        "sizeKB": 8.71
+      }
+    },
+    "optimizationSavings": {}
+  },
+  "optimizations": [
+    "Multi-stage Docker build with caching",
+    "Npm cache mounting for faster installs",
+    "Optimized Prisma generation",
+    "JS minification and compression",
+    "HTML performance headers",
+    "Reduced Docker context size"
+  ],
+  "recommendations": [
+    "Consider implementing CDN for static assets",
+    "Add gzip compression in production",
+    "Implement HTTP/2 server push for critical resources",
+    "Consider service worker for offline caching"
+  ]
+}
