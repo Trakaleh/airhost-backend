@@ -1118,8 +1118,16 @@
     </script>
 
     <script defer src="../js/api.js"></script>
+    <script defer src="../js/auth.js"></script>
     <script>
-        console.log('Mensajes Automaticos loaded with API integration');
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Require authentication before loading the page
+            if (!await window.requireAuth()) {
+                return; // Will redirect to login
+            }
+            
+            console.log('Mensajes Automaticos loaded with API integration');
+        });
     </script>
 </body>
 </html>

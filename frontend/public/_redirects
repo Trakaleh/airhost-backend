@@ -1,8 +1,8 @@
-/channel-manager           /                    302
-/mensajes-automaticos      /                    302  
-/smart-locks              /                    302
-/fianzas-stripe           /                    302
-/analytics                /                    302
-/property-management      /                    302
-/precios                  /                    302
-/contacto                 /                    302
+/channel-manager           /pages/channel-manager.html                    302
+/mensajes-automaticos      /pages/mensajes-automaticos.html               302  
+/smart-locks              /pages/smart-locks.html                        302
+/fianzas-stripe           /pages/fianzas-stripe.html                     302
+/analytics                /pages/advanced-analytics.html                 302
+/property-management      /pages/property-management.html                302
+/precios                  /pages/precios.html                           302
+/contacto                 /pages/contacto.html                          302
