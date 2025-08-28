@@ -1,6 +1,6 @@
 {
   "name": "airhost-backend",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "description": "Backend completo para AirHost Assistant - Sistema de automatización de Airbnb",
   "main": "server.js",
   "scripts": {
@@ -36,7 +36,8 @@
     "nodemailer": "^6.9.7",
     "stripe": "^13.11.0",
     "twilio": "^4.16.0",
-    "ws": "^8.18.3"
+    "ws": "^8.18.3",
+    "express-rate-limit": "^7.1.5"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",
