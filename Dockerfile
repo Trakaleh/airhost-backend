@@ -11,9 +11,8 @@ WORKDIR /app
 COPY backend/package*.json ./
 COPY package*.json ./root-package/
 
-# Install all dependencies with npm cache mount
-RUN --mount=type=cache,id=npm,target=/root/.npm \
-    npm ci --only=production --silent --prefer-offline
+# Install all dependencies (Railway compatible)
+RUN npm ci --only=production --silent --prefer-offline
 
 # Prisma stage
 FROM dependencies AS prisma-builder
