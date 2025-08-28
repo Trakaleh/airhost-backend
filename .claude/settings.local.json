@@ -40,7 +40,8 @@
       "Bash(then echo \"$file\")",
       "Bash(fi)",
       "Bash(done)",
-      "Bash(copy:*)"
+      "Bash(copy:*)",
+      "Bash(npx prisma:*)"
     ],
     "deny": [],
     "ask": []
