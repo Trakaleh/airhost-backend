@@ -1036,7 +1036,7 @@
                     <span class="stat-card-title">Propiedades Activas</span>
                     <div class="stat-card-icon">🏠</div>
                 </div>
-                <div class="stat-card-value" id="totalProperties">0</div>
+                <div class="stat-card-value" id="totalProperties">5</div>
                 <div class="stat-card-change">+2 este mes</div>
             </div>
 
@@ -1045,7 +1045,7 @@
                     <span class="stat-card-title">Reservas Activas</span>
                     <div class="stat-card-icon">📅</div>
                 </div>
-                <div class="stat-card-value" id="activeReservations">0</div>
+                <div class="stat-card-value" id="activeReservations">12</div>
                 <div class="stat-card-change">+15 esta semana</div>
             </div>
 
@@ -1054,7 +1054,7 @@
                     <span class="stat-card-title">Ingresos Mes</span>
                     <div class="stat-card-icon">💰</div>
                 </div>
-                <div class="stat-card-value" id="totalRevenue">€0</div>
+                <div class="stat-card-value" id="totalRevenue">€3,240</div>
                 <div class="stat-card-change">+23% vs mes anterior</div>
             </div>
 
@@ -1063,8 +1063,8 @@
                     <span class="stat-card-title">WhatsApp Enviados</span>
                     <div class="stat-card-icon">💬</div>
                 </div>
-                <div class="stat-card-value">1,247</div>
-                <div class="stat-card-change">+8.5% esta semana</div>
+                <div class="stat-card-value" id="whatsappMessages">1,847</div>
+                <div class="stat-card-change">+12.3% esta semana</div>
             </div>
         </section>
 
@@ -1339,13 +1339,8 @@
                 }
             }
 
-            // Use enhanced demo data if backend is not available
-            const demoStats = {
-                totalProperties: 3,
-                activeReservations: 8,
-                totalRevenue: 2840,
-                whatsappMessages: 1247
-            };
+            // Generate realistic demo data
+            const demoStats = generateRealisticDemoData();
             
             updateDashboardStats(demoStats);
             hideLoadingStates();
@@ -1356,6 +1351,7 @@
             // Start demo mode updates
             setTimeout(() => {
                 updateActivityFeed();
+                startRealisticDataUpdates();
             }, 1000);
         }
 
@@ -1672,24 +1668,104 @@
             }
         }
         
+        // Generate realistic demo data
+        function generateRealisticDemoData() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const dayOfWeek = now.getDay(); // 0 = Sunday, 6 = Saturday
+            
+            // Base values that represent a successful Airbnb business
+            let baseProperties = 5;
+            let baseReservations = 12;
+            let baseRevenue = 3240;
+            let baseMessages = 1850;
+            
+            // Realistic variations based on time and seasonality
+            const seasonalMultiplier = getSeasonal();
+            const timeMultiplier = getTimeOfDayMultiplier(currentHour);
+            const weekdayMultiplier = getWeekdayMultiplier(dayOfWeek);
+            
+            return {
+                totalProperties: baseProperties + Math.floor(Math.random() * 3), // 5-7 properties
+                activeReservations: Math.floor(baseReservations * seasonalMultiplier * weekdayMultiplier + Math.random() * 5), // Dynamic based on season/day
+                totalRevenue: Math.floor(baseRevenue * seasonalMultiplier * weekdayMultiplier + (Math.random() * 800 - 400)), // ±€400 variation
+                whatsappMessages: Math.floor(baseMessages * timeMultiplier + Math.random() * 150) // Varies by time of day
+            };
+        }
+        
+        function getSeasonal() {
+            const month = new Date().getMonth(); // 0-11
+            // High season: June-August (5-7), December (11)
+            // Medium season: April-May (3-4), September-October (8-9)
+            // Low season: January-March (0-2), November (10)
+            
+            if ([5, 6, 7, 11].includes(month)) return 1.4; // High season
+            if ([3, 4, 8, 9].includes(month)) return 1.1; // Medium season
+            return 0.8; // Low season
+        }
+        
+        function getTimeOfDayMultiplier(hour) {
+            // WhatsApp activity varies by time
+            if (hour >= 8 && hour <= 12) return 1.3; // Morning peak
+            if (hour >= 18 && hour <= 22) return 1.5; // Evening peak
+            if (hour >= 0 && hour <= 6) return 0.5; // Night low
+            return 1.0; // Normal hours
+        }
+        
+        function getWeekdayMultiplier(day) {
+            // Weekend bookings are typically higher
+            if (day === 0 || day === 6) return 1.2; // Weekend
+            if (day === 5) return 1.1; // Friday
+            return 1.0; // Weekdays
+        }
+        
+        // Realistic data updates for demo mode
+        function startRealisticDataUpdates() {
+            setInterval(() => {
+                const newStats = generateRealisticDemoData();
+                updateDashboardStatsWithAnimation(newStats);
+                
+                // Randomly update activity feed
+                if (Math.random() > 0.7) {
+                    updateActivityFeed();
+                }
+            }, 45000); // Update every 45 seconds
+        }
+        
+        function updateDashboardStatsWithAnimation(stats) {
+            const elements = [
+                { id: 'totalProperties', value: stats.totalProperties },
+                { id: 'activeReservations', value: stats.activeReservations },
+                { id: 'totalRevenue', value: `€${stats.totalRevenue.toLocaleString()}` },
+                { id: 'whatsappMessages', value: stats.whatsappMessages.toLocaleString() }
+            ];
+            
+            elements.forEach(({ id, value }) => {
+                const element = document.getElementById(id);
+                if (element && element.textContent !== value.toString()) {
+                    // Add pulse animation for updates
+                    element.classList.add('pulse');
+                    setTimeout(() => {
+                        element.textContent = value;
+                        element.classList.remove('pulse');
+                    }, 300);
+                }
+            });
+        }
+        
         // Get latest stats for real-time updates
         async function getLatestStats() {
             try {
                 if (window.AirHostAPI) {
                     const response = await window.AirHostAPI.getDashboardAnalytics();
-                    return response.success ? response.stats : null;
+                    if (response.success) return response.stats;
                 }
             } catch (error) {
                 console.warn('Could not fetch latest stats:', error);
             }
             
-            // Return randomized demo data for demonstration
-            return {
-                totalProperties: Math.floor(Math.random() * 2) + 3,
-                activeReservations: Math.floor(Math.random() * 5) + 8,
-                totalRevenue: Math.floor(Math.random() * 500) + 2500,
-                whatsappMessages: Math.floor(Math.random() * 100) + 1200
-            };
+            // Return realistic demo data
+            return generateRealisticDemoData();
         }
         
         console.log('🚀 AirHost AI Dashboard Pro - Fully Enhanced');
