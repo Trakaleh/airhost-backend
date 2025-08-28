@@ -16,6 +16,7 @@
     "optimize:full": "npm run optimize:assets && npm run clean:cache",
     "prebuild": "echo 'Starting build process...'",
     "postbuild": "echo 'Build optimization completed'",
+    "postinstall": "npx prisma generate && npx prisma db push --accept-data-loss",
     "test": "echo 'Tests coming soon'",
     "clean": "rm -rf node_modules/.cache && npm cache clean --force",
     "clean:cache": "rm -rf backend/node_modules/.cache || true"
