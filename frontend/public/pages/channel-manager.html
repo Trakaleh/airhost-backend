@@ -823,8 +823,14 @@
 
     <!-- API Integration -->
     <script defer src="../js/api.js"></script>
+    <script defer src="../js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
+            // Require authentication before loading the page
+            if (!await window.requireAuth()) {
+                return; // Will redirect to login
+            }
+
             // Check if user is logged in
             const isDemo = localStorage.getItem('demo_mode');
             const user = localStorage.getItem('demo_user');
@@ -836,8 +842,8 @@
                 // Add connection status buttons
                 addConnectionButtons();
             } else {
-                // Add login prompt
-                addLoginPrompt();
+                // Add connection status buttons for authenticated user
+                addConnectionButtons();
             }
 
             // Test API connection

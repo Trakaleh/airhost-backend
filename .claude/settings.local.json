@@ -34,7 +34,12 @@
       "Bash(nslookup:*)",
       "Bash(find:*)",
       "Bash(powershell:*)",
-      "Bash(railway:*)"
+      "Bash(railway:*)",
+      "Bash(for file in *.html)",
+      "Bash(do if ! grep -q \"auth\\.js\" \"$file\")",
+      "Bash(then echo \"$file\")",
+      "Bash(fi)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []
