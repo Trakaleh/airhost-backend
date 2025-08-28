@@ -116,6 +116,8 @@ const ChannelManagerService = require('./services/ChannelManagerService');
 const WebSocketService = require('./services/WebSocketService');
 const PricingAIService = require('./services/PricingAIService');
 const NotificationService = require('./services/NotificationService');
+const DashboardService = require('./services/DashboardService');
+const AnalyticsService = require('./services/AnalyticsService');
 
 const stripeService = new StripeService();
 const messageService = new MessageService();
@@ -123,6 +125,8 @@ const channelManager = new ChannelManagerService();
 const wsService = new WebSocketService();
 const pricingAI = new PricingAIService();
 const notificationService = new NotificationService(prisma, wsService);
+const dashboardService = new DashboardService(prisma, wsService);
+const analyticsService = new AnalyticsService(prisma);
 
 console.log('🔧 Servicios inicializados correctamente');
 
@@ -2112,6 +2116,136 @@ app.post('/api/dashboard/trigger-update', authenticate, async (req, res) => {
     } catch (error) {
         console.error('❌ Error triggering update:', error);
         res.status(500).json({ success: false, error: 'Error interno del servidor' });
+    }
+});
+
+// Advanced dashboard with comprehensive data
+app.get('/api/dashboard/advanced', authenticate, async (req, res) => {
+    try {
+        console.log(`📊 Advanced dashboard requested for user: ${req.user.id}`);
+        
+        const dashboardData = await dashboardService.getDashboardData(req.user.id);
+
+        res.json({
+            success: true,
+            data: dashboardData,
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('❌ Error getting advanced dashboard:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error interno del servidor' 
+        });
+    }
+});
+
+// Real-time dashboard metrics
+app.get('/api/dashboard/realtime', authenticate, async (req, res) => {
+    try {
+        const liveStats = await dashboardService.getLiveStats();
+
+        res.json({
+            success: true,
+            data: liveStats
+        });
+    } catch (error) {
+        console.error('❌ Error getting realtime dashboard:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error interno del servidor' 
+        });
+    }
+});
+
+// WebSocket connection info
+app.get('/api/dashboard/ws-info', authenticate, async (req, res) => {
+    try {
+        const connectionInfo = wsService?.getConnectedClients() || { total: 0, authenticated: 0 };
+
+        res.json({
+            success: true,
+            websocket: {
+                connected: connectionInfo.total,
+                authenticated: connectionInfo.authenticated,
+                url: process.env.NODE_ENV === 'production' 
+                    ? 'wss://airhost-backend-production.up.railway.app/ws'
+                    : 'ws://localhost:3007/ws',
+                status: 'online'
+            }
+        });
+    } catch (error) {
+        console.error('❌ Error getting WebSocket info:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error interno del servidor' 
+        });
+    }
+});
+
+// Trigger manual dashboard update
+app.post('/api/dashboard/trigger-update', authenticate, async (req, res) => {
+    try {
+        if (dashboardService) {
+            dashboardService.broadcastRealTimeUpdate();
+        }
+
+        res.json({
+            success: true,
+            message: 'Dashboard update triggered successfully'
+        });
+    } catch (error) {
+        console.error('❌ Error triggering dashboard update:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error interno del servidor' 
+        });
+    }
+});
+
+// ====================================
+// 📈 ADVANCED ANALYTICS API
+// ====================================
+
+// Get business report
+app.get('/api/analytics/report', authenticate, async (req, res) => {
+    try {
+        const { timeframe = 'month', year = new Date().getFullYear() } = req.query;
+        
+        const report = await analyticsService.generateBusinessReport(
+            req.user.id, 
+            timeframe, 
+            parseInt(year)
+        );
+
+        res.json({
+            success: true,
+            report
+        });
+    } catch (error) {
+        console.error('❌ Error generating business report:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error interno del servidor' 
+        });
+    }
+});
+
+// Get performance insights
+app.get('/api/analytics/insights', authenticate, async (req, res) => {
+    try {
+        const insights = await analyticsService.getPerformanceInsights(req.user.id);
+
+        res.json({
+            success: true,
+            insights
+        });
+    } catch (error) {
+        console.error('❌ Error getting performance insights:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error interno del servidor' 
+        });
     }
 });
 
