@@ -442,7 +442,25 @@ app.get('/api/properties', authenticate, async (req, res) => {
         const properties = await prisma.property.findMany({
             where: whereClause,
             orderBy: { createdAt: 'desc' },
-            include: {
+            select: {
+                id: true,
+                name: true,
+                description: true,
+                address: true,
+                city: true,
+                country: true,
+                propertyType: true,
+                maxGuests: true,
+                bedrooms: true,
+                bathrooms: true,
+                basePrice: true,
+                currency: true,
+                cleaningFee: true,
+                depositAmount: true,
+                isActive: true,
+                createdAt: true,
+                updatedAt: true,
+                channels: true,
                 _count: {
                     select: { reservations: true }
                 }
