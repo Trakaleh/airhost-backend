@@ -725,25 +725,44 @@
                 const token = localStorage.getItem('airhost_token');
                 if (!token) {
                     console.log('No auth token found, redirecting to login');
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                     return;
                 }
 
-                // Fetch real data from backend using API
-                const data = await window.AirHostAPI.getDashboardAnalytics();
+                // Fetch multiple data sources in parallel
+                const [analyticsData, propertiesData, reservationsData] = await Promise.allSettled([
+                    window.AirHostAPI.getDashboardAnalytics(),
+                    window.AirHostAPI.getProperties(),
+                    window.AirHostAPI.getReservations()
+                ]);
                 
-                if (data.success && data.stats) {
-                    document.getElementById('totalProperties').textContent = data.stats.totalProperties || 0;
-                    document.getElementById('activeReservations').textContent = data.stats.activeReservations || 0;
-                    document.getElementById('totalRevenue').textContent = `€${data.stats.totalRevenue || 0}`;
-                    
-                    // Update status indicator
-                    document.querySelector('.status-indicator').innerHTML = '🟢 Backend Conectado';
-                    document.querySelector('.status-indicator').style.background = 'rgba(0, 208, 132, 0.1)';
-                    document.querySelector('.status-indicator').style.color = '#00d084';
-                    document.querySelector('.status-indicator').style.borderColor = 'rgba(0, 208, 132, 0.2)';
-                    return;
+                // Process analytics data
+                if (analyticsData.status === 'fulfilled' && analyticsData.value?.success) {
+                    const stats = analyticsData.value.stats;
+                    updateDashboardStats(stats);
+                    console.log('✅ Analytics data loaded:', stats);
                 }
+                
+                // Process properties data
+                if (propertiesData.status === 'fulfilled' && propertiesData.value?.success) {
+                    const properties = propertiesData.value.properties || [];
+                    document.getElementById('totalProperties').textContent = properties.length;
+                    console.log('✅ Properties data loaded:', properties.length, 'properties');
+                }
+                
+                // Process reservations data
+                if (reservationsData.status === 'fulfilled' && reservationsData.value?.success) {
+                    const reservations = reservationsData.value.reservations || [];
+                    const activeReservations = reservations.filter(r => 
+                        new Date(r.checkIn) <= new Date() && new Date(r.checkOut) >= new Date()
+                    );
+                    document.getElementById('activeReservations').textContent = activeReservations.length;
+                    console.log('✅ Reservations data loaded:', reservations.length, 'total,', activeReservations.length, 'active');
+                }
+                
+                // Update status indicator for successful connection
+                updateStatusIndicator('connected', '🟢 Sistema Conectado');
+                return;
             } catch (error) {
                 console.error('Backend connection failed:', error);
                 
@@ -759,15 +778,60 @@
             }
 
             // Use demo data if backend is not available
-            document.getElementById('totalProperties').textContent = '3';
-            document.getElementById('activeReservations').textContent = '8';
-            document.getElementById('totalRevenue').textContent = '€2,840';
+            updateDashboardStats({
+                totalProperties: 3,
+                activeReservations: 8,
+                totalRevenue: 2840,
+                whatsappMessages: 1247
+            });
             
             // Update status indicator for demo mode
-            document.querySelector('.status-indicator').innerHTML = '🟡 Modo Demo';
-            document.querySelector('.status-indicator').style.background = 'rgba(255, 159, 10, 0.1)';
-            document.querySelector('.status-indicator').style.color = '#ffa726';
-            document.querySelector('.status-indicator').style.borderColor = 'rgba(255, 159, 10, 0.2)';
+            updateStatusIndicator('demo', '🟡 Modo Demo');
+        }
+
+        // Helper function to update dashboard stats
+        function updateDashboardStats(stats) {
+            if (stats.totalProperties !== undefined) {
+                document.getElementById('totalProperties').textContent = stats.totalProperties;
+            }
+            if (stats.activeReservations !== undefined) {
+                document.getElementById('activeReservations').textContent = stats.activeReservations;
+            }
+            if (stats.totalRevenue !== undefined) {
+                document.getElementById('totalRevenue').textContent = `€${stats.totalRevenue.toLocaleString()}`;
+            }
+            if (stats.whatsappMessages !== undefined) {
+                const whatsappElement = document.querySelector('.stat-card-value');
+                if (whatsappElement && whatsappElement.textContent === '1,247') {
+                    whatsappElement.textContent = stats.whatsappMessages.toLocaleString();
+                }
+            }
+        }
+
+        // Helper function to update status indicator
+        function updateStatusIndicator(type, message) {
+            const indicator = document.querySelector('.status-indicator');
+            if (!indicator) return;
+            
+            indicator.innerHTML = message;
+            
+            switch(type) {
+                case 'connected':
+                    indicator.style.background = 'rgba(0, 208, 132, 0.1)';
+                    indicator.style.color = '#00d084';
+                    indicator.style.borderColor = 'rgba(0, 208, 132, 0.2)';
+                    break;
+                case 'demo':
+                    indicator.style.background = 'rgba(255, 159, 10, 0.1)';
+                    indicator.style.color = '#ffa726';
+                    indicator.style.borderColor = 'rgba(255, 159, 10, 0.2)';
+                    break;
+                case 'error':
+                    indicator.style.background = 'rgba(255, 71, 87, 0.1)';
+                    indicator.style.color = '#ff4757';
+                    indicator.style.borderColor = 'rgba(255, 71, 87, 0.2)';
+                    break;
+            }
         }
 
         // Add logout functionality
