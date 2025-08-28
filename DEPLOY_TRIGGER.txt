@@ -1,0 +1,7 @@
+Deployment trigger file - $(date)
+Force Railway to redeploy with latest code changes.
+New endpoints should be available after this deployment.
+
+Commit hash: d0c3535
+Target version: v2.1.0
+Advanced features: Enabled
