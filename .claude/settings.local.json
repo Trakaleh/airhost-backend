@@ -39,7 +39,8 @@
       "Bash(do if ! grep -q \"auth\\.js\" \"$file\")",
       "Bash(then echo \"$file\")",
       "Bash(fi)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(copy:*)"
     ],
     "deny": [],
     "ask": []
