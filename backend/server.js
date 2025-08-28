@@ -2,6 +2,7 @@ const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const cors = require('cors');
 const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 const http = require('http');
 require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
@@ -14,7 +15,21 @@ const prisma = new PrismaClient();
 // 🔧 MIDDLEWARES
 // ====================================
 
-app.use(helmet());
+// Security middleware
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
+            imgSrc: ["'self'", "data:", "https:", "blob:"],
+            connectSrc: ["'self'", "ws:", "wss:"]
+        }
+    }
+}));
+
+// CORS configuration
 app.use(cors({
     origin: [
         'http://localhost:3000',
@@ -26,12 +41,40 @@ app.use(cors({
         process.env.FRONTEND_URL
     ],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
 
+// Rate limiting
+const generalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 1000, // Limit each IP to 1000 requests per windowMs
+    message: {
+        success: false,
+        error: 'Demasiadas solicitudes, intenta de nuevo más tarde'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10, // Limit each IP to 10 auth attempts per windowMs
+    message: {
+        success: false,
+        error: 'Demasiados intentos de autenticación, intenta de nuevo más tarde'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+// Apply rate limiting
+app.use('/api/', generalLimiter);
+app.use('/api/auth/', authLimiter);
+
+// Body parsing
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static('public'));
 
 // Logging
@@ -72,12 +115,14 @@ const MessageService = require('./services/MessageService');
 const ChannelManagerService = require('./services/ChannelManagerService');
 const WebSocketService = require('./services/WebSocketService');
 const PricingAIService = require('./services/PricingAIService');
+const NotificationService = require('./services/NotificationService');
 
 const stripeService = new StripeService();
 const messageService = new MessageService();
 const channelManager = new ChannelManagerService();
 const wsService = new WebSocketService();
 const pricingAI = new PricingAIService();
+const notificationService = new NotificationService(prisma, wsService);
 
 console.log('🔧 Servicios inicializados correctamente');
 
@@ -90,7 +135,9 @@ const bcrypt = require('bcryptjs');
 
 const authenticate = async (req, res, next) => {
     try {
-        const token = req.header('Authorization')?.replace('Bearer ', '');
+        const authHeader = req.header('Authorization');
+        const token = authHeader?.startsWith('Bearer ') ? authHeader.replace('Bearer ', '') : null;
+        
         console.log('🔐 Authentication attempt:', req.path);
         console.log('🎫 Token received:', token ? token.substring(0, 20) + '...' : 'NO TOKEN');
         
@@ -98,14 +145,60 @@ const authenticate = async (req, res, next) => {
             console.log('❌ No token provided');
             return res.status(401).json({ 
                 success: false, 
-                error: 'Token requerido' 
+                error: 'Token de acceso requerido',
+                code: 'NO_TOKEN'
+            });
+        }
+
+        // Validate token format
+        if (token.split('.').length !== 3) {
+            console.log('❌ Invalid token format');
+            return res.status(401).json({ 
+                success: false, 
+                error: 'Formato de token inválido',
+                code: 'INVALID_FORMAT'
             });
         }
 
         const jwtSecret = process.env.JWT_SECRET || 'airhost-testing-secret-key-2024';
         console.log('🔑 Using JWT secret:', jwtSecret ? 'SET' : 'NOT SET');
-        const decoded = jwt.verify(token, jwtSecret);
+        
+        let decoded;
+        try {
+            decoded = jwt.verify(token, jwtSecret);
+        } catch (jwtError) {
+            console.log('❌ JWT verification failed:', jwtError.message);
+            
+            let errorCode = 'INVALID_TOKEN';
+            let errorMessage = 'Token inválido';
+            
+            if (jwtError.name === 'TokenExpiredError') {
+                errorCode = 'TOKEN_EXPIRED';
+                errorMessage = 'Token expirado';
+            } else if (jwtError.name === 'JsonWebTokenError') {
+                errorCode = 'MALFORMED_TOKEN';
+                errorMessage = 'Token malformado';
+            }
+            
+            return res.status(401).json({ 
+                success: false, 
+                error: errorMessage,
+                code: errorCode
+            });
+        }
+        
         console.log('✅ Token decoded successfully, userId:', decoded.userId);
+        
+        // Validate token payload
+        if (!decoded.userId) {
+            console.log('❌ Invalid token payload - missing userId');
+            return res.status(401).json({ 
+                success: false, 
+                error: 'Token inválido - datos faltantes',
+                code: 'INVALID_PAYLOAD'
+            });
+        }
+
         // Check if this is the testing admin user
         if (decoded.userId === 'admin-testing-user-id') {
             console.log('👤 Testing admin user recognized');
@@ -117,7 +210,8 @@ const authenticate = async (req, res, next) => {
                 plan: 'Enterprise',
                 language: 'es',
                 currency: 'EUR',
-                isActive: true
+                isActive: true,
+                role: 'admin'
             };
         } else {
             // Regular database user lookup
@@ -131,7 +225,9 @@ const authenticate = async (req, res, next) => {
                     plan: true,
                     language: true,
                     currency: true,
-                    isActive: true
+                    isActive: true,
+                    subscriptionStatus: true,
+                    currentPeriodEnd: true
                 }
             });
             
@@ -141,19 +237,48 @@ const authenticate = async (req, res, next) => {
                 console.log('❌ User not found in database');
                 return res.status(401).json({ 
                     success: false, 
-                    error: 'Usuario no encontrado' 
+                    error: 'Usuario no encontrado',
+                    code: 'USER_NOT_FOUND'
+                });
+            }
+
+            // Check if user account is active
+            if (!user.isActive) {
+                console.log('❌ User account is inactive');
+                return res.status(401).json({ 
+                    success: false, 
+                    error: 'Cuenta desactivada',
+                    code: 'ACCOUNT_INACTIVE'
+                });
+            }
+
+            // Check subscription status
+            if (user.subscriptionStatus === 'past_due' || 
+                (user.currentPeriodEnd && new Date() > new Date(user.currentPeriodEnd))) {
+                console.log('❌ User subscription expired');
+                return res.status(402).json({ 
+                    success: false, 
+                    error: 'Suscripción vencida',
+                    code: 'SUBSCRIPTION_EXPIRED'
                 });
             }
 
             req.user = user;
         }
+        
+        // Set additional request metadata
+        req.authTime = Date.now();
+        req.userAgent = req.header('User-Agent');
+        req.clientIP = req.ip || req.connection.remoteAddress;
+        
         console.log('✅ Authentication successful');
         next();
     } catch (error) {
         console.log('❌ Authentication error:', error.message);
-        res.status(401).json({ 
+        res.status(500).json({ 
             success: false, 
-            error: 'Token inválido' 
+            error: 'Error interno de autenticación',
+            code: 'INTERNAL_AUTH_ERROR'
         });
     }
 };
@@ -953,6 +1078,13 @@ app.post('/api/reservations', authenticate, async (req, res) => {
 
         console.log(`✅ Nueva reserva creada: ${guest.name}`);
 
+        // Send notification about new booking
+        try {
+            await notificationService.sendBookingConfirmation(req.user.id, reservation);
+        } catch (notificationError) {
+            console.warn('⚠️  Failed to send booking notification:', notificationError);
+        }
+
         res.status(201).json({
             success: true,
             message: 'Reserva creada correctamente',
@@ -1682,6 +1814,18 @@ app.post('/api/channel-manager/connect/airbnb', authenticate, async (req, res) =
             data: { channels: currentChannels }
         });
 
+        // Send notification about channel connection
+        try {
+            await notificationService.sendChannelSyncSuccess(
+                req.user.id, 
+                property.name, 
+                'Airbnb', 
+                1
+            );
+        } catch (notificationError) {
+            console.warn('⚠️  Failed to send channel notification:', notificationError);
+        }
+
         res.json({ 
             success: true, 
             message: 'Airbnb conectado exitosamente',
@@ -1968,6 +2112,132 @@ app.post('/api/dashboard/trigger-update', authenticate, async (req, res) => {
     } catch (error) {
         console.error('❌ Error triggering update:', error);
         res.status(500).json({ success: false, error: 'Error interno del servidor' });
+    }
+});
+
+// ====================================
+// 🔔 NOTIFICATIONS API  
+// ====================================
+
+// Get user notifications
+app.get('/api/notifications', authenticate, async (req, res) => {
+    try {
+        const { limit, offset, unreadOnly, category, type } = req.query;
+        
+        const result = await notificationService.getUserNotifications(req.user.id, {
+            limit: parseInt(limit) || 50,
+            offset: parseInt(offset) || 0,
+            unreadOnly: unreadOnly === 'true',
+            category,
+            type
+        });
+
+        res.json({
+            success: true,
+            ...result
+        });
+
+    } catch (error) {
+        console.error('❌ Error getting notifications:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error interno del servidor'
+        });
+    }
+});
+
+// Mark notification as read
+app.patch('/api/notifications/:id/read', authenticate, async (req, res) => {
+    try {
+        const notification = await notificationService.markAsRead(req.params.id, req.user.id);
+        
+        res.json({
+            success: true,
+            notification
+        });
+
+    } catch (error) {
+        console.error('❌ Error marking notification as read:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error interno del servidor'
+        });
+    }
+});
+
+// Mark all notifications as read
+app.patch('/api/notifications/read-all', authenticate, async (req, res) => {
+    try {
+        const result = await notificationService.markAllAsRead(req.user.id);
+        
+        res.json({
+            success: true,
+            markedCount: result.count
+        });
+
+    } catch (error) {
+        console.error('❌ Error marking all notifications as read:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error interno del servidor'
+        });
+    }
+});
+
+// Delete notification
+app.delete('/api/notifications/:id', authenticate, async (req, res) => {
+    try {
+        await notificationService.deleteNotification(req.params.id, req.user.id);
+        
+        res.json({
+            success: true,
+            message: 'Notificación eliminada correctamente'
+        });
+
+    } catch (error) {
+        console.error('❌ Error deleting notification:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error interno del servidor'
+        });
+    }
+});
+
+// Get notification statistics
+app.get('/api/notifications/stats', authenticate, async (req, res) => {
+    try {
+        const stats = await notificationService.getNotificationStats(req.user.id);
+        
+        res.json({
+            success: true,
+            stats
+        });
+
+    } catch (error) {
+        console.error('❌ Error getting notification stats:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error interno del servidor'
+        });
+    }
+});
+
+// Create manual notification (for testing/admin)
+app.post('/api/notifications', authenticate, async (req, res) => {
+    try {
+        const notification = await notificationService.createNotification(req.user.id, req.body);
+        
+        res.status(201).json({
+            success: true,
+            notification
+        });
+
+    } catch (error) {
+        console.error('❌ Error creating notification:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error interno del servidor'
+        });
     }
 });
 
@@ -2275,21 +2545,97 @@ app.get('/', (req, res) => {
         version: '2.0.0',
         database: 'PostgreSQL + Prisma',
         endpoints: {
+            // Core API
             health: '/api/health',
             info: '/api/info',
-            auth: '/api/auth/*',
-            properties: '/api/properties',
-            reservations: '/api/reservations',
-            analytics: '/api/analytics/dashboard',
-            smart_locks: '/api/smart-locks',
-            access_codes: '/api/smart-locks/:lockId/codes',
-            message_templates: '/api/messages/templates',
-            automation_rules: '/api/messages/automation-rules',
-            message_history: '/api/messages/history',
-            stripe_customers: '/api/stripe/customers',
-            stripe_deposits: '/api/stripe/deposits',
-            channel_sync: '/api/channels/sync/:propertyId',
-            channel_config: '/api/properties/:propertyId/channels/:channel'
+            
+            // Authentication
+            auth: {
+                login: 'POST /api/auth/login',
+                register: 'POST /api/auth/register',
+                google: 'POST /api/auth/google',
+                profile: 'GET /api/auth/me'
+            },
+            
+            // Properties Management
+            properties: {
+                list: 'GET /api/properties',
+                create: 'POST /api/properties',
+                get: 'GET /api/properties/:id',
+                update: 'PUT /api/properties/:id',
+                delete: 'DELETE /api/properties/:id'
+            },
+            
+            // Reservations
+            reservations: {
+                list: 'GET /api/reservations',
+                create: 'POST /api/reservations',
+                get: 'GET /api/reservations/:id',
+                update: 'PUT /api/reservations/:id',
+                cancel: 'DELETE /api/reservations/:id'
+            },
+            
+            // Analytics
+            analytics: 'GET /api/analytics/dashboard',
+            
+            // Smart Locks
+            smart_locks: {
+                list: 'GET /api/smart-locks',
+                register: 'POST /api/smart-locks',
+                codes: 'GET /api/smart-locks/:lockId/codes',
+                generate_code: 'POST /api/smart-locks/:lockId/codes',
+                revoke_code: 'DELETE /api/smart-locks/codes/:codeId'
+            },
+            
+            // Messaging
+            messaging: {
+                templates: 'GET /api/messages/templates',
+                create_template: 'POST /api/messages/templates',
+                automation_rules: 'GET /api/messages/automation-rules',
+                create_rule: 'POST /api/messages/automation-rules',
+                history: 'GET /api/messages/history'
+            },
+            
+            // Payments & Stripe
+            payments: {
+                create_customer: 'POST /api/stripe/customers',
+                create_deposit: 'POST /api/stripe/deposits'
+            },
+            
+            // Channel Manager
+            channels: {
+                status: 'GET /api/channel-manager/status',
+                connect_airbnb: 'POST /api/channel-manager/connect/airbnb',
+                connect_booking: 'POST /api/channel-manager/connect/booking',
+                sync: 'POST /api/channel-manager/sync',
+                sync_property: 'POST /api/channels/sync/:propertyId',
+                configure: 'PUT /api/properties/:propertyId/channels/:channel'
+            },
+            
+            // Real-time Dashboard
+            dashboard: {
+                realtime: 'GET /api/dashboard/realtime',
+                ws_info: 'GET /api/dashboard/ws-info',
+                trigger_update: 'POST /api/dashboard/trigger-update'
+            },
+            
+            // AI Pricing
+            pricing_ai: {
+                recommendations: 'POST /api/pricing/ai/recommendations',
+                analysis: 'GET /api/pricing/ai/analysis/:propertyId',
+                apply: 'POST /api/pricing/ai/apply',
+                performance: 'GET /api/pricing/ai/performance/:propertyId'
+            },
+            
+            // Notifications
+            notifications: {
+                list: 'GET /api/notifications',
+                mark_read: 'PATCH /api/notifications/:id/read',
+                mark_all_read: 'PATCH /api/notifications/read-all',
+                delete: 'DELETE /api/notifications/:id',
+                stats: 'GET /api/notifications/stats',
+                create: 'POST /api/notifications'
+            }
         }
     });
 });

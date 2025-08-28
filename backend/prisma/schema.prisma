@@ -62,6 +62,7 @@ model User {
   pricingRules     PricingRule[]
   analyticsData    AnalyticsData[]
   channels         Channel[]
+  notifications    Notification[]
   
   @@map("users")
 }
@@ -88,21 +89,8 @@ model Property {
   bedrooms   Int
   bathrooms  Int
   
-  // Channel Manager
-  airbnbListingId  String?
-  airbnbIcalUrl    String?
-  airbnbLastSync   DateTime?
-  airbnbIsActive   Boolean @default(false)
-  
-  bookingListingId String?
-  bookingIcalUrl   String?
-  bookingLastSync  DateTime?
-  bookingIsActive  Boolean @default(false)
-  
-  vrboListingId   String?
-  vrboIcalUrl     String?
-  vrboLastSync    DateTime?
-  vrboIsActive    Boolean @default(false)
+  // Channel Manager (JSON for flexible channel data)
+  channels Json? // { airbnb: { listingId, icalUrl, isActive, lastSync }, booking: {...} }
   
   // Smart Lock
   smartLockBrand    String  @default("none") // nuki, august, yale, none
@@ -129,9 +117,22 @@ model Property {
   checkoutReminderTemplate String @default("Recordatorio: Check-out hoy a las {{checkout_time}}")
   reviewRequestTemplate   String @default("¡Esperamos tu reseña de 5⭐!")
   
-  // Estado
+  // Estado y configuración
   isActive      Boolean @default(true)
   autoMessaging Boolean @default(true)
+  autoPricing   Boolean @default(false)
+  
+  // Analytics y performance
+  totalBookings    Int     @default(0)
+  totalRevenue     Float   @default(0)
+  averageRating    Float   @default(0)
+  occupancyRate    Float   @default(0)
+  lastRevenueCalc  DateTime?
+  
+  // SEO y marketing
+  amenities        Json?   // Array of amenities
+  tags             Json?   // Array of tags for categorization
+  coordinates      Json?   // { lat: number, lng: number }
   
   // Timestamps
   createdAt DateTime @default(now())
@@ -169,7 +170,17 @@ model Reservation {
   // Origen y estado
   source     String // airbnb, booking, vrbo, direct, manual
   externalId String?
-  status     String @default("confirmed") // confirmed, checked_in, checked_out, cancelled
+  status     String @default("confirmed") // confirmed, pending, checked_in, checked_out, cancelled
+  
+  // Tiempos de check-in/out
+  actualCheckIn  DateTime?
+  actualCheckOut DateTime?
+  
+  // Review y feedback
+  guestRating    Float?
+  guestReview    String?
+  hostRating     Float?
+  hostReview     String?
   
   // Precios
   baseAmount     Float
@@ -196,6 +207,11 @@ model Reservation {
   
   // Notas
   notes String?
+  
+  // Cancelación
+  cancelledAt     DateTime?
+  cancelledBy     String? // guest, host, platform
+  cancellationReason String?
   
   // Timestamps
   createdAt DateTime @default(now())
@@ -556,3 +572,48 @@ model Channel {
   @@unique([propertyId, name])
   @@map("channels")
 }
+
+// ====================================
+// 🔔 NOTIFICATIONS SYSTEM
+// ====================================
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  
+  // Notification details
+  title     String
+  message   String
+  type      String   // info, success, warning, error, booking, payment, system
+  category  String?  // reservation, property, payment, system, marketing
+  
+  // Target and context
+  entityType String? // reservation, property, payment
+  entityId   String? // ID of related entity
+  
+  // Status
+  isRead     Boolean  @default(false)
+  readAt     DateTime?
+  
+  // Action
+  actionUrl  String?  // URL to navigate when clicked
+  actionText String?  // Text for action button
+  
+  // Priority
+  priority   String   @default("normal") // low, normal, high, urgent
+  
+  // Metadata
+  metadata   Json?    // Additional data
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("notifications")
+}
+
+// Add to User model relations
+// notifications    Notification[]

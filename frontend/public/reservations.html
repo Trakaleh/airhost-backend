@@ -372,6 +372,260 @@
             margin-bottom: 1rem;
         }
 
+        /* View Controls */
+        .controls-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .view-controls {
+            display: flex;
+            background: var(--color-bg-tertiary);
+            border-radius: 8px;
+            padding: 4px;
+            border: 1px solid var(--color-border);
+        }
+
+        .view-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: none;
+            border: none;
+            border-radius: 6px;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .view-btn.active {
+            background: var(--color-accent);
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 208, 132, 0.2);
+        }
+
+        .view-btn:hover:not(.active) {
+            background: var(--color-hover);
+            color: var(--color-text-primary);
+        }
+
+        /* Calendar Styles */
+        .calendar-container {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--color-border);
+            background: var(--color-bg-tertiary);
+        }
+
+        .calendar-nav-btn {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            color: var(--color-text-primary);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-nav-btn:hover {
+            background: var(--color-hover);
+            border-color: var(--color-accent);
+        }
+
+        .calendar-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .calendar-view-selector {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .calendar-view-btn {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            color: var(--color-text-secondary);
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .calendar-view-btn.active {
+            background: var(--color-accent);
+            color: white;
+            border-color: var(--color-accent);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+
+        .calendar-day-header {
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            background: var(--color-bg-tertiary);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .calendar-day {
+            min-height: 120px;
+            padding: 8px;
+            border-right: 1px solid var(--color-border);
+            border-bottom: 1px solid var(--color-border);
+            position: relative;
+            background: var(--color-bg-primary);
+        }
+
+        .calendar-day:nth-child(7n) {
+            border-right: none;
+        }
+
+        .calendar-day.other-month {
+            background: var(--color-bg-secondary);
+            opacity: 0.5;
+        }
+
+        .calendar-day.today {
+            background: rgba(0, 208, 132, 0.1);
+            border-color: var(--color-accent);
+        }
+
+        .day-number {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .calendar-day.today .day-number {
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+
+        .reservation-event {
+            background: var(--color-accent);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-bottom: 2px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .reservation-event:hover {
+            background: var(--color-accent-hover);
+            transform: scale(1.02);
+        }
+
+        .reservation-event.status-pending {
+            background: var(--color-warning);
+        }
+
+        .reservation-event.status-cancelled {
+            background: var(--color-error);
+        }
+
+        .reservation-event.status-completed {
+            background: var(--color-success);
+        }
+
+        .reservation-event.checkout {
+            background: linear-gradient(45deg, var(--color-accent) 50%, var(--color-bg-tertiary) 50%);
+            border: 1px solid var(--color-accent);
+        }
+
+        .more-events {
+            font-size: 0.7rem;
+            color: var(--color-text-tertiary);
+            cursor: pointer;
+            text-align: center;
+            padding: 2px;
+        }
+
+        .more-events:hover {
+            color: var(--color-accent);
+        }
+
+        /* Weekly view */
+        .calendar-week {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+
+        .week-day {
+            min-height: 200px;
+            padding: 12px;
+            border-right: 1px solid var(--color-border);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .week-day:last-child {
+            border-right: none;
+        }
+
+        /* Daily view */
+        .calendar-daily {
+            padding: 2rem;
+        }
+
+        .daily-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .daily-date {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .daily-reservations {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .daily-reservation {
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .daily-reservation:hover {
+            background: var(--color-hover);
+            border-color: var(--color-accent);
+        }
+
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
@@ -423,6 +677,36 @@
             .stats-summary {
                 grid-template-columns: 1fr 1fr;
             }
+
+            .controls-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-controls {
+                align-self: center;
+                margin-bottom: 1rem;
+            }
+
+            .filters {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .calendar-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .calendar-day {
+                min-height: 80px;
+            }
+
+            .calendar-view-selector {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -471,18 +755,31 @@
                 </div>
             </div>
 
-            <!-- Filters -->
-            <div class="filters">
-                <select id="statusFilter" class="filter-select">
-                    <option value="">Todos los estados</option>
-                    <option value="confirmed">Confirmadas</option>
-                    <option value="pending">Pendientes</option>
-                    <option value="cancelled">Canceladas</option>
-                    <option value="completed">Completadas</option>
-                </select>
-                <select id="propertyFilter" class="filter-select">
-                    <option value="">Todas las propiedades</option>
-                </select>
+            <!-- View Controls and Filters -->
+            <div class="controls-section">
+                <div class="view-controls">
+                    <button class="view-btn active" id="tableViewBtn" data-view="table">
+                        <span class="icon">📋</span>
+                        <span>Tabla</span>
+                    </button>
+                    <button class="view-btn" id="calendarViewBtn" data-view="calendar">
+                        <span class="icon">📅</span>
+                        <span>Calendario</span>
+                    </button>
+                </div>
+                
+                <div class="filters">
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">Todos los estados</option>
+                        <option value="confirmed">Confirmadas</option>
+                        <option value="pending">Pendientes</option>
+                        <option value="cancelled">Canceladas</option>
+                        <option value="completed">Completadas</option>
+                    </select>
+                    <select id="propertyFilter" class="filter-select">
+                        <option value="">Todas las propiedades</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Reservations Table -->
@@ -501,6 +798,9 @@
         let reservations = [];
         let properties = [];
         let filteredReservations = [];
+        let currentView = 'table';
+        let calendarView = 'month';
+        let currentDate = new Date();
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', async function() {
@@ -518,6 +818,7 @@
                 ]);
 
                 setupFilters();
+                setupViewControls();
             } catch (error) {
                 console.error('Error initializing reservations page:', error);
                 showError('Error cargando la página');
@@ -602,6 +903,28 @@
             document.getElementById('propertyFilter').addEventListener('change', applyFilters);
         }
 
+        // Setup view control listeners
+        function setupViewControls() {
+            document.getElementById('tableViewBtn').addEventListener('click', () => switchView('table'));
+            document.getElementById('calendarViewBtn').addEventListener('click', () => switchView('calendar'));
+        }
+
+        // Switch between table and calendar views
+        function switchView(view) {
+            currentView = view;
+            
+            // Update button states
+            document.getElementById('tableViewBtn').classList.toggle('active', view === 'table');
+            document.getElementById('calendarViewBtn').classList.toggle('active', view === 'calendar');
+            
+            // Render appropriate view
+            if (view === 'calendar') {
+                renderCalendarView();
+            } else {
+                renderReservations(filteredReservations);
+            }
+        }
+
         // Apply filters
         function applyFilters() {
             const statusFilter = document.getElementById('statusFilter').value;
@@ -614,7 +937,294 @@
                 return statusMatch && propertyMatch;
             });
 
-            renderReservations(filteredReservations);
+            // Re-render current view
+            if (currentView === 'calendar') {
+                renderCalendarView();
+            } else {
+                renderReservations(filteredReservations);
+            }
+        }
+
+        // Render calendar view
+        function renderCalendarView() {
+            const container = document.getElementById('reservationsContainer');
+            
+            const calendarHTML = `
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <div>
+                            <button class="calendar-nav-btn" onclick="navigateCalendar(-1)">
+                                ‹ Anterior
+                            </button>
+                            <button class="calendar-nav-btn" onclick="navigateCalendar(1)">
+                                Siguiente ›
+                            </button>
+                        </div>
+                        
+                        <h2 class="calendar-title" id="calendarTitle">
+                            ${formatCalendarTitle()}
+                        </h2>
+                        
+                        <div class="calendar-view-selector">
+                            <button class="calendar-view-btn ${calendarView === 'month' ? 'active' : ''}" onclick="setCalendarView('month')">
+                                Mes
+                            </button>
+                            <button class="calendar-view-btn ${calendarView === 'week' ? 'active' : ''}" onclick="setCalendarView('week')">
+                                Semana
+                            </button>
+                            <button class="calendar-view-btn ${calendarView === 'day' ? 'active' : ''}" onclick="setCalendarView('day')">
+                                Día
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="calendarContent">
+                        ${renderCalendarContent()}
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = calendarHTML;
+        }
+
+        // Format calendar title based on view
+        function formatCalendarTitle() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const day = currentDate.getDate();
+            
+            const monthNames = [
+                'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+            ];
+            
+            switch (calendarView) {
+                case 'month':
+                    return `${monthNames[month]} ${year}`;
+                case 'week':
+                    const weekStart = new Date(currentDate);
+                    weekStart.setDate(day - currentDate.getDay());
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekStart.getDate() + 6);
+                    return `${weekStart.getDate()} - ${weekEnd.getDate()} ${monthNames[month]} ${year}`;
+                case 'day':
+                    return `${day} ${monthNames[month]} ${year}`;
+                default:
+                    return `${monthNames[month]} ${year}`;
+            }
+        }
+
+        // Render calendar content based on view
+        function renderCalendarContent() {
+            switch (calendarView) {
+                case 'month':
+                    return renderMonthView();
+                case 'week':
+                    return renderWeekView();
+                case 'day':
+                    return renderDayView();
+                default:
+                    return renderMonthView();
+            }
+        }
+
+        // Render month view
+        function renderMonthView() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(firstDay.getDate() - firstDay.getDay());
+            
+            const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            const today = new Date();
+            
+            let html = '<div class="calendar-grid">';
+            
+            // Header days
+            dayNames.forEach(day => {
+                html += `<div class="calendar-day-header">${day}</div>`;
+            });
+            
+            // Calendar days
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                
+                const isCurrentMonth = date.getMonth() === month;
+                const isToday = date.toDateString() === today.toDateString();
+                const dayReservations = getReservationsForDate(date);
+                
+                let dayClass = 'calendar-day';
+                if (!isCurrentMonth) dayClass += ' other-month';
+                if (isToday) dayClass += ' today';
+                
+                html += `<div class="${dayClass}">`;
+                html += `<div class="day-number">${date.getDate()}</div>`;
+                
+                // Add reservation events
+                const maxVisible = 3;
+                dayReservations.slice(0, maxVisible).forEach(reservation => {
+                    const eventClass = `reservation-event status-${reservation.status}`;
+                    const isCheckout = date.toDateString() === new Date(reservation.checkOut).toDateString();
+                    
+                    html += `<div class="${eventClass} ${isCheckout ? 'checkout' : ''}" 
+                                  onclick="viewReservation('${reservation.id}')" 
+                                  title="${reservation.guestName || 'Sin nombre'} - ${reservation.property?.name || 'Propiedad'}">
+                                ${reservation.guestName ? reservation.guestName.split(' ')[0] : 'Reserva'}
+                             </div>`;
+                });
+                
+                if (dayReservations.length > maxVisible) {
+                    html += `<div class="more-events">+${dayReservations.length - maxVisible} más</div>`;
+                }
+                
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        // Render week view
+        function renderWeekView() {
+            const startOfWeek = new Date(currentDate);
+            startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+            
+            const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            const today = new Date();
+            
+            let html = '<div class="calendar-grid">';
+            
+            // Header
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(startOfWeek);
+                date.setDate(startOfWeek.getDate() + i);
+                html += `<div class="calendar-day-header">
+                    ${dayNames[i]}<br>
+                    <small>${date.getDate()}</small>
+                </div>`;
+            }
+            
+            // Week days
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(startOfWeek);
+                date.setDate(startOfWeek.getDate() + i);
+                
+                const isToday = date.toDateString() === today.toDateString();
+                const dayReservations = getReservationsForDate(date);
+                
+                let dayClass = 'week-day';
+                if (isToday) dayClass += ' today';
+                
+                html += `<div class="${dayClass}">`;
+                
+                dayReservations.forEach(reservation => {
+                    const eventClass = `reservation-event status-${reservation.status}`;
+                    const isCheckout = date.toDateString() === new Date(reservation.checkOut).toDateString();
+                    
+                    html += `<div class="${eventClass} ${isCheckout ? 'checkout' : ''}" 
+                                  onclick="viewReservation('${reservation.id}')" 
+                                  title="${reservation.guestName || 'Sin nombre'} - ${reservation.property?.name || 'Propiedad'}">
+                                ${reservation.guestName || 'Reserva'}<br>
+                                <small>${reservation.property?.name || 'Propiedad'}</small>
+                             </div>`;
+                });
+                
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        // Render day view
+        function renderDayView() {
+            const dayReservations = getReservationsForDate(currentDate);
+            
+            let html = '<div class="calendar-daily">';
+            
+            if (dayReservations.length === 0) {
+                html += `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📅</div>
+                        <h3 class="empty-state-title">No hay reservas este día</h3>
+                        <p>No hay reservas programadas para esta fecha</p>
+                    </div>
+                `;
+            } else {
+                html += '<div class="daily-reservations">';
+                
+                dayReservations.forEach(reservation => {
+                    const isCheckIn = currentDate.toDateString() === new Date(reservation.checkIn).toDateString();
+                    const isCheckOut = currentDate.toDateString() === new Date(reservation.checkOut).toDateString();
+                    
+                    html += `
+                        <div class="daily-reservation" onclick="viewReservation('${reservation.id}')">
+                            <div class="guest-info">
+                                <div class="guest-name">${reservation.guestName || 'Sin nombre'}</div>
+                                <div class="guest-contact">${reservation.guestEmail || 'Sin email'}</div>
+                            </div>
+                            <div class="property-info">
+                                <div class="property-name">${reservation.property?.name || 'Propiedad desconocida'}</div>
+                                <div class="property-address">${reservation.property?.address || ''}</div>
+                            </div>
+                            <div class="dates-info">
+                                ${isCheckIn ? '<div class="date-item">📥 Check-in hoy</div>' : ''}
+                                ${isCheckOut ? '<div class="date-item">📤 Check-out hoy</div>' : ''}
+                                <div class="date-item">
+                                    <span>📅</span>
+                                    <span>${formatDate(reservation.checkIn)} - ${formatDate(reservation.checkOut)}</span>
+                                </div>
+                            </div>
+                            <div class="status-badge status-${reservation.status}">
+                                ${getStatusText(reservation.status)}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        // Get reservations for a specific date
+        function getReservationsForDate(date) {
+            return filteredReservations.filter(reservation => {
+                const checkIn = new Date(reservation.checkIn);
+                const checkOut = new Date(reservation.checkOut);
+                const targetDate = new Date(date);
+                
+                // Check if date is within reservation period (inclusive of check-in, exclusive of check-out)
+                return targetDate >= checkIn && targetDate < checkOut;
+            });
+        }
+
+        // Navigate calendar
+        function navigateCalendar(direction) {
+            switch (calendarView) {
+                case 'month':
+                    currentDate.setMonth(currentDate.getMonth() + direction);
+                    break;
+                case 'week':
+                    currentDate.setDate(currentDate.getDate() + (direction * 7));
+                    break;
+                case 'day':
+                    currentDate.setDate(currentDate.getDate() + direction);
+                    break;
+            }
+            
+            renderCalendarView();
+        }
+
+        // Set calendar view
+        function setCalendarView(view) {
+            calendarView = view;
+            renderCalendarView();
         }
 
         // Render reservations table

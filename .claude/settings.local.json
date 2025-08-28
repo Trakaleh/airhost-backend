@@ -41,7 +41,8 @@
       "Bash(fi)",
       "Bash(done)",
       "Bash(copy:*)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "WebFetch(domain:app.lodgify.com)"
     ],
     "deny": [],
     "ask": []
