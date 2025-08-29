@@ -432,6 +432,188 @@ app.post('/api/properties', authenticateToken, async (req, res) => {
     }
 });
 
+// Import property from Airbnb
+app.post('/api/properties/import/airbnb', authenticateToken, async (req, res) => {
+    try {
+        const { url, apiKey } = req.body;
+
+        // Ensure admin user exists
+        await prisma.user.upsert({
+            where: { id: req.user.userId },
+            update: {},
+            create: {
+                id: req.user.userId,
+                email: req.user.email || 'admin@airhostai.com',
+                password: 'dummy_password_hash',
+                name: 'Administrador',
+                phone: '+34666777888'
+            }
+        });
+        
+        if (!url) {
+            return res.status(400).json({
+                success: false,
+                error: 'URL de Airbnb es requerida'
+            });
+        }
+
+        // Extract listing ID from Airbnb URL
+        const listingIdMatch = url.match(/rooms\/(\d+)/);
+        if (!listingIdMatch) {
+            return res.status(400).json({
+                success: false,
+                error: 'URL de Airbnb inválida'
+            });
+        }
+
+        const listingId = listingIdMatch[1];
+
+        // Mock property data extraction (in production, use Airbnb API/scraping)
+        const mockPropertyData = {
+            name: `Airbnb Property ${listingId}`,
+            description: 'Propiedad importada desde Airbnb',
+            address: 'Dirección importada',
+            city: 'Ciudad',
+            country: 'España',
+            propertyType: 'apartment',
+            maxGuests: 4,
+            bedrooms: 2,
+            bathrooms: 1,
+            basePrice: 85,
+            currency: 'EUR',
+            cleaningFee: 25,
+            depositAmount: 200
+        };
+
+        // Create property
+        const property = await prisma.property.create({
+            data: {
+                ownerId: req.user.userId,
+                ...mockPropertyData,
+                channelsConfig: {
+                    airbnb: {
+                        listingId: listingId,
+                        url: url,
+                        apiKey: apiKey || null,
+                        isActive: true,
+                        connectedAt: new Date()
+                    }
+                }
+            }
+        });
+
+        // Create channel entry
+        await prisma.channel.create({
+            data: {
+                propertyId: property.id,
+                name: 'airbnb',
+                listingId: listingId,
+                apiCredentials: apiKey ? { apiKey } : null,
+                syncEnabled: true,
+                isActive: true
+            }
+        });
+
+        res.status(201).json({
+            success: true,
+            message: 'Propiedad importada exitosamente desde Airbnb',
+            property
+        });
+
+    } catch (error) {
+        console.error('Error importing from Airbnb:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al importar desde Airbnb'
+        });
+    }
+});
+
+// Import property from Booking.com
+app.post('/api/properties/import/booking', authenticateToken, async (req, res) => {
+    try {
+        const { propertyId, apiKey } = req.body;
+
+        // Ensure admin user exists
+        await prisma.user.upsert({
+            where: { id: req.user.userId },
+            update: {},
+            create: {
+                id: req.user.userId,
+                email: req.user.email || 'admin@airhostai.com',
+                password: 'dummy_password_hash',
+                name: 'Administrador',
+                phone: '+34666777888'
+            }
+        });
+        
+        if (!propertyId || !apiKey) {
+            return res.status(400).json({
+                success: false,
+                error: 'ID de propiedad y API Key de Booking.com son requeridos'
+            });
+        }
+
+        // Mock property data extraction (in production, use Booking.com API)
+        const mockPropertyData = {
+            name: `Booking Property ${propertyId}`,
+            description: 'Propiedad importada desde Booking.com',
+            address: 'Dirección importada',
+            city: 'Ciudad',
+            country: 'España',
+            propertyType: 'hotel',
+            maxGuests: 6,
+            bedrooms: 3,
+            bathrooms: 2,
+            basePrice: 120,
+            currency: 'EUR',
+            cleaningFee: 30,
+            depositAmount: 300
+        };
+
+        // Create property
+        const property = await prisma.property.create({
+            data: {
+                ownerId: req.user.userId,
+                ...mockPropertyData,
+                channelsConfig: {
+                    booking: {
+                        propertyId: propertyId,
+                        apiKey: apiKey,
+                        isActive: true,
+                        connectedAt: new Date()
+                    }
+                }
+            }
+        });
+
+        // Create channel entry
+        await prisma.channel.create({
+            data: {
+                propertyId: property.id,
+                name: 'booking',
+                listingId: propertyId,
+                apiCredentials: { apiKey },
+                syncEnabled: true,
+                isActive: true
+            }
+        });
+
+        res.status(201).json({
+            success: true,
+            message: 'Propiedad importada exitosamente desde Booking.com',
+            property
+        });
+
+    } catch (error) {
+        console.error('Error importing from Booking:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al importar desde Booking.com'
+        });
+    }
+});
+
 // ====================================
 // 🔄 MODULE 3: CHANNEL MANAGER
 // ====================================

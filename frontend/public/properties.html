@@ -415,6 +415,62 @@
             margin-top: 1rem;
         }
 
+        /* Import Options Styles */
+        .import-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .import-option {
+            background: var(--color-bg-tertiary);
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .import-option:hover {
+            border-color: var(--color-accent);
+            background: rgba(0, 208, 132, 0.05);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 208, 132, 0.1);
+        }
+
+        .import-option .import-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .import-option h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-primary);
+        }
+
+        .import-option p {
+            color: var(--color-text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .import-steps {
+            text-align: left;
+            background: var(--color-bg-secondary);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .import-steps small {
+            color: var(--color-text-tertiary);
+            line-height: 1.4;
+        }
+
         .progress-bar {
             width: 100%;
             height: 6px;
@@ -555,8 +611,8 @@
         <main class="main-content">
             <div class="header">
                 <h1 class="header-title">Gestión de Propiedades</h1>
-                <button class="btn" onclick="openAddPropertyModal()">
-                    <span>+</span> Añadir Propiedad
+                <button class="btn" onclick="openImportModal()">
+                    <span>+</span> Importar Propiedad
                 </button>
             </div>
 
@@ -568,6 +624,102 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Import Property Modal -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Importar Propiedad</h2>
+                <button class="close-btn" onclick="closeImportModal()">&times;</button>
+            </div>
+            <div class="import-options">
+                <div class="import-option" onclick="selectImportMethod('airbnb')">
+                    <div class="import-icon">🏠</div>
+                    <h3>Airbnb</h3>
+                    <p>Importar propiedad desde Airbnb</p>
+                    <div class="import-steps">
+                        <small>• URL del listing de Airbnb<br>• Sincronización automática de calendarios<br>• Importación de fotos y descripción</small>
+                    </div>
+                </div>
+                <div class="import-option" onclick="selectImportMethod('booking')">
+                    <div class="import-icon">🏨</div>
+                    <h3>Booking.com</h3>
+                    <p>Importar propiedad desde Booking.com</p>
+                    <div class="import-steps">
+                        <small>• Código de propiedad de Booking<br>• Sincronización de disponibilidad<br>• Importación de datos de la propiedad</small>
+                    </div>
+                </div>
+                <div class="import-option" onclick="selectImportMethod('manual')">
+                    <div class="import-icon">✏️</div>
+                    <h3>Manual</h3>
+                    <p>Crear propiedad manualmente</p>
+                    <div class="import-steps">
+                        <small>• Completar formulario paso a paso<br>• Subir fotos manualmente<br>• Configurar después los canales</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Airbnb Import Modal -->
+    <div id="airbnbImportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Importar desde Airbnb</h2>
+                <button class="close-btn" onclick="closeAirbnbImportModal()">&times;</button>
+            </div>
+            <form id="airbnbImportForm">
+                <div class="form-group">
+                    <label for="airbnbUrl" class="form-label">URL del Listing de Airbnb</label>
+                    <input type="url" id="airbnbUrl" name="url" class="form-input" 
+                           placeholder="https://www.airbnb.com/rooms/12345678" required>
+                    <small style="color: var(--color-text-secondary);">Pega la URL completa de tu listing de Airbnb</small>
+                </div>
+                <div class="form-group">
+                    <label for="airbnbApiKey" class="form-label">API Key de Airbnb (Opcional)</label>
+                    <input type="password" id="airbnbApiKey" name="apiKey" class="form-input" 
+                           placeholder="Tu API key de Airbnb para sincronización avanzada">
+                    <small style="color: var(--color-text-secondary);">Para sincronización automática de calendarios y precios</small>
+                </div>
+                <div class="form-group">
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="submit" class="btn" id="airbnbImportBtn">🔍 Importar Propiedad</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeAirbnbImportModal()">Cancelar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Booking Import Modal -->
+    <div id="bookingImportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Importar desde Booking.com</h2>
+                <button class="close-btn" onclick="closeBookingImportModal()">&times;</button>
+            </div>
+            <form id="bookingImportForm">
+                <div class="form-group">
+                    <label for="bookingId" class="form-label">ID de Propiedad en Booking.com</label>
+                    <input type="text" id="bookingId" name="propertyId" class="form-input" 
+                           placeholder="12345678" required>
+                    <small style="color: var(--color-text-secondary);">Lo puedes encontrar en tu dashboard de Booking.com</small>
+                </div>
+                <div class="form-group">
+                    <label for="bookingApiKey" class="form-label">API Key de Booking.com</label>
+                    <input type="password" id="bookingApiKey" name="apiKey" class="form-input" 
+                           placeholder="Tu API key de Booking.com" required>
+                    <small style="color: var(--color-text-secondary);">Necesario para importar los datos de la propiedad</small>
+                </div>
+                <div class="form-group">
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="submit" class="btn" id="bookingImportBtn">🔍 Importar Propiedad</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeBookingImportModal()">Cancelar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Add/Edit Property Modal -->
@@ -728,8 +880,8 @@
                         <div class="empty-state-icon">🏠</div>
                         <h3 class="empty-state-title">No tienes propiedades aún</h3>
                         <p>Añade tu primera propiedad para empezar a gestionar tus alquileres</p>
-                        <button class="btn" onclick="openAddPropertyModal()" style="margin-top: 1rem;">
-                            <span>+</span> Añadir Primera Propiedad
+                        <button class="btn" onclick="openImportModal()" style="margin-top: 1rem;">
+                            <span>+</span> Importar Primera Propiedad
                         </button>
                     </div>
                 `;
@@ -784,6 +936,49 @@
                     ${propertiesHTML}
                 </div>
             `;
+        }
+
+        // Import Modal functions
+        function openImportModal() {
+            document.getElementById('importModal').classList.add('active');
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').classList.remove('active');
+        }
+
+        function selectImportMethod(method) {
+            closeImportModal();
+            
+            switch(method) {
+                case 'airbnb':
+                    openAirbnbImportModal();
+                    break;
+                case 'booking':
+                    openBookingImportModal();
+                    break;
+                case 'manual':
+                    openAddPropertyModal();
+                    break;
+            }
+        }
+
+        function openAirbnbImportModal() {
+            document.getElementById('airbnbImportModal').classList.add('active');
+        }
+
+        function closeAirbnbImportModal() {
+            document.getElementById('airbnbImportModal').classList.remove('active');
+            document.getElementById('airbnbImportForm').reset();
+        }
+
+        function openBookingImportModal() {
+            document.getElementById('bookingImportModal').classList.add('active');
+        }
+
+        function closeBookingImportModal() {
+            document.getElementById('bookingImportModal').classList.remove('active');
+            document.getElementById('bookingImportForm').reset();
         }
 
         // Modal functions
@@ -994,11 +1189,98 @@
             }
         });
 
+        // Handle import form submissions
+        document.getElementById('airbnbImportForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const importData = Object.fromEntries(formData.entries());
+            
+            try {
+                const submitBtn = document.getElementById('airbnbImportBtn');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<div class="spinner"></div> Importando...';
+                submitBtn.disabled = true;
+                
+                // Call backend import API
+                const response = await window.AirHostAPI.post('/api/properties/import/airbnb', importData);
+                
+                if (response.success) {
+                    closeAirbnbImportModal();
+                    showSuccess('Propiedad importada exitosamente desde Airbnb');
+                    await loadProperties();
+                } else {
+                    throw new Error(response.error || 'Error al importar desde Airbnb');
+                }
+            } catch (error) {
+                console.error('Error importing from Airbnb:', error);
+                showError(`Error al importar desde Airbnb: ${error.message}`);
+            } finally {
+                const submitBtn = document.getElementById('airbnbImportBtn');
+                submitBtn.innerHTML = '🔍 Importar Propiedad';
+                submitBtn.disabled = false;
+            }
+        });
+
+        document.getElementById('bookingImportForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const importData = Object.fromEntries(formData.entries());
+            
+            try {
+                const submitBtn = document.getElementById('bookingImportBtn');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<div class="spinner"></div> Importando...';
+                submitBtn.disabled = true;
+                
+                // Call backend import API
+                const response = await window.AirHostAPI.post('/api/properties/import/booking', importData);
+                
+                if (response.success) {
+                    closeBookingImportModal();
+                    showSuccess('Propiedad importada exitosamente desde Booking.com');
+                    await loadProperties();
+                } else {
+                    throw new Error(response.error || 'Error al importar desde Booking.com');
+                }
+            } catch (error) {
+                console.error('Error importing from Booking:', error);
+                showError(`Error al importar desde Booking.com: ${error.message}`);
+            } finally {
+                const submitBtn = document.getElementById('bookingImportBtn');
+                submitBtn.innerHTML = '🔍 Importar Propiedad';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('importModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImportModal();
+            }
+        });
+
+        document.getElementById('airbnbImportModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAirbnbImportModal();
+            }
+        });
+
+        document.getElementById('bookingImportModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeBookingImportModal();
+            }
+        });
+
         // Handle escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closePropertyModal();
                 closeDeleteModal();
+                closeImportModal();
+                closeAirbnbImportModal();
+                closeBookingImportModal();
             }
         });
 
