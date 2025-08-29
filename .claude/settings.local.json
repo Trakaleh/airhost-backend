@@ -43,7 +43,8 @@
       "Bash(copy:*)",
       "Bash(npx prisma:*)",
       "WebFetch(domain:app.lodgify.com)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Read(C:\\Users\\aarna\\Desktop/**)"
     ],
     "deny": [],
     "ask": []

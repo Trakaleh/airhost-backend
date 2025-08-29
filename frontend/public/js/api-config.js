@@ -7,12 +7,12 @@
 const API_CONFIG = {
     baseURL: window.location.hostname === 'localhost' 
         ? 'http://localhost:3007' 
-        : 'https://your-production-domain.com',
+        : 'https://airhost-backend-production.up.railway.app',
     
     websocket: {
         url: window.location.hostname === 'localhost'
             ? 'ws://localhost:3007/ws'
-            : 'wss://your-production-domain.com/ws'
+            : 'wss://airhost-backend-production.up.railway.app/ws'
     },
     
     endpoints: {

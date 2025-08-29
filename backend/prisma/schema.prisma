@@ -49,18 +49,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  // Relaciones
+  // Relaciones - SIMPLIFICADO PARA 4 MÓDULOS ESENCIALES
   properties       Property[]
-  incidents        Incident[] @relation("ReportedIncidents")
-  resolvedIncidents Incident[] @relation("ResolvedIncidents")
-  smartLocks       SmartLock[]
-  accessCodes      AccessCode[]
   messageTemplates MessageTemplate[]
   automationRules  AutomationRule[]
   messages         Message[]
   payments         Payment[]
-  pricingRules     PricingRule[]
-  analyticsData    AnalyticsData[]
   notifications    Notification[]
   
   @@map("users")
@@ -91,11 +85,7 @@ model Property {
   // Channel Manager (JSON for flexible channel data)
   channelsConfig Json? // { airbnb: { listingId, icalUrl, isActive, lastSync }, booking: {...} }
   
-  // Smart Lock
-  smartLockBrand    String  @default("none") // nuki, august, yale, none
-  smartLockId       String?
-  smartLockApiToken String?
-  smartLockIsActive Boolean @default(false)
+  // Smart Lock - ELIMINADO (no es módulo esencial)
   
   // Precios
   basePrice     Float
@@ -121,12 +111,9 @@ model Property {
   autoMessaging Boolean @default(true)
   autoPricing   Boolean @default(false)
   
-  // Analytics y performance
+  // Analytics básico (solo lo esencial para el dashboard)
   totalBookings    Int     @default(0)
   totalRevenue     Float   @default(0)
-  averageRating    Float   @default(0)
-  occupancyRate    Float   @default(0)
-  lastRevenueCalc  DateTime?
   
   // SEO y marketing
   amenities        Json?   // Array of amenities
@@ -137,13 +124,9 @@ model Property {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  // Relaciones
+  // Relaciones - SIMPLIFICADO
   owner         User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   reservations  Reservation[]
-  incidents     Incident[]
-  smartLocks    SmartLock[]
-  pricingRules  PricingRule[]
-  analyticsData AnalyticsData[]
   channels      Channel[]
   
   @@map("properties")
@@ -187,11 +170,7 @@ model Reservation {
   totalAmount    Float
   currency       String @default("EUR")
   
-  // Códigos de acceso
-  accessCode      String?
-  accessCodeGeneratedAt DateTime?
-  accessCodeExpiresAt   DateTime?
-  accessCodeUsedAt      DateTime?
+  // Códigos de acceso - ELIMINADO (smart locks no es módulo esencial)
   
   // Fianza
   stripePaymentIntentId String?
@@ -216,127 +195,17 @@ model Reservation {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  // Relaciones
+  // Relaciones - SIMPLIFICADO
   property    Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  incidents   Incident[]
-  accessCodes AccessCode[]
   payments    Payment[]
   
   @@map("reservations")
 }
 
-model Incident {
-  id            String   @id @default(cuid())
-  reservationId String
-  propertyId    String
-  reportedById  String
-  resolvedById  String?
-  
-  // Información del incidente
-  type            String // damage, missing_items, cleanliness, noise, other
-  title           String
-  description     String
-  estimatedCost   Float
-  currency        String @default("EUR")
-  
-  // Evidencia (URLs de archivos)
-  evidencePhotos Json? // Array de URLs
-  evidenceVideos Json? // Array de URLs
-  
-  // Estado
-  status String @default("reported") // reported, under_review, charged, resolved, dismissed
-  
-  // Resolución
-  actionTaken    String?
-  chargedAmount  Float?
-  chargedAt      DateTime?
-  stripeChargeId String?
-  resolutionNotes String?
-  resolvedAt     DateTime?
-  
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // Relaciones
-  reservation  Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
-  property     Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  reportedBy   User        @relation("ReportedIncidents", fields: [reportedById], references: [id])
-  resolvedBy   User?       @relation("ResolvedIncidents", fields: [resolvedById], references: [id])
-  
-  @@map("incidents")
-}
-
 // ====================================
-// 🔐 SMART LOCKS MANAGEMENT
+// MODELOS ELIMINADOS: Incident, SmartLock, AccessCode
+// No son esenciales para los 4 módulos core
 // ====================================
-
-model SmartLock {
-  id         String   @id @default(cuid())
-  ownerId    String
-  propertyId String
-  
-  // Device info
-  brand      String   // nuki, august, yale, salto
-  deviceId   String   // External device ID
-  deviceName String   // User-friendly name
-  
-  // API Configuration
-  apiCredentials Json? // Brand-specific API keys/tokens
-  
-  // Settings
-  settings   Json?    // Device-specific settings
-  status     String   @default("active") // active, inactive, error
-  lastSync   DateTime?
-  
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // Relations
-  owner       User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  property    Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  accessCodes AccessCode[]
-  
-  @@map("smart_locks")
-}
-
-model AccessCode {
-  id        String   @id @default(cuid())
-  lockId    String
-  ownerId   String
-  bookingId String?
-  
-  // Code details
-  code      String   // The actual access code
-  codeName  String   // User-friendly name
-  
-  // Validity
-  validFrom  DateTime
-  validUntil DateTime
-  
-  // Usage
-  usedAt     DateTime?
-  usageCount Int      @default(0)
-  
-  // Guest info
-  guestInfo Json?    // Guest contact details
-  
-  // Status
-  status    String   @default("active") // active, expired, used, revoked
-  revokedAt DateTime?
-  
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // Relations
-  lock        SmartLock    @relation(fields: [lockId], references: [id], onDelete: Cascade)
-  owner       User         @relation(fields: [ownerId], references: [id])
-  reservation Reservation? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
-  
-  @@map("access_codes")
-}
 
 // ====================================
 // 💬 MESSAGING SYSTEM
@@ -474,66 +343,11 @@ model Payment {
   @@map("payments")
 }
 
-model PricingRule {
-  id         String   @id @default(cuid())
-  propertyId String
-  ownerId    String
-  
-  name       String
-  type       String   // seasonal, length_of_stay, advance_booking, last_minute
-  
-  // Conditions
-  conditions Json     // Date ranges, booking length, etc.
-  
-  // Pricing adjustments
-  adjustmentType String // percentage, fixed_amount
-  adjustmentValue Float
-  
-  // Priority (higher number = higher priority)
-  priority   Int      @default(0)
-  
-  // Status
-  isActive   Boolean  @default(true)
-  
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // Relations
-  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  owner    User     @relation(fields: [ownerId], references: [id])
-  
-  @@map("pricing_rules")
-}
-
 // ====================================
-// 📊 ANALYTICS & REPORTING
+// MODELOS ELIMINADOS: PricingRule, AnalyticsData
+// No son esenciales para los 4 módulos core
+// Pricing AI y Analytics avanzado son features premium
 // ====================================
-
-model AnalyticsData {
-  id         String   @id @default(cuid())
-  ownerId    String
-  propertyId String?
-  
-  // Metrics
-  metric     String   // occupancy_rate, revenue, avg_booking_value, etc.
-  value      Float
-  period     String   // daily, weekly, monthly, yearly
-  date       DateTime
-  
-  // Metadata
-  metadata   Json?
-  
-  // Timestamps
-  createdAt DateTime @default(now())
-  
-  // Relations
-  owner    User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  property Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  @@unique([ownerId, propertyId, metric, period, date])
-  @@map("analytics_data")
-}
 
 // ====================================
 // 🔄 CHANNEL MANAGER ENHANCED
